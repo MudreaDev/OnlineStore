@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="OnlineStore.Application/OnlineStore.Application.csproj" />
+  <Project Path="OnlineStore.ConsoleUI/OnlineStore.ConsoleUI.csproj" />
+  <Project Path="OnlineStore.Domain/OnlineStore.Domain.csproj" />
+</Solution>
