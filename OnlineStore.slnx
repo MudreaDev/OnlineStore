@@ -2,4 +2,5 @@
   <Project Path="OnlineStore.Application/OnlineStore.Application.csproj" />
   <Project Path="OnlineStore.ConsoleUI/OnlineStore.ConsoleUI.csproj" />
   <Project Path="OnlineStore.Domain/OnlineStore.Domain.csproj" />
+  <Project Path="OnlineStore.Tests/OnlineStore.Tests.csproj" Id="b98ab31e-73de-4b5b-874d-b4c1b8d02cbc" />
 </Solution>
