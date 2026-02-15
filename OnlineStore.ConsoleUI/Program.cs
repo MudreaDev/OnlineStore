@@ -1,67 +1,255 @@
 ﻿using System;
 using System.Collections.Generic;
-using OnlineStore.Domain.Entities;
-using OnlineStore.Domain.Interfaces;
-using OnlineStore.Domain.Factories;
-using OnlineStore.Domain.Strategies;
+using System.Linq;
+using OnlineStore.Application.Repositories;
 using OnlineStore.Application.Services;
+using OnlineStore.Domain.Entities;
+using OnlineStore.Domain.Enums;
+using OnlineStore.Domain.Factories;
+using OnlineStore.Domain.Interfaces;
+using OnlineStore.Domain.Strategies;
 
 namespace OnlineStore.ConsoleUI
 {
     class Program
     {
+        static InMemoryProductRepository productRepo = new InMemoryProductRepository();
+        static InMemoryUserRepository userRepo = new InMemoryUserRepository();
+        static InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
+
+        static User currentUser = null;
+        static ShoppingCart currentCart = null;
+
         static void Main(string[] args)
         {
-            Console.WriteLine("=== Online Store - Laborator 2: Creational Patterns ===\n");
+            // Seed data
+            SeedData();
 
-            // ---------------------------------------------------------
-            // 1. Factory Method Demonstration
-            // ---------------------------------------------------------
-            Console.WriteLine("--- 1. Factory Method Demo ---");
-            
-            ProductFactory electronicFactory = new ElectronicProductFactory();
-            ProductFactory clothingFactory = new ClothingProductFactory();
+            bool exit = false;
+            while (!exit)
+            {
+                Console.Clear();
+                Console.WriteLine("Online Store Demo");
+                Console.WriteLine("-----------------");
+                Console.WriteLine("1. Guest (Browse Products)");
+                Console.WriteLine("2. Customer (Place Orders)");
+                Console.WriteLine("3. Admin (Manage Products)");
+                Console.WriteLine("0. Exit");
+                Console.Write("Select option: ");
 
-            var laptop = electronicFactory.CreateProduct("Gaming Laptop", 1500);
-            var tshirt = clothingFactory.CreateProduct("Cotton T-Shirt", 25);
+                string choice = Console.ReadLine();
 
-            Console.WriteLine(laptop.GetDescription());
-            Console.WriteLine(tshirt.GetDescription());
-            Console.WriteLine();
-
-            // ---------------------------------------------------------
-            // 2. Abstract Factory Demonstration
-            // ---------------------------------------------------------
-            Console.WriteLine("--- 2. Abstract Factory Demo ---");
-
-            // Simulation: Choose store type (Local or Global)
-            Console.WriteLine("Store Type: Local");
-            IStoreServicesFactory localFactory = new LocalStoreServicesFactory();
-            DemonstrateStore(localFactory);
-
-            Console.WriteLine("\nStore Type: Global");
-            IStoreServicesFactory globalFactory = new GlobalStoreServicesFactory();
-            DemonstrateStore(globalFactory);
-
-            // ---------------------------------------------------------
-            // 3. Existing SOLID Logic
-            // ---------------------------------------------------------
-            Console.WriteLine("\n--- 3. Order Service (SOLID) Demo ---");
-            var cart = new List<Product> { laptop, tshirt };
-            IDiscountStrategy discount = new PercentageDiscountStrategy(10);
-            var orderService = new OrderService(discount);
-
-            decimal total = orderService.CalculateTotal(cart);
-            Console.WriteLine($"Total Cart Value with 10% Discount: {total:C}");
+                switch (choice)
+                {
+                    case "1":
+                        GuestMenu();
+                        break;
+                    case "2":
+                        CustomerMenu();
+                        break;
+                    case "3":
+                        AdminMenu();
+                        break;
+                    case "0":
+                        exit = true;
+                        break;
+                    default:
+                        Console.WriteLine("Invalid option. Press any key...");
+                        Console.ReadKey();
+                        break;
+                }
+            }
         }
 
-        static void DemonstrateStore(IStoreServicesFactory factory)
+        static void SeedData()
         {
-            var payment = factory.CreatePaymentProcessor();
-            var shipping = factory.CreateShippingProvider();
+            // Add some products using factories
+            var electronicsFactory = new ElectronicProductFactory();
+            productRepo.Add(electronicsFactory.CreateProduct("Laptop", 2500m));
+            productRepo.Add(electronicsFactory.CreateProduct("Smartphone", 1200m));
 
-            payment.ProcessPayment(100.50m);
-            shipping.ScheduleShipping("Str. Libertății nr. 10, București");
+            // Add users
+            userRepo.Add(new Customer("johndoe", "john@example.com", "123 Main St"));
+            userRepo.Add(new Admin("admin", "admin@store.com", "SuperAdmin"));
+        }
+
+        static void GuestMenu()
+        {
+            Console.Clear();
+            Console.WriteLine("Guest Menu - Browsing Products");
+            var products = productRepo.GetAll();
+            foreach (var p in products)
+            {
+                Console.WriteLine($"{p.Name} - E{p.Price}");
+            }
+            Console.WriteLine("\nPress any key to return...");
+            Console.ReadKey();
+        }
+
+        static void CustomerMenu()
+        {
+            Console.Clear();
+            Console.WriteLine("Customer Login (Select User):");
+            var customers = userRepo.GetAll().OfType<Customer>().ToList();
+            for (int i = 0; i < customers.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {customers[i].Username}");
+            }
+
+            Console.Write("Select customer: ");
+            if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= customers.Count)
+            {
+                currentUser = customers[index - 1];
+                currentCart = new ShoppingCart(currentUser); // New cart per session for simplicity
+                CustomerWorkflow();
+            }
+            else
+            {
+                Console.WriteLine("Invalid user.");
+                Console.ReadKey();
+            }
+        }
+
+        static void CustomerWorkflow()
+        {
+            bool back = false;
+            while (!back)
+            {
+                Console.Clear();
+                Console.WriteLine($"Logged in as: {currentUser.Username}");
+                Console.WriteLine($"Cart Total: {currentCart.CalculateTotal()}");
+                Console.WriteLine("1. View Products & Add to Cart");
+                Console.WriteLine("2. View Cart");
+                Console.WriteLine("3. Checkout");
+                Console.WriteLine("0. Logout");
+                Console.Write("Option: ");
+
+                switch (Console.ReadLine())
+                {
+                    case "1":
+                        AddToMenu();
+                        break;
+                    case "2":
+                        ViewCart();
+                        break;
+                    case "3":
+                        Checkout();
+                        break;
+                    case "0":
+                        back = true;
+                        currentUser = null;
+                        currentCart = null;
+                        break;
+                }
+            }
+        }
+
+        static void AddToMenu()
+        {
+            Console.Clear();
+            var products = productRepo.GetAll().ToList();
+            for (int i = 0; i < products.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {products[i].Name} - {products[i].Price}");
+            }
+            Console.WriteLine("0. Back");
+            Console.Write("Select product number to add: ");
+
+            if (int.TryParse(Console.ReadLine(), out int pid) && pid > 0 && pid <= products.Count)
+            {
+                currentCart.AddProduct(products[pid - 1]);
+                Console.WriteLine("Added to cart!");
+            }
+            // Simple pause
+            Console.ReadKey();
+        }
+
+        static void ViewCart()
+        {
+            Console.Clear();
+            foreach (var p in currentCart.Products)
+            {
+                Console.WriteLine($"{p.Name} - {p.Price}");
+            }
+            Console.WriteLine($"Total: {currentCart.CalculateTotal()}");
+            Console.ReadKey();
+        }
+
+        static void Checkout()
+        {
+            Console.Clear();
+            if (!currentCart.Products.Any())
+            {
+                Console.WriteLine("Cart is empty.");
+                Console.ReadKey();
+                return;
+            }
+
+            // Applying discount strategy
+            IDiscountStrategy discount = new FixedAmountDiscountStrategy(50); // $50 off
+            OrderService orderService = new OrderService(discount);
+
+            Order order = orderService.PlaceOrder(currentUser, currentCart.Products);
+            orderRepo.Add(order);
+
+            // Update Customer history
+            if (currentUser is Customer c)
+            {
+                c.OrderHistory.Add(order);
+            }
+
+            Console.WriteLine($"Order placed! Order ID: {order.Id}");
+            Console.WriteLine($"Final Total (after $50 discount): {order.Total}");
+            Console.WriteLine($"Status: {order.Status}");
+
+            currentCart.Clear();
+            Console.ReadKey();
+        }
+
+        static void AdminMenu()
+        {
+            Console.Clear();
+            Console.WriteLine("Admin Menu");
+            Console.WriteLine("1. Add Product");
+            Console.WriteLine("2. View All Orders");
+            Console.WriteLine("0. Back");
+
+            switch (Console.ReadLine())
+            {
+                case "1":
+                    AddProductAdmin();
+                    break;
+                case "2":
+                    ViewOrdersAdmin();
+                    break;
+                case "0":
+                    break;
+            }
+        }
+
+        static void AddProductAdmin()
+        {
+            Console.Write("Enter product name: ");
+            string name = Console.ReadLine();
+            Console.Write("Enter price: ");
+            decimal price = decimal.Parse(Console.ReadLine());
+
+            // Use Factory
+            ProductFactory factory = new ElectronicProductFactory(); // Standardizing electronics for demo
+            var p = factory.CreateProduct(name, price);
+            productRepo.Add(p);
+            Console.WriteLine("Product added.");
+            Console.ReadKey();
+        }
+
+        static void ViewOrdersAdmin()
+        {
+            var orders = orderRepo.GetAll();
+            foreach (var o in orders)
+            {
+                Console.WriteLine($"Order {o.Id} by {o.User.Username} - Total: {o.Total} - Status: {o.Status}");
+            }
+            Console.ReadKey();
         }
     }
 }
