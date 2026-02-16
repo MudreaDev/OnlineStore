@@ -1,35 +1,26 @@
-﻿@model IEnumerable<Product>
+﻿@model IEnumerable<OnlineStore.Domain.Entities.Product>
 
 @{
-    ViewData["Title"] = "Store";
+    ViewData["Title"] = "Home Page";
 }
 
-<div class="hero-section">
-    <h1 class="display-title">Curated Collection</h1>
-    <p class="subtitle">Premium quality products selected just for you.</p>
+<div class="text-center">
+    <h1 class="display-4">Welcome to Online Store</h1>
+    <p>Select products to add to your cart.</p>
 </div>
 
-<div class="product-grid">
+<div class="row">
     @foreach (var product in Model)
     {
-        <div class="product-card">
-            <div class="product-image-placeholder">
-                @if (product.GetType().Name.Contains("Electronic"))
-                {
-                    <span>🔌</span>
-                }
-                else
-                {
-                    <span>👕</span>
-                }
-            </div>
-            <div class="product-details">
-                <span class="product-category">@product.GetType().Name.Replace("Product", "")</span>
-                <h2 class="product-name">@product.Name</h2>
-                <p class="product-description">@product.GetDescription()</p>
-                <div class="product-footer">
-                    <span class="product-price">@product.Price.ToString("C")</span>
-                    <button class="btn-add">Add to Cart</button>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">@product.Name</h5>
+                    <p class="card-text">Price: @product.Price</p>
+                    <p class="card-text">@product.GetDescription()</p>
+                    <form asp-controller="Cart" asp-action="Add" asp-route-id="@product.Id" method="post">
+                        <button type="submit" class="btn btn-primary">Add to Cart</button>
+                    </form>
                 </div>
             </div>
         </div>

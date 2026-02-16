@@ -1,45 +1,37 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using OnlineStore.WebUI.Models;
+using OnlineStore.Application.Repositories;
 using OnlineStore.Domain.Entities;
-using OnlineStore.Domain.Factories;
+using OnlineStore.WebUI.Models;
 
-namespace OnlineStore.WebUI.Controllers;
-
-public class HomeController : Controller
+namespace OnlineStore.WebUI.Controllers
 {
-    private readonly ElectronicProductFactory _electronicFactory;
-    private readonly ClothingProductFactory _clothingFactory;
-
-    public HomeController(ElectronicProductFactory electronicFactory, ClothingProductFactory clothingFactory)
+    public class HomeController : Controller
     {
-        _electronicFactory = electronicFactory;
-        _clothingFactory = clothingFactory;
-    }
+        private readonly ILogger<HomeController> _logger;
+        private readonly InMemoryProductRepository _productRepo;
 
-    public IActionResult Index()
-    {
-        var products = new List<Product>
+        public HomeController(ILogger<HomeController> logger, InMemoryProductRepository productRepo)
         {
-            _electronicFactory.CreateProduct("Smartphone Pro", 999.99m),
-            _clothingFactory.CreateProduct("Designer Jeans", 79.50m),
-            _electronicFactory.CreateProduct("Wireless Earbuds", 149.00m),
-            _clothingFactory.CreateProduct("Wool Sweater", 55.00m),
-            _electronicFactory.CreateProduct("4K Monitor", 349.99m),
-            _clothingFactory.CreateProduct("Running Shoes", 120.00m)
-        };
+            _logger = logger;
+            _productRepo = productRepo;
+        }
 
-        return View(products);
-    }
+        public IActionResult Index()
+        {
+            var products = _productRepo.GetAll();
+            return View(products);
+        }
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
+        public IActionResult Privacy()
+        {
+            return View();
+        }
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
     }
 }
