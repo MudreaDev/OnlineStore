@@ -1,0 +1,83 @@
+@model IEnumerable<OnlineStore.Domain.Entities.Order>
+
+@{
+    ViewData["Title"] = "All Orders";
+}
+
+<div class="admin-orders">
+    <h1 class="display-title">Orders <span class="highlight">Tracking</span></h1>
+    <p class="subtitle mb-4">View and track all customer orders.</p>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Order Content</th>
+                    <th>Customer</th>
+                    <th>Total</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="order-items">
+                                @string.Join(", ", order.Products.Select(p => p.Name))
+                            </div>
+                        </td>
+                        <td>@order.User.Username</td>
+                        <td class="font-bold">@order.Total.ToString("C")</td>
+                        <td class="text-muted">@order.OrderDate.ToShortDateString()</td>
+                        <td><span class="status-badge @order.Status.ToString().ToLower()">@order.Status</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .order-items {
+        max-width: 300px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.9rem;
+    }
+
+    .text-muted {
+        color: var(--light-text);
+        font-size: 0.85rem;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.625rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .status-badge.pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-badge.shipped {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-badge.completed {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-badge.cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+</style>

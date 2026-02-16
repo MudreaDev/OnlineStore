@@ -1,28 +1,115 @@
-﻿@model IEnumerable<OnlineStore.Domain.Entities.Product>
+﻿@{
+    ViewData["Title"] = "Shop Products";
 
-@{
-    ViewData["Title"] = "Home Page";
+    // Calculate active filters
+    int activeFilterCount = 0;
+    if (!string.IsNullOrEmpty(ViewBag.SearchQuery)) activeFilterCount++;
+    if (!string.IsNullOrEmpty(ViewBag.CategoryFilter) && ViewBag.CategoryFilter != "All") activeFilterCount++;
+    if (ViewBag.MinPrice != null) activeFilterCount++;
+    if (ViewBag.MaxPrice != null) activeFilterCount++;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome to Online Store</h1>
-    <p>Select products to add to your cart.</p>
-</div>
+<div class="shop-container">
+    <div class="hero-section">
+        <h1 class="display-title">Minimalist <span class="highlight">Collection</span></h1>
+        <p class="subtitle">Discover our curated selection of high-quality products.</p>
+    </div>
 
-<div class="row">
-    @foreach (var product in Model)
-    {
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">@product.Name</h5>
-                    <p class="card-text">Price: @product.Price</p>
-                    <p class="card-text">@product.GetDescription()</p>
-                    <form asp-controller="Cart" asp-action="Add" asp-route-id="@product.Id" method="post">
-                        <button type="submit" class="btn btn-primary">Add to Cart</button>
-                    </form>
+    <!-- Search & Filter Bar -->
+    <div class="filter-bar">
+        <form method="get" asp-action="Index" class="filter-form">
+            <div class="search-box">
+                <input type="text" name="searchQuery" value="@ViewBag.SearchQuery" placeholder="Search products..."
+                    class="form-input" />
+            </div>
+
+            <div class="filter-options">
+                <div class="filter-group">
+                    <label class="filter-label">Category</label>
+                    <select name="categoryFilter" class="form-input select-input">
+                        <option value="All" selected="@(ViewBag.CategoryFilter == "All")">All Categories</option>
+                        <option value="Electronic" selected="@(ViewBag.CategoryFilter == "Electronic")">Electronics
+                        </option>
+                        <option value="Clothing" selected="@(ViewBag.CategoryFilter == "Clothing")">Clothing</option>
+                        <option value="Vehicle" selected="@(ViewBag.CategoryFilter == "Vehicle")">Vehicles</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Min Price</label>
+                    <input type="number" name="minPrice" value="@ViewBag.MinPrice" step="0.01"
+                        class="form-input price-input" placeholder="0" />
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Max Price</label>
+                    <input type="number" name="maxPrice" value="@ViewBag.MaxPrice" step="0.01"
+                        class="form-input price-input" placeholder="∞" />
+                </div>
+
+                <div class="filter-actions">
+                    <button type="submit" class="btn-search">Search</button>
+                    <a asp-action="Index" class="btn-clear">Clear</a>
+                    @if (activeFilterCount > 0)
+                    {
+                        <span class="active-badge">@activeFilterCount filters active</span>
+                    }
                 </div>
             </div>
+        </form>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="no-results mt-4">
+            <div class="no-results-icon">🔍</div>
+            <h3>No products found</h3>
+            <p>Try adjusting your search or filters to find what you're looking for.</p>
+            <a asp-action="Index" class="btn-link mt-2">View all products</a>
+        </div>
+    }
+    else
+    {
+        <div class="product-grid">
+            @foreach (var product in Model)
+            {
+                <div class="product-card">
+                    <a asp-action="Details" asp-route-id="@product.Id" class="product-image-link">
+                        <div class="product-image-placeholder">
+                            @if (product is OnlineStore.Domain.Entities.ElectronicProduct)
+                            {
+                                <span>🔌</span>
+                            }
+                            else if (product is OnlineStore.Domain.Entities.ClothingProduct)
+                            {
+                                <span>👕</span>
+                            }
+                            else if (product is OnlineStore.Domain.Entities.VehicleProduct)
+                            {
+                                <span>🚗</span>
+                            }
+                            else
+                            {
+                                <span>📦</span>
+                            }
+                        </div>
+                    </a>
+                    <div class="product-details">
+                        <span class="product-category">@product.GetType().Name.Replace("Product", "")</span>
+                        <h3 class="product-name"><a asp-action="Details" asp-route-id="@product.Id">@product.Name</a></h3>
+                        <p class="product-description">@product.GetDescription()</p>
+                        <div class="product-footer">
+                            <span class="product-price">@product.Price.ToString("C")</span>
+                            <div class="product-actions-grid">
+                                <a asp-action="Details" asp-route-id="@product.Id" class="btn-details">Details</a>
+                                <form asp-controller="Cart" asp-action="Add" asp-route-id="@product.Id" method="post">
+                                    <button type="submit" class="btn-add">Add</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     }
 </div>

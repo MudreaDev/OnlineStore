@@ -1,0 +1,70 @@
+@model OnlineStore.Domain.Entities.Product
+@using OnlineStore.Domain.Entities
+
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<div class="admin-form-container">
+    <h1 class="display-title">Edit <span class="highlight">Product</span></h1>
+    <p class="subtitle mb-4">Update product information.</p>
+    <div class="auth-card">
+        <form asp-action="EditProduct" method="post" class="auth-form">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <div class="form-group mb-3">
+                <label for="Name" class="form-label">Name</label>
+                <input type="text" name="Name" id="Name" value="@Model.Name" class="form-input" required />
+            </div>
+            <div class="form-group mb-3">
+                <label for="Price" class="form-label">Price</label>
+                <input type="number" name="Price" id="Price" value="@Model.Price" step="0.01" class="form-input"
+                    required />
+            </div>
+
+            @if (Model is ElectronicProduct electronic)
+            {
+                <div class="form-group mb-3">
+                    <label for="WarrantyMonths" class="form-label">Warranty (Months)</label>
+                    <input type="number" name="WarrantyMonths" id="WarrantyMonths" value="@electronic.WarrantyMonths"
+                        class="form-input" />
+                </div>
+            }
+            else if (Model is ClothingProduct clothing)
+            {
+                <div class="form-group mb-3">
+                    <label for="Size" class="form-label">Size</label>
+                    <input type="text" name="Size" id="Size" value="@clothing.Size" class="form-input" />
+                </div>
+                <div class="form-group mb-3">
+                    <label for="Material" class="form-label">Material</label>
+                    <input type="text" name="Material" id="Material" value="@clothing.Material" class="form-input" />
+                </div>
+            }
+            else if (Model is VehicleProduct vehicle)
+            {
+                <div class="form-group mb-3">
+                    <label for="Brand" class="form-label">Brand</label>
+                    <input type="text" name="Brand" id="Brand" value="@vehicle.Brand" class="form-input" />
+                </div>
+                <div class="form-group mb-3">
+                    <label for="Model" class="form-label">Model</label>
+                    <input type="text" name="Model" id="Model" value="@vehicle.Model" class="form-input" />
+                </div>
+                <div class="form-group mb-3">
+                    <label for="Year" class="form-label">Year</label>
+                    <input type="number" name="Year" id="Year" value="@vehicle.Year" class="form-input" />
+                </div>
+            }
+
+            <button type="submit" class="btn-primary-auth w-100">Update Product</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .admin-form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding-top: 2rem;
+    }
+</style>

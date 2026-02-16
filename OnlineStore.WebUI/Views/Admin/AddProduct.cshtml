@@ -1,0 +1,92 @@
+@using OnlineStore.Domain.Entities
+@{
+    ViewData["Title"] = "Add Product";
+}
+
+<div class="admin-form-container">
+    <h1 class="display-title">Add <span class="highlight">Product</span></h1>
+    <p class="subtitle mb-4">Create a new item in the store inventory.</p>
+
+    <div class="auth-card">
+        <form asp-action="AddProduct" method="post" class="auth-form">
+            <div class="form-group mb-3">
+                <label for="Type" class="form-label">Product Type</label>
+                <select name="Type" id="Type" class="form-input" onchange="toggleFields()">
+                    <option value="Electronic">Electronic</option>
+                    <option value="Clothing">Clothing</option>
+                    <option value="Vehicle">Vehicle</option>
+                </select>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="Name" class="form-label">Name</label>
+                <input type="text" name="Name" id="Name" class="form-input" required />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="Price" class="form-label">Price</label>
+                <input type="number" name="Price" id="Price" step="0.01" class="form-input" required />
+            </div>
+
+            @* Type-specific fields *@
+            <div id="ElectronicFields" class="type-fields">
+                <div class="form-group mb-3">
+                    <label for="WarrantyMonths" class="form-label">Warranty (Months)</label>
+                    <input type="number" name="WarrantyMonths" id="WarrantyMonths" class="form-input" value="24" />
+                </div>
+            </div>
+
+            <div id="ClothingFields" class="type-fields" style="display:none;">
+                <div class="form-group mb-3">
+                    <label for="Size" class="form-label">Size</label>
+                    <input type="text" name="Size" id="Size" class="form-input" placeholder="e.g., M, L, XL" />
+                </div>
+                <div class="form-group mb-3">
+                    <label for="Material" class="form-label">Material</label>
+                    <input type="text" name="Material" id="Material" class="form-input" placeholder="e.g., Cotton" />
+                </div>
+            </div>
+
+            <div id="VehicleFields" class="type-fields" style="display:none;">
+                <div class="form-group mb-3">
+                    <label for="Brand" class="form-label">Brand</label>
+                    <input type="text" name="Brand" id="Brand" class="form-input" />
+                </div>
+                <div class="form-group mb-3">
+                    <label for="Model" class="form-label">Model</label>
+                    <input type="text" name="Model" id="Model" class="form-input" />
+                </div>
+                <div class="form-group mb-3">
+                    <label for="Year" class="form-label">Year</label>
+                    <input type="number" name="Year" id="Year" class="form-input" value="2024" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary-auth w-100">Add Product</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleFields() {
+        const type = document.getElementById('Type').value;
+        const fields = ['ElectronicFields', 'ClothingFields', 'VehicleFields'];
+        fields.forEach(f => {
+            document.getElementById(f).style.display = f.startsWith(type) ? 'block' : 'none';
+        });
+    }
+</script>
+
+<style>
+    .admin-form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding-top: 2rem;
+    }
+
+    .type-fields {
+        border-left: 2px solid var(--accent-color);
+        padding-left: 1rem;
+        margin-bottom: 1rem;
+    }
+</style>

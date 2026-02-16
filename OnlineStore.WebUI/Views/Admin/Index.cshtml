@@ -1,0 +1,66 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="admin-dashboard">
+    <h1 class="display-title">Admin <span class="highlight">Dashboard</span></h1>
+    <p class="subtitle">Manage products, orders, and users from here.</p>
+
+    <div class="admin-grid mt-4">
+        <a asp-action="Products" class="admin-card">
+            <div class="admin-card-icon">📦</div>
+            <div class="admin-card-content">
+                <h3>Manage Products</h3>
+                <p>Add, edit, or remove store items.</p>
+            </div>
+        </a>
+
+        <a asp-action="Orders" class="admin-card">
+            <div class="admin-card-icon">📜</div>
+            <div class="admin-card-content">
+                <h3>View Orders</h3>
+                <p>Track and manage customer orders.</p>
+            </div>
+        </a>
+    </div>
+</div>
+
+<style>
+    .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .admin-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        padding: 2rem;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .admin-card:hover {
+        box-shadow: var(--hover-shadow);
+        transform: translateY(-4px);
+        border-color: var(--accent-color);
+    }
+
+    .admin-card-icon {
+        font-size: 2.5rem;
+    }
+
+    .admin-card-content h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .admin-card-content p {
+        font-size: 0.9rem;
+        color: var(--light-text);
+    }
+</style>

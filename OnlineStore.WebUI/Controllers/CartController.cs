@@ -90,6 +90,14 @@ namespace OnlineStore.WebUI.Controllers
 
                 _orderRepo.Add(order);
 
+                // For Customer type, we might want to ensure the list is updated if using in-memory or specific tracking
+                if (user is Customer customer)
+                {
+                    if (customer.OrderHistory == null) customer.OrderHistory = new List<Order>();
+                    customer.OrderHistory.Add(order);
+                    _userRepo.Update(user);
+                }
+
                 // Clear Cart
                 cart.Clear();
                 SaveCart(cart);

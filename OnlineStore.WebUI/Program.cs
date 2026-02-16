@@ -79,4 +79,9 @@ static void SeedData(IServiceProvider services)
 
     // Seed Customer
     userRepo.Add(new Customer("testuser", "test@test.com", "123 Demo St"));
+
+    // Seed Admin
+    var admin = new Admin("admin", "admin@store.com", "SuperAdmin");
+    admin.Permissions.AddRange(new[] { "ManageProducts", "ManageOrders", "ManageUsers" });
+    userRepo.Add(admin);
 }

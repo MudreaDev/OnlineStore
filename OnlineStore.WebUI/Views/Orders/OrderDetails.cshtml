@@ -1,0 +1,66 @@
+@model OnlineStore.Domain.Entities.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<div class="order-details-page">
+    <div class="back-link">
+        <a asp-action="MyOrders" class="btn-back">← Back to My Orders</a>
+    </div>
+
+    <div class="details-card">
+        <div class="details-header">
+            <div class="header-main">
+                <span class="order-tag">Order Details</span>
+                <h2>#@Model.Id</h2>
+            </div>
+            <div class="header-meta">
+                <span class="status-badge status-@Model.Status.ToString().ToLower()">@Model.Status</span>
+                <span class="order-date">Placed on @Model.OrderDate.ToString("MMMM dd, yyyy")</span>
+            </div>
+        </div>
+
+        <div class="details-body">
+            <div class="customer-info">
+                <h3>Delivery Address</h3>
+                <p>
+                    @if (Model.User is OnlineStore.Domain.Entities.Customer customer)
+                    {
+                        @customer.ShippingAddress
+                    }
+                    else
+                    {
+                        <span>No address available</span>
+                    }
+                </p>
+            </div>
+
+            <div class="order-items mt-4">
+                <h3>Items in this Order</h3>
+                <ul class="item-list">
+                    @foreach (var product in Model.Products)
+                    {
+                        <li class="item-row">
+                            <div class="item-info">
+                                <span class="item-icon">📦</span>
+                                <div class="item-text">
+                                    <span class="item-name">@product.Name</span>
+                                    <span class="item-category">@product.GetType().Name.Replace("Product", "")</span>
+                                </div>
+                            </div>
+                            <span class="item-price">@product.Price.ToString("C")</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <div class="order-summary mt-4">
+                <div class="summary-row total-row">
+                    <span>Total Amount Paid</span>
+                    <span class="grand-total">@Model.Total.ToString("C")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

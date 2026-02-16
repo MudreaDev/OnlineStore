@@ -1,0 +1,191 @@
+@model IEnumerable<OnlineStore.Domain.Entities.Product>
+@using OnlineStore.Domain.Entities
+
+@{
+    ViewData["Title"] = "Manage Products";
+}
+
+<div class="admin-products">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-title">Products <span class="highlight">Management</span></h1>
+        <a asp-action="AddProduct" class="cart-link">Add New Product</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Type</th>
+                    <th>Specifications</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model)
+                {
+                    <tr>
+                        <td class="font-bold">@product.Name</td>
+                        <td>@product.Price.ToString("C")</td>
+                        <td><span class="badge">@product.GetType().Name.Replace("Product", "")</span></td>
+                        <td class="specs-cell">
+                            @if (product is ElectronicProduct electro)
+                            {
+                                <span class="spec-label">Warranty:</span> @electro.WarrantyMonths <span>mo</span>
+                            }
+                            else if (product is ClothingProduct clothing)
+                            {
+                                <span class="spec-label">Size:</span> @clothing.Size
+,
+                        <span class="spec-label">Material:</span>
+                        @clothing.Material
+                            }
+                            else if (product is VehicleProduct vehicle)
+                            {
+                                <span class="spec-label">@vehicle.Brand</span> @vehicle.Model
+                                (@vehicle.Year)
+                                    }
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a asp-action="EditProduct" asp-route-id="@product.Id" class="btn-link">Edit</a>
+                                <form asp-action="DeleteProduct" asp-route-id="@product.Id" method="post"
+                                    onsubmit="return confirmDelete('@product.Name')">
+                                    <button type="submit" class="btn-link-danger">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        <div class="pagination mt-4">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <a asp-action="Products" asp-route-page="@i"
+                    class="page-link @(ViewBag.CurrentPage == i ? "active" : "")">@i</a>
+            }
+        </div>
+    }
+</div>
+
+<script>
+    function confirmDelete(name) {
+        return confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`);
+    }
+</script>
+
+<style>
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .admin-table th {
+        background: #f8fafc;
+        font-weight: 600;
+        color: var(--light-text);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+    }
+
+    .font-bold {
+        font-weight: 600;
+    }
+
+    .badge {
+        background: #e0f2fe;
+        color: #0369a1;
+        padding: 0.25rem 0.625rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .btn-link {
+        color: var(--accent-color);
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        background: none;
+    }
+
+    .btn-link-danger {
+        color: #ef4444;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        background: none;
+    }
+
+    .d-flex {
+        display: flex;
+    }
+
+    .justify-content-between {
+        justify-content: space-between;
+    }
+
+    .align-items-center {
+        align-items: center;
+    }
+
+    .gap-2 {
+        gap: 0.5rem;
+    }
+
+    .specs-cell {
+        font-size: 0.85rem;
+        color: var(--light-text);
+    }
+
+    .spec-label {
+        font-weight: 600;
+        color: var(--primary-color);
+        opacity: 0.7;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
+    .page-link {
+        padding: 0.5rem 0.875rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .page-link:hover {
+        background: #f8fafc;
+        border-color: var(--accent-color);
+    }
+
+    .page-link.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+</style>

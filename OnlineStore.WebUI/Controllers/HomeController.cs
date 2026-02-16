@@ -17,10 +17,47 @@ namespace OnlineStore.WebUI.Controllers
             _productRepo = productRepo;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string? searchQuery, string? categoryFilter, decimal? minPrice, decimal? maxPrice)
         {
             var products = _productRepo.GetAll();
-            return View(products);
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                products = products.Where(p => p.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrEmpty(categoryFilter) && categoryFilter != "All")
+            {
+                products = products.Where(p => p.GetType().Name.StartsWith(categoryFilter));
+            }
+
+            if (minPrice.HasValue)
+            {
+                products = products.Where(p => p.Price >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                products = products.Where(p => p.Price <= maxPrice.Value);
+            }
+
+            // Persistence for UI
+            ViewBag.SearchQuery = searchQuery;
+            ViewBag.CategoryFilter = categoryFilter;
+            ViewBag.MinPrice = minPrice;
+            ViewBag.MaxPrice = maxPrice;
+
+            return View(products.ToList());
+        }
+
+        public IActionResult Details(Guid id)
+        {
+            var product = _productRepo.GetById(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return View(product);
         }
 
         public IActionResult Privacy()
