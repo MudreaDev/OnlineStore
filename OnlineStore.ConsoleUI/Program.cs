@@ -68,6 +68,11 @@ namespace OnlineStore.ConsoleUI
             productRepo.Add(electronicsFactory.CreateProduct("Laptop", 2500m));
             productRepo.Add(electronicsFactory.CreateProduct("Smartphone", 1200m));
 
+            // Add vehicle products
+            var vehicleFactory = new VehicleProductFactory();
+            productRepo.Add(vehicleFactory.CreateProduct("Electric Scooter", 500m));
+            productRepo.Add(vehicleFactory.CreateProduct("Mountain Bike", 300m));
+
             // Add users
             userRepo.Add(new Customer("johndoe", "john@example.com", "123 Main St"));
             userRepo.Add(new Admin("admin", "admin@store.com", "SuperAdmin"));

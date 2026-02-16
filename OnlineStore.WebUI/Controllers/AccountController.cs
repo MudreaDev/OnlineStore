@@ -7,9 +7,9 @@ namespace OnlineStore.WebUI.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly InMemoryUserRepository _userRepo;
+        private readonly DbUserRepository _userRepo;
 
-        public AccountController(InMemoryUserRepository userRepo)
+        public AccountController(DbUserRepository userRepo)
         {
             _userRepo = userRepo;
         }

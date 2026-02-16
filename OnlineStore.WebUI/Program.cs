@@ -73,6 +73,10 @@ static void SeedData(IServiceProvider services)
     productRepo.Add(clothingFactory.CreateProduct("Cotton T-Shirt", 25));
     productRepo.Add(clothingFactory.CreateProduct("Jeans", 50));
 
+    var vehicleFactory = new VehicleProductFactory();
+    productRepo.Add(vehicleFactory.CreateProduct("City Car", 15000));
+    productRepo.Add(vehicleFactory.CreateProduct("SUV", 25000));
+
     // Seed Customer
     userRepo.Add(new Customer("testuser", "test@test.com", "123 Demo St"));
 }

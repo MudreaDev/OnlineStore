@@ -9,9 +9,9 @@ namespace OnlineStore.WebUI.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly InMemoryProductRepository _productRepo;
+        private readonly DbProductRepository _productRepo;
 
-        public HomeController(ILogger<HomeController> logger, InMemoryProductRepository productRepo)
+        public HomeController(ILogger<HomeController> logger, DbProductRepository productRepo)
         {
             _logger = logger;
             _productRepo = productRepo;

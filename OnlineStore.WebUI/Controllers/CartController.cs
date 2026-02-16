@@ -10,11 +10,11 @@ namespace OnlineStore.WebUI.Controllers
 {
     public class CartController : Controller
     {
-        private readonly InMemoryProductRepository _productRepo;
-        private readonly InMemoryOrderRepository _orderRepo;
-        private readonly InMemoryUserRepository _userRepo;
+        private readonly DbProductRepository _productRepo;
+        private readonly DbOrderRepository _orderRepo;
+        private readonly DbUserRepository _userRepo;
 
-        public CartController(InMemoryProductRepository productRepo, InMemoryOrderRepository orderRepo, InMemoryUserRepository userRepo)
+        public CartController(DbProductRepository productRepo, DbOrderRepository orderRepo, DbUserRepository userRepo)
         {
             _productRepo = productRepo;
             _orderRepo = orderRepo;

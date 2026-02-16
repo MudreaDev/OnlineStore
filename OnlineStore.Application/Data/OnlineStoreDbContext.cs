@@ -24,7 +24,8 @@ namespace OnlineStore.Application.Data
             modelBuilder.Entity<Product>()
                 .HasDiscriminator<string>("ProductType")
                 .HasValue<ElectronicProduct>("Electronic")
-                .HasValue<ClothingProduct>("Clothing");
+                .HasValue<ClothingProduct>("Clothing")
+                .HasValue<VehicleProduct>("Vehicle");
 
             // Configure User Hierarchy (TPH)
             modelBuilder.Entity<User>()
