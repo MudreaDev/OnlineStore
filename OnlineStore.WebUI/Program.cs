@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession(); // Enable Session
+builder.Services.AddHttpContextAccessor();
 
 // Register Repositories as Singletons (InMemory storage)
 builder.Services.AddSingleton<InMemoryProductRepository>();

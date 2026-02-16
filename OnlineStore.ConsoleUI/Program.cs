@@ -100,7 +100,7 @@ namespace OnlineStore.ConsoleUI
             if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= customers.Count)
             {
                 currentUser = customers[index - 1];
-                currentCart = new ShoppingCart(currentUser); // New cart per session for simplicity
+                currentCart = new ShoppingCart(currentUser.Id); // New cart per session
                 CustomerWorkflow();
             }
             else
@@ -117,7 +117,7 @@ namespace OnlineStore.ConsoleUI
             {
                 Console.Clear();
                 Console.WriteLine($"Logged in as: {currentUser.Username}");
-                Console.WriteLine($"Cart Total: {currentCart.CalculateTotal()}");
+                // Console.WriteLine($"Cart Total: {currentCart.CalculateTotal()}"); // Removed as CalculateTotal moved to logic layers
                 Console.WriteLine("1. View Products & Add to Cart");
                 Console.WriteLine("2. View Cart");
                 Console.WriteLine("3. Checkout");
@@ -157,7 +157,7 @@ namespace OnlineStore.ConsoleUI
 
             if (int.TryParse(Console.ReadLine(), out int pid) && pid > 0 && pid <= products.Count)
             {
-                currentCart.AddProduct(products[pid - 1]);
+                currentCart.AddProduct(products[pid - 1].Id);
                 Console.WriteLine("Added to cart!");
             }
             // Simple pause
@@ -167,29 +167,42 @@ namespace OnlineStore.ConsoleUI
         static void ViewCart()
         {
             Console.Clear();
-            foreach (var p in currentCart.Products)
+            decimal total = 0;
+            foreach (var id in currentCart.ProductIds)
             {
-                Console.WriteLine($"{p.Name} - {p.Price}");
+                var p = productRepo.GetById(id);
+                if (p != null)
+                {
+                    Console.WriteLine($"{p.Name} - {p.Price}");
+                    total += p.Price;
+                }
             }
-            Console.WriteLine($"Total: {currentCart.CalculateTotal()}");
+            Console.WriteLine($"Total: {total}");
             Console.ReadKey();
         }
 
         static void Checkout()
         {
             Console.Clear();
-            if (!currentCart.Products.Any())
+            if (!currentCart.ProductIds.Any())
             {
                 Console.WriteLine("Cart is empty.");
                 Console.ReadKey();
                 return;
             }
 
+            var products = new List<Product>();
+            foreach (var id in currentCart.ProductIds)
+            {
+                var p = productRepo.GetById(id);
+                if (p != null) products.Add(p);
+            }
+
             // Applying discount strategy
             IDiscountStrategy discount = new FixedAmountDiscountStrategy(50); // $50 off
             OrderService orderService = new OrderService(discount);
 
-            Order order = orderService.PlaceOrder(currentUser, currentCart.Products);
+            Order order = orderService.PlaceOrder(currentUser, products);
             orderRepo.Add(order);
 
             // Update Customer history

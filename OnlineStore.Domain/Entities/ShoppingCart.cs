@@ -1,43 +1,39 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using OnlineStore.Domain.Common;
 
 namespace OnlineStore.Domain.Entities
 {
     public class ShoppingCart : Entity
     {
-        public User User { get; set; }
-        public List<Product> Products { get; set; }
+        public Guid? UserId { get; set; }
+        public List<Guid> ProductIds { get; set; }
 
-        public ShoppingCart(User user)
+        public ShoppingCart(Guid? userId)
         {
-            User = user;
-            Products = new List<Product>();
+            UserId = userId;
+            ProductIds = new List<Guid>();
         }
 
-        public void AddProduct(Product product)
+        // Constructor for serialization
+        public ShoppingCart()
         {
-            Products.Add(product);
+            ProductIds = new List<Guid>();
+        }
+
+        public void AddProduct(Guid productId)
+        {
+            ProductIds.Add(productId);
         }
 
         public void RemoveProduct(Guid productId)
         {
-            var product = Products.FirstOrDefault(p => p.Id == productId);
-            if (product != null)
-            {
-                Products.Remove(product);
-            }
+            ProductIds.Remove(productId);
         }
 
         public void Clear()
         {
-            Products.Clear();
-        }
-
-        public decimal CalculateTotal()
-        {
-            return Products.Sum(p => p.Price);
+            ProductIds.Clear();
         }
     }
 }

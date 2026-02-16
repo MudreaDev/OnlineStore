@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,18 +10,42 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <header class="site-header">
         <div class="container navbar">
-            <a class="logo" asp-area="" asp-controller="Home" asp-action="Index">MINIMAL<span class="highlight">STORE</span></a>
+            <a class="logo" asp-area="" asp-controller="Home" asp-action="Index">MINIMAL<span
+                    class="highlight">STORE</span></a>
             <nav class="nav-links">
                 <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Shop</a>
                 <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                <a class="nav-link cart-link" href="#">Cart (0)</a>
+
+                @using Microsoft.AspNetCore.Http
+                @using OnlineStore.WebUI.Extensions
+                @using OnlineStore.Domain.Entities
+                @inject IHttpContextAccessor HttpContextAccessor
+                @{
+                    var session = HttpContextAccessor.HttpContext.Session;
+                    var cart = session.Get<ShoppingCart>("Cart");
+                    var count = cart?.ProductIds.Count ?? 0;
+                    var username = session.GetString("Username");
+                }
+
+                <a class="nav-link cart-link" asp-controller="Cart" asp-action="Index">Cart (@count)</a>
+
+                @if (!string.IsNullOrEmpty(username))
+                {
+                    <span class="nav-link">Hello, @username</span>
+                    <a class="nav-link" asp-controller="Account" asp-action="Logout">Logout</a>
+                }
+                else
+                {
+                    <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
+                }
             </nav>
         </div>
     </header>
-    
+
     <main role="main" class="main-content container">
         @RenderBody()
     </main>
@@ -34,4 +59,5 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

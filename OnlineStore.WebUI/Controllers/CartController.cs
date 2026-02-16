@@ -4,6 +4,7 @@ using OnlineStore.Application.Services;
 using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Strategies;
 using OnlineStore.WebUI.Extensions;
+using OnlineStore.WebUI.Models;
 
 namespace OnlineStore.WebUI.Controllers
 {
@@ -22,31 +23,42 @@ namespace OnlineStore.WebUI.Controllers
 
         public IActionResult Index()
         {
-            var cart = HttpContext.Session.Get<ShoppingCart>("Cart") ?? new ShoppingCart(null);
-            return View(cart);
+            var cart = GetCart();
+            var products = new List<Product>();
+            foreach (var id in cart.ProductIds)
+            {
+                var p = _productRepo.GetById(id);
+                if (p != null) products.Add(p);
+            }
+
+            var vm = new CartViewModel
+            {
+                Products = products,
+                Total = products.Sum(p => p.Price)
+            };
+
+            return View(vm);
         }
 
         [HttpPost]
         public IActionResult Add(Guid id)
         {
+            // Verify product exists
             var product = _productRepo.GetById(id);
             if (product != null)
             {
-                var cart = HttpContext.Session.Get<ShoppingCart>("Cart") ?? new ShoppingCart(null); // User is optional in cart structure for now
-                cart.AddProduct(product);
-                HttpContext.Session.Set("Cart", cart);
+                var cart = GetCart();
+                cart.AddProduct(id);
+                SaveCart(cart);
             }
             return RedirectToAction("Index", "Home");
         }
 
         public IActionResult Remove(Guid id)
         {
-            var cart = HttpContext.Session.Get<ShoppingCart>("Cart");
-            if (cart != null)
-            {
-                cart.RemoveProduct(id);
-                HttpContext.Session.Set("Cart", cart);
-            }
+            var cart = GetCart();
+            cart.RemoveProduct(id);
+            SaveCart(cart);
             return RedirectToAction("Index");
         }
 
@@ -61,23 +73,41 @@ namespace OnlineStore.WebUI.Controllers
 
             var userId = Guid.Parse(userIdStr);
             var user = _userRepo.GetById(userId);
-            var cart = HttpContext.Session.Get<ShoppingCart>("Cart");
+            var cart = GetCart();
 
-            if (user != null && cart != null && cart.Products.Any())
+            var products = new List<Product>();
+            foreach (var id in cart.ProductIds)
+            {
+                var p = _productRepo.GetById(id);
+                if (p != null) products.Add(p);
+            }
+
+            if (user != null && products.Any())
             {
                 // Create OrderService with a strategy
-                var orderService = new OrderService(new FixedAmountDiscountStrategy(0)); // No discount for web demo currently
-                var order = orderService.PlaceOrder(user, cart.Products);
+                var orderService = new OrderService(new FixedAmountDiscountStrategy(0));
+                var order = orderService.PlaceOrder(user, products);
 
                 _orderRepo.Add(order);
 
                 // Clear Cart
-                HttpContext.Session.Remove("Cart");
+                cart.Clear();
+                SaveCart(cart);
 
                 return View("OrderConfirmation", order);
             }
 
             return RedirectToAction("Index");
+        }
+
+        private ShoppingCart GetCart()
+        {
+            return HttpContext.Session.Get<ShoppingCart>("Cart") ?? new ShoppingCart(null);
+        }
+
+        private void SaveCart(ShoppingCart cart)
+        {
+            HttpContext.Session.Set("Cart", cart);
         }
     }
 }

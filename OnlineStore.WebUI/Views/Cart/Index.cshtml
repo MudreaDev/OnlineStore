@@ -1,4 +1,4 @@
-@model OnlineStore.Domain.Entities.ShoppingCart
+@model OnlineStore.WebUI.Models.CartViewModel
 
 <h2>Your Shopping Cart</h2>
 
@@ -26,7 +26,7 @@
         </tbody>
     </table>
 
-    <h3>Total: @Model.CalculateTotal()</h3>
+    <h3>Total: @Model.Total</h3>
 
     <form asp-action="Checkout" method="post">
         <button type="submit" class="btn btn-success">Checkout</button>
