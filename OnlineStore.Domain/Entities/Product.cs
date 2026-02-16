@@ -29,6 +29,11 @@ namespace OnlineStore.Domain.Entities
                 _price = value;
             }
         }
+        protected Product()
+        {
+            _name = null!;
+        }
+
         protected Product(string name, decimal price)
         {
             Name = name;

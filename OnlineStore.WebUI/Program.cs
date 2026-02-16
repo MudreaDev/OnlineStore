@@ -1,6 +1,8 @@
+using OnlineStore.Application.Data;
 using OnlineStore.Application.Repositories;
 using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Factories;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,10 +11,14 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSession(); // Enable Session
 builder.Services.AddHttpContextAccessor();
 
-// Register Repositories as Singletons (InMemory storage)
-builder.Services.AddSingleton<InMemoryProductRepository>();
-builder.Services.AddSingleton<InMemoryUserRepository>();
-builder.Services.AddSingleton<InMemoryOrderRepository>();
+// Register DbContext
+builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register Repositories as Scoped (Db storage)
+builder.Services.AddScoped<DbProductRepository>();
+builder.Services.AddScoped<DbUserRepository>();
+builder.Services.AddScoped<DbOrderRepository>();
 
 var app = builder.Build();
 
@@ -36,14 +42,24 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 // Seed Data
-SeedData(app.Services);
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    SeedData(services);
+}
 
 app.Run();
 
 static void SeedData(IServiceProvider services)
 {
-    var productRepo = services.GetRequiredService<InMemoryProductRepository>();
-    var userRepo = services.GetRequiredService<InMemoryUserRepository>();
+    var productRepo = services.GetRequiredService<DbProductRepository>();
+    var userRepo = services.GetRequiredService<DbUserRepository>();
+
+    // Check if data already exists to avoid duplication
+    if (productRepo.GetAll().Any())
+    {
+        return;
+    }
 
     // Seed Products
     // Using factories just like in ConsoleUI, but manually here for simplicity or could inject factories

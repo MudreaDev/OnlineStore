@@ -13,6 +13,12 @@ namespace OnlineStore.Domain.Entities
         public DateTime OrderDate { get; set; }
         public OrderStatus Status { get; set; }
 
+        protected Order()
+        {
+            User = null!;
+            Products = new List<Product>();
+        }
+
         public Order(User user, List<Product> products, decimal total)
         {
             User = user;
