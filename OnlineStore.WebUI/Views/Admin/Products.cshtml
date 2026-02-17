@@ -32,20 +32,16 @@
                         <td class="specs-cell">
                             @if (product is ElectronicProduct electro)
                             {
-                                <span class="spec-label">Warranty:</span> @electro.WarrantyMonths <span>mo</span>
+                                <text><span class="spec-label">Warranty:</span> @electro.WarrantyMonths mo</text>
                             }
                             else if (product is ClothingProduct clothing)
                             {
-                                <span class="spec-label">Size:</span> @clothing.Size
-,
-                        <span class="spec-label">Material:</span>
-                        @clothing.Material
+                                <text><span class="spec-label">Size:</span> @clothing.Size, <span class="spec-label">Material:</span> @clothing.Material</text>
                             }
                             else if (product is VehicleProduct vehicle)
                             {
-                                <span class="spec-label">@vehicle.Brand</span> @vehicle.Model
-                                (@vehicle.Year)
-                                    }
+                                <text><span class="spec-label">@vehicle.Brand</span> @vehicle.Model (@vehicle.Year)</text>
+                            }
                         </td>
                         <td>
                             <div class="d-flex gap-2">
