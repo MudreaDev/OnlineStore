@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using OnlineStore.Application.Repositories;
 using OnlineStore.Domain.Entities;
+using OnlineStore.Domain.Singleton;
 using OnlineStore.WebUI.Models;
 
 namespace OnlineStore.WebUI.Controllers
@@ -46,6 +47,10 @@ namespace OnlineStore.WebUI.Controllers
             ViewBag.CategoryFilter = categoryFilter;
             ViewBag.MinPrice = minPrice;
             ViewBag.MaxPrice = maxPrice;
+
+            // Pattern 3: Singleton - Transmitem setările globale către View
+            ViewBag.FreeShippingThreshold = ApplicationConfigurationManager.Instance.FreeShippingThreshold;
+            ViewBag.CurrencySymbol = ApplicationConfigurationManager.Instance.CurrencySymbol;
 
             return View(products.ToList());
         }

@@ -1,6 +1,8 @@
+using OnlineStore.Domain.Interfaces;
+
 namespace OnlineStore.Domain.Entities
 {
-    public class VehicleProduct : Product
+    public class VehicleProduct : Product, IPrototype<VehicleProduct>
     {
         public string Brand { get; set; }
         public string Model { get; set; }
@@ -19,6 +21,15 @@ namespace OnlineStore.Domain.Entities
         {
             Brand = null!;
             Model = null!;
+        }
+
+        /// <summary>
+        /// Implementare Pattern Prototype.
+        /// Creează o copie a produsului vehicul cu un ID nou și nume marcat " (Copy)".
+        /// </summary>
+        public VehicleProduct Clone()
+        {
+            return new VehicleProduct(Name + " (Copy)", Price, Brand, Model, Year);
         }
 
         public override string GetDescription()

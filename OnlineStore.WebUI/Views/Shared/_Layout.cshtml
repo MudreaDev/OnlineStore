@@ -1,10 +1,11 @@
-﻿<!DOCTYPE html>
+﻿@using OnlineStore.Domain.Singleton
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Minimal Store</title>
+    <title>@ViewData["Title"] - @ApplicationConfigurationManager.Instance.StoreName</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,8 +15,9 @@
 <body>
     <header class="site-header">
         <div class="container navbar">
-            <a class="logo" asp-area="" asp-controller="Home" asp-action="Index">MINIMAL<span
-                    class="highlight">STORE</span></a>
+            <a class="logo" asp-area="" asp-controller="Home" asp-action="Index">
+                @ApplicationConfigurationManager.Instance.StoreName.ToUpper()
+            </a>
             <nav class="nav-links">
                 <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Shop</a>
                 <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
@@ -40,21 +42,21 @@
                 {
                     <span class="nav-link">Hello, @username</span>
 
-                    
-                        var userIdStr = HttpContextAccessor.HttpContext.Session.GetString("UserId");
-                        if (!string.IsNullOrEmpty(userIdStr) && Guid.TryParse(userIdStr, out Guid userId))
+
+                    var userIdStr = HttpContextAccessor.HttpContext.Session.GetString("UserId");
+                    if (!string.IsNullOrEmpty(userIdStr) && Guid.TryParse(userIdStr, out Guid userId))
+                    {
+                        var user = UserRepo.GetById(userId);
+                        if (user is Admin)
                         {
-                            var user = UserRepo.GetById(userId);
-                            if (user is Admin)
-                            {
-                                <a class="nav-link highlight" asp-controller="Admin" asp-action="Index">Admin Panel</a>
-                            }
-                            else
-                            {
-                                <a class="nav-link" asp-controller="Orders" asp-action="MyOrders">My Orders</a>
-                            }
+                            <a class="nav-link highlight" asp-controller="Admin" asp-action="Index">Admin Panel</a>
                         }
-                    
+                        else
+                        {
+                            <a class="nav-link" asp-controller="Orders" asp-action="MyOrders">My Orders</a>
+                        }
+                    }
+
 
                     <a class="nav-link" asp-controller="Account" asp-action="Logout">Logout</a>
                 }
@@ -73,11 +75,12 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; 2026 Minimal Store. All rights reserved.</p>
+            <p>&copy; 2026 @ApplicationConfigurationManager.Instance.StoreName. All rights reserved.</p>
         </div>
     </footer>
 
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

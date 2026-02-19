@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineStore.Application.Repositories;
 using OnlineStore.Application.Services;
+using OnlineStore.Domain.Builders;
 using OnlineStore.Domain.Entities;
+using OnlineStore.Domain.Singleton;
 using OnlineStore.Domain.Strategies;
 using OnlineStore.WebUI.Extensions;
 using OnlineStore.WebUI.Models;
@@ -75,6 +77,13 @@ namespace OnlineStore.WebUI.Controllers
             var user = _userRepo.GetById(userId);
             var cart = GetCart();
 
+            // Pattern 3: Singleton - Verificăm limita maximă de produse dintr-o comandă setată global
+            if (cart.ProductIds.Count > ApplicationConfigurationManager.Instance.MaxItemsPerOrder)
+            {
+                TempData["ErrorMessage"] = $"Comanda nu poate depăși {ApplicationConfigurationManager.Instance.MaxItemsPerOrder} produse.";
+                return RedirectToAction("Index");
+            }
+
             var products = new List<Product>();
             foreach (var id in cart.ProductIds)
             {
@@ -84,9 +93,22 @@ namespace OnlineStore.WebUI.Controllers
 
             if (user != null && products.Any())
             {
-                // Create OrderService with a strategy
-                var orderService = new OrderService(new FixedAmountDiscountStrategy(0));
-                var order = orderService.PlaceOrder(user, products);
+                // Pattern 1: Builder - Folosim Directorul pentru a construi comanda
+                // Alegem tipul de comandă (Standard vs Premium) în funcție de numărul de produse
+                var builder = new OrderBuilder();
+                var director = new OrderDirector(builder);
+
+                Order order;
+                if (products.Count > 3)
+                {
+                    // Comandă Premium cu 10% discount dacă sunt mai mult de 3 produse
+                    order = director.BuildPremiumOrder(user, products);
+                }
+                else
+                {
+                    // Comandă Standard fără discount
+                    order = director.BuildStandardOrder(user, products);
+                }
 
                 _orderRepo.Add(order);
 

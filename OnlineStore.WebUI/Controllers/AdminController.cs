@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using OnlineStore.Application.Repositories;
 using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Factories;
+using OnlineStore.Domain.Singleton;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -182,6 +183,42 @@ namespace OnlineStore.WebUI.Controllers
 
             _productRepo.Delete(id);
             return RedirectToAction("Products");
+        }
+
+        [HttpPost]
+        public IActionResult CloneProduct(Guid id)
+        {
+            var accessCheck = CheckAccess();
+            if (accessCheck != null) return accessCheck;
+
+            var product = _productRepo.GetById(id);
+            if (product == null) return NotFound();
+
+            // Pattern 2: Prototype - Folosim metoda Clone() pentru a crea o copie a produsului existent
+            // Acest lucru permite crearea rapidă de variante fără a reintroduce toate datele.
+            Product clone = product switch
+            {
+                ElectronicProduct ep => ep.Clone(),
+                ClothingProduct cp => cp.Clone(),
+                VehicleProduct vp => vp.Clone(),
+                _ => throw new NotSupportedException("Product type not supported for cloning.")
+            };
+
+            _productRepo.Add(clone);
+            return RedirectToAction("Products");
+        }
+
+        [HttpPost]
+        public IActionResult UpdateSettings(string storeName, decimal vatPercentage, decimal freeShippingThreshold)
+        {
+            var accessCheck = CheckAccess();
+            if (accessCheck != null) return accessCheck;
+
+            // Pattern 3: Singleton - Actualizăm instanța unică a setărilor
+            ApplicationConfigurationManager.Instance.UpdateSettings(storeName, vatPercentage, freeShippingThreshold);
+
+            TempData["Message"] = "Setările magazinului au fost actualizate.";
+            return RedirectToAction("Index");
         }
     }
 }

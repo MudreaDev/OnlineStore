@@ -25,11 +25,11 @@
             <tbody>
                 @foreach (var product in Model)
                 {
-                    <tr>
-                        <td class="font-bold">@product.Name</td>
-                        <td>@product.Price.ToString("C")</td>
-                        <td><span class="badge">@product.GetType().Name.Replace("Product", "")</span></td>
-                        <td class="specs-cell">
+                        <tr>
+                            <td class="font-bold">@product.Name</td>
+                            <td>@product.Price.ToString("C")</td>
+                            <td><span class="badge">@product.GetType().Name.Replace("Product", "")</span></td>
+                            <td class="specs-cell">
                             @if (product is ElectronicProduct electro)
                             {
                                 <text><span class="spec-label">Warranty:</span> @electro.WarrantyMonths mo</text>
@@ -42,17 +42,20 @@
                             {
                                 <text><span class="spec-label">@vehicle.Brand</span> @vehicle.Model (@vehicle.Year)</text>
                             }
-                        </td>
-                        <td>
-                            <div class="d-flex gap-2">
-                                <a asp-action="EditProduct" asp-route-id="@product.Id" class="btn-link">Edit</a>
-                                <form asp-action="DeleteProduct" asp-route-id="@product.Id" method="post"
-                                    onsubmit="return confirmDelete('@product.Name')">
-                                    <button type="submit" class="btn-link-danger">Delete</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a asp-action="EditProduct" asp-route-id="@product.Id" class="btn-link">Edit</a>
+                                    <form asp-action="CloneProduct" asp-route-id="@product.Id" method="post" style="display:inline;">
+                                        <button type="submit" class="btn-link" style="color: #10b981;">Clone</button>
+                                    </form>
+                                    <form asp-action="DeleteProduct" asp-route-id="@product.Id" method="post"
+                                        onsubmit="return confirmDelete('@product.Name')">
+                                        <button type="submit" class="btn-link-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
                 }
             </tbody>
         </table>
@@ -60,13 +63,13 @@
 
     @if (ViewBag.TotalPages > 1)
     {
-        <div class="pagination mt-4">
+            <div class="pagination mt-4">
             @for (int i = 1; i <= ViewBag.TotalPages; i++)
             {
-                <a asp-action="Products" asp-route-page="@i"
-                    class="page-link @(ViewBag.CurrentPage == i ? "active" : "")">@i</a>
+                        <a asp-action="Products" asp-route-page="@i"
+                            class="page-link @(ViewBag.CurrentPage == i ? "active" : "")">@i</a>
             }
-        </div>
+            </div>
     }
 </div>
 
