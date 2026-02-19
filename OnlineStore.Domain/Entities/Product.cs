@@ -6,7 +6,7 @@ namespace OnlineStore.Domain.Entities
 {
     public abstract class Product : Entity //adaug functional, extind clasa OCP
     {
-        private string _name;
+        private string _name = null!;
         private decimal _price;
 
         public string Name
