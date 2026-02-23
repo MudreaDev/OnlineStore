@@ -2,261 +2,305 @@
 @using OnlineStore.Domain.Entities
 
 @{
-    ViewData["Title"] = "Edit Product";
+    ViewData["Title"] = "Refine Inventory Piece";
 }
 
 <style>
     .admin-form-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding-top: 2rem;
-        margin-bottom: 5rem;
+        max-width: 750px;
+        margin: 3rem auto 6rem;
     }
 
-    .auth-card {
+    .form-card {
         background: #fff;
-        border: 1px solid var(--border-light);
-        border-radius: 30px;
-        padding: 3rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        border: 1px solid var(--border-subtle);
+        border-radius: 32px;
+        padding: 4rem;
+        box-shadow: var(--shadow-lg);
     }
 
-    .form-label {
+    .form-title {
+        font-family: var(--font-display);
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--midnight);
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    .form-subtitle {
+        font-family: var(--font-body);
+        font-size: 0.9375rem;
+        color: var(--text-muted);
+        margin-bottom: 3rem;
+    }
+
+    .form-section-title {
+        font-family: var(--font-display);
         font-size: 0.75rem;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--text-muted);
-        margin-bottom: 0.5rem;
+        letter-spacing: 0.1em;
+        color: var(--accent-primary);
+        margin-bottom: 1.5rem;
         display: block;
     }
 
-    .form-input {
-        width: 100%;
-        background: var(--bg-warm);
-        border: 1.5px solid transparent;
-        border-radius: 12px;
-        padding: 0.8rem 1.25rem;
-        font-family: var(--font-main);
-        transition: var(--transition);
-        outline: none;
-    }
-
-    .form-input:focus {
-        background: #fff;
-        border-color: var(--accent-green);
-        box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.1);
-    }
-
-    .form-grid {
+    .field-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 1.5rem;
+    }
+
+    .field-group {
         margin-bottom: 2rem;
     }
 
-    /* Image Management */
-    .image-management-section {
-        margin-top: 3rem;
-        padding-top: 2rem;
-        border-top: 1px solid var(--border-light);
+    .field-label {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        color: var(--midnight);
+        margin-bottom: 0.625rem;
+        display: block;
     }
 
-    .existing-images-grid {
+    .premium-input {
+        width: 100%;
+        background: var(--bg-base);
+        border: 1.5px solid var(--border-subtle);
+        border-radius: 12px;
+        padding: 0.875rem 1.25rem;
+        font-family: var(--font-body);
+        font-size: 0.9375rem;
+        transition: var(--transition-smooth);
+        outline: none;
+    }
+
+    .premium-input:focus {
+        background: #fff;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.08);
+    }
+
+    /* Existing Media Management */
+    .media-management {
+        margin-top: 4rem;
+        padding-top: 3rem;
+        border-top: 1px solid var(--border-subtle);
+    }
+
+    .inventory-images {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
         gap: 1.5rem;
-        margin-bottom: 2.5rem;
+        margin-bottom: 3rem;
     }
 
-    .image-item {
+    .asset-item {
         position: relative;
         aspect-ratio: 1;
         border-radius: 16px;
         overflow: hidden;
-        border: 1px solid var(--border-light);
-        transition: var(--transition);
+        border: 1px solid var(--border-subtle);
+        transition: var(--transition-smooth);
+        box-shadow: var(--shadow-sm);
     }
 
-    .image-item img {
+    .asset-item img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
 
-    .image-item.marked-for-deletion {
-        opacity: 0.4;
+    .asset-item.deletion-target {
+        opacity: 0.3;
         filter: grayscale(1);
+        border-color: #dc2626;
     }
 
-    .image-overlay {
+    .asset-overlay {
         position: absolute;
         inset: 0;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.4);
         display: flex;
         align-items: center;
         justify-content: center;
         opacity: 0;
-        transition: var(--transition);
+        transition: var(--transition-smooth);
     }
 
-    .image-item:hover .image-overlay {
+    .asset-item:hover .asset-overlay {
         opacity: 1;
     }
 
-    .btn-delete-img {
+    .btn-asset-remove {
         background: #fff;
-        color: #a4161a;
+        color: #dc2626;
         border: none;
-        border-radius: 50%;
         width: 32px;
         height: 32px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        font-weight: bold;
+        box-shadow: var(--shadow-md);
     }
 
-    .deletion-indicator {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #a4161a;
-        color: #fff;
-        padding: 0.25rem 0.75rem;
-        border-radius: 4px;
-        font-size: 0.7rem;
-        font-weight: 800;
-        text-transform: uppercase;
-    }
-
-    .main-badge {
+    .badge-master {
         position: absolute;
         top: 8px;
         left: 8px;
-        background: var(--accent-green);
+        background: var(--accent-primary);
         color: #fff;
         font-size: 0.6rem;
         font-weight: 800;
-        padding: 2px 6px;
-        border-radius: 4px;
+        padding: 2px 8px;
+        border-radius: 6px;
         text-transform: uppercase;
-        z-index: 2;
+        z-index: 5;
     }
 
-    .upload-zone {
-        border: 2px dashed var(--border-light);
-        border-radius: 20px;
+    .staged-delete-label {
+        position: absolute;
+        background: #dc2626;
+        color: #fff;
+        padding: 4px 10px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        border-radius: 6px;
+        z-index: 10;
+    }
+
+    .upload-trigger {
+        border: 2px dashed var(--border-bold);
+        border-radius: 16px;
         padding: 2rem;
         text-align: center;
         cursor: pointer;
-        background: #fafafa;
-        transition: var(--transition);
+        background: var(--bg-base);
+        transition: var(--transition-smooth);
     }
 
-    .upload-zone:hover {
-        border-color: var(--accent-green);
-        background: #fdfdfb;
+    .upload-trigger:hover {
+        border-color: var(--accent-primary);
+        background: #fff;
     }
 
-    .btn-submit {
-        background: var(--text-dark);
+    .btn-sync-action {
+        background: var(--midnight);
         color: #fff;
         border: none;
-        border-radius: 12px;
+        border-radius: 16px;
         padding: 1.25rem;
+        font-family: var(--font-display);
         font-weight: 700;
+        font-size: 1rem;
         cursor: pointer;
         width: 100%;
         margin-top: 3rem;
-        transition: var(--transition);
+        transition: var(--transition-smooth);
+        box-shadow: var(--shadow-md);
     }
 
-    .btn-submit:hover {
-        background: var(--accent-green);
+    .btn-sync-action:hover {
+        background: var(--accent-primary);
         transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(5, 150, 105, 0.2);
     }
 </style>
 
-<div class="admin-form-container">
-    <h1 class="display-title" style="font-family: var(--font-serif); font-size: 2.5rem; margin-bottom: 0.5rem;">Edit
-        <span class="highlight">Product</span></h1>
-    <p class="subtitle mb-5" style="color: var(--text-muted);">Refine product details and manage selection images.</p>
+<div class="admin-form-container fade-in">
+    <div class="form-header">
+        <h1 class="form-title">Refine Item</h1>
+        <p class="form-subtitle">Modify the collection details and manage visual representations.</p>
+    </div>
 
-    <div class="auth-card">
+    <div class="form-card">
         <form asp-action="EditProduct" method="post" enctype="multipart/form-data" id="editForm">
             <input type="hidden" name="id" value="@Model.Id" />
 
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="Name" class="form-label">Name</label>
-                    <input type="text" name="Name" id="Name" value="@Model.Name" class="form-input" required />
+            <span class="form-section-title">Essential Identity</span>
+
+            <div class="field-grid">
+                <div class="field-group">
+                    <label for="Name" class="field-label">Reference Name</label>
+                    <input type="text" name="Name" id="Name" value="@Model.Name" class="premium-input" required />
                 </div>
-                <div class="form-group">
-                    <label for="Price" class="form-label">Price</label>
-                    <input type="number" name="Price" id="Price" value="@Model.Price" step="0.01" class="form-input"
+                <div class="field-group">
+                    <label for="Price" class="field-label">Market Value (€)</label>
+                    <input type="number" name="Price" id="Price" value="@Model.Price" step="0.01" class="premium-input"
                         required />
                 </div>
             </div>
 
+            <div class="field-group">
+                <label for="Stock" class="field-label">Available Inventory</label>
+                <input type="number" name="Stock" id="Stock" value="@Model.Stock" class="premium-input" required />
+            </div>
+
             @if (Model is ElectronicProduct electronic)
             {
-                <div class="form-group mb-4">
-                    <label for="WarrantyMonths" class="form-label">Warranty (Months)</label>
+                <div class="field-group">
+                    <label for="WarrantyMonths" class="field-label">Warranty Extension (Months)</label>
                     <input type="number" name="WarrantyMonths" id="WarrantyMonths" value="@electronic.WarrantyMonths"
-                        class="form-input" />
+                        class="premium-input" />
                 </div>
             }
             else if (Model is ClothingProduct clothing)
             {
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="Size" class="form-label">Size</label>
-                        <input type="text" name="Size" id="Size" value="@clothing.Size" class="form-input" />
+                <div class="field-grid">
+                    <div class="field-group">
+                        <label for="Size" class="field-label">Measured Size</label>
+                        <input type="text" name="Size" id="Size" value="@clothing.Size" class="premium-input" />
                     </div>
-                    <div class="form-group">
-                        <label for="Material" class="form-label">Material</label>
-                        <input type="text" name="Material" id="Material" value="@clothing.Material" class="form-input" />
+                    <div class="field-group">
+                        <label for="Material" class="field-label">Material Composition</label>
+                        <input type="text" name="Material" id="Material" value="@clothing.Material" class="premium-input" />
                     </div>
                 </div>
             }
             else if (Model is VehicleProduct vehicle)
             {
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="Brand" class="form-label">Brand</label>
-                        <input type="text" name="Brand" id="Brand" value="@vehicle.Brand" class="form-input" />
+                <div class="field-grid">
+                    <div class="field-group">
+                        <label for="Brand" class="field-label">Maker / Brand</label>
+                        <input type="text" name="Brand" id="Brand" value="@vehicle.Brand" class="premium-input" />
                     </div>
-                    <div class="form-group">
-                        <label for="Model" class="form-label">Model</label>
-                        <input type="text" name="Model" id="Model" value="@vehicle.Model" class="form-input" />
+                    <div class="field-group">
+                        <label for="Model" class="field-label">Specific Model</label>
+                        <input type="text" name="Model" id="Model" value="@vehicle.Model" class="premium-input" />
                     </div>
                 </div>
-                <div class="form-group mb-4">
-                    <label for="Year" class="form-label">Year</label>
-                    <input type="number" name="Year" id="Year" value="@vehicle.Year" class="form-input" />
+                <div class="field-group">
+                    <label for="Year" class="field-label">Release Year</label>
+                    <input type="number" name="Year" id="Year" value="@vehicle.Year" class="premium-input" />
                 </div>
             }
 
-            <div class="image-management-section">
-                <h3 class="form-label" style="margin-bottom: 1.5rem;">Collection Images (@Model.Images.Count/5)</h3>
+            <div class="media-management">
+                <span class="form-section-title">Visual Library (@Model.Images.Count/5)</span>
 
                 @if (Model.Images.Any())
                 {
-                    <div class="existing-images-grid">
+                    <div class="inventory-images">
                         @foreach (var img in Model.Images.OrderBy(i => i.DisplayOrder))
                         {
-                            <div class="image-item" id="img-@img.PublicId.Replace("/", "-").Replace(".", "-")">
-                                <img src="@img.ImageUrl" alt="Product Image">
+                            <div class="asset-item" id="asset-@img.PublicId.Replace("/", "-").Replace(".", "-")">
+                                <img src="@img.ImageUrl" alt="Product Insight">
                                 @if (img.IsMain)
                                 {
-                                    <span class="main-badge">Main</span>
+                                    <span class="badge-master">Master</span>
                                 }
-                                <div class="image-overlay">
-                                    <button type="button" class="btn-delete-img"
-                                        onclick="toggleImageDeletion('@img.PublicId')">×</button>
+                                <div class="asset-overlay">
+                                    <button type="button" class="btn-asset-remove" onclick="stageDeletion('@img.PublicId')">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2.5">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                        </svg>
+                                    </button>
                                 </div>
                             </div>
                         }
@@ -265,70 +309,70 @@
 
                 @if (Model.Images.Count < 5)
                 {
-                    <div class="upload-zone" onclick="document.getElementById('newImagesInp').click()">
-                        <p style="font-weight: 700; font-size: 0.9rem;">+ Add New Images</p>
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Up to @(5 -
-                        Model.Images.Count) more</p>
+                    <div class="upload-trigger" onclick="document.getElementById('newImagesInp').click()">
+                        <span style="font-weight: 700; font-size: 0.875rem; color: var(--midnight);">+ Supplement
+                            Visuals</span>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">Space for @(5 -
+                        Model.Images.Count) additional assets</p>
                     </div>
                     <input type="file" name="newImages" id="newImagesInp" multiple accept=".jpg,.jpeg,.png,.webp"
-                        style="display:none" onchange="previewNewImages(this)" />
-                    <div id="newImagesPreview" class="existing-images-grid" style="margin-top: 1.5rem;"></div>
+                        style="display:none" onchange="previewSupplement(this)" />
+                    <div id="supplementPreview" class="inventory-images" style="margin-top: 2rem;"></div>
                 }
             </div>
 
             <div id="deletionInputs"></div>
 
-            <button type="submit" class="btn-submit">Sync Update to Collection</button>
+            <button type="submit" class="btn-sync-action">Commit Changes to Collection</button>
         </form>
     </div>
 </div>
 
 <script>
-    const deletedPublicIds = new Set();
+    const deletions = new Set();
 
-    function toggleImageDeletion(publicId) {
-        const safeId = 'img-' + publicId.replace(/\//g, '-').replace(/\./g, '-');
-        const element = document.getElementById(safeId);
+    function stageDeletion(pid) {
+        const safeId = 'asset-' + pid.replace(/\//g, '-').replace(/\./g, '-');
+        const el = document.getElementById(safeId);
 
-        if (deletedPublicIds.has(publicId)) {
-            deletedPublicIds.delete(publicId);
-            element.classList.remove('marked-for-deletion');
-            const indicator = element.querySelector('.deletion-indicator');
-            if (indicator) indicator.remove();
+        if (deletions.has(pid)) {
+            deletions.delete(pid);
+            el.classList.remove('deletion-target');
+            const lbl = el.querySelector('.staged-delete-label');
+            if (lbl) lbl.remove();
         } else {
-            deletedPublicIds.add(publicId);
-            element.classList.add('marked-for-deletion');
-            const indicator = document.createElement('div');
-            indicator.className = 'deletion-indicator';
-            indicator.innerText = 'To Delete';
-            element.appendChild(indicator);
+            deletions.add(pid);
+            el.classList.add('deletion-target');
+            const lbl = document.createElement('div');
+            lbl.className = 'staged-delete-label';
+            lbl.innerText = 'Removing';
+            el.appendChild(lbl);
         }
-
-        updateDeletionInputs();
+        syncDeletionInputs();
     }
 
-    function updateDeletionInputs() {
-        const container = document.getElementById('deletionInputs');
-        container.innerHTML = '';
-        deletedPublicIds.forEach(id => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'deletePublicIds';
-            input.value = id;
-            container.appendChild(input);
+    function syncDeletionInputs() {
+        const wrap = document.getElementById('deletionInputs');
+        wrap.innerHTML = '';
+        deletions.forEach(id => {
+            const hid = document.createElement('input');
+            hid.type = 'hidden';
+            hid.name = 'deletePublicIds';
+            hid.value = id;
+            wrap.appendChild(hid);
         });
     }
 
-    function previewNewImages(input) {
-        const preview = document.getElementById('newImagesPreview');
-        preview.innerHTML = '';
+    function previewSupplement(input) {
+        const grid = document.getElementById('supplementPreview');
+        grid.innerHTML = '';
         const files = Array.from(input.files);
 
-        const existingCount = @Model.Images.Count;
-        const total = (existingCount - deletedPublicIds.size) + files.length;
+        const existing = @Model.Images.Count;
+        const total = (existing - deletions.size) + files.length;
 
         if (total > 5) {
-            alert('A maximum of 5 images is allowed per product.');
+            alert('Selection limit reached (5 assets).');
             input.value = '';
             return;
         }
@@ -337,9 +381,10 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 const item = document.createElement('div');
-                item.className = 'image-item';
-                item.innerHTML = `<img src="${e.target.result}" style="border: 2px solid var(--accent-green)">`;
-                preview.appendChild(item);
+                item.className = 'asset-item';
+                item.style.borderColor = 'var(--accent-primary)';
+                item.innerHTML = `<img src="${e.target.result}">`;
+                grid.appendChild(item);
             }
             reader.readAsDataURL(file);
         });

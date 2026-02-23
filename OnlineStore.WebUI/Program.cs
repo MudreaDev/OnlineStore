@@ -3,6 +3,8 @@ using OnlineStore.Application.Repositories;
 using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Factories;
 using Microsoft.EntityFrameworkCore;
+using OnlineStore.Application.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 

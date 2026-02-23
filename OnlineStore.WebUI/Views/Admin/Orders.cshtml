@@ -1,236 +1,221 @@
 @model IEnumerable<OnlineStore.Domain.Entities.Order>
 
 @{
-    ViewData["Title"] = "Orders";
+    ViewData["Title"] = "Order Logistics";
 }
 
 <style>
     .admin-page {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 0 1rem;
+        padding-top: 2rem;
+        padding-bottom: 5rem;
     }
 
-    .page-top {
+    .page-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 2rem;
-        flex-wrap: wrap;
-        gap: 1rem;
+        margin-bottom: 3rem;
     }
 
-    .page-top h1 {
-        font-size: 1.85rem;
-        font-weight: 700;
-        color: #1a1a1a;
+    .admin-title {
+        font-family: var(--font-display);
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: var(--midnight);
         letter-spacing: -0.02em;
     }
 
-    .orders-count {
-        font-size: 0.85rem;
-        color: #6b7280;
-        font-weight: 500;
+    .stat-pill {
+        background: var(--bg-base);
+        padding: 0.5rem 1rem;
+        border-radius: 99px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        border: 1px solid var(--border-subtle);
     }
 
-    .table-card {
+    /* --- Refined Table Card --- */
+    .inventory-card {
         background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
+        border: 1px solid var(--border-subtle);
+        border-radius: 24px;
         overflow: hidden;
+        box-shadow: var(--shadow-sm);
     }
 
-    .orders-table {
+    .inventory-table {
         width: 100%;
         border-collapse: collapse;
     }
 
-    .orders-table thead tr {
-        background: #f9fafb;
-        border-bottom: 1px solid #e5e7eb;
+    .inventory-table thead {
+        background: var(--bg-base);
+        border-bottom: 1px solid var(--border-subtle);
     }
 
-    .orders-table th {
-        padding: 0.85rem 1.25rem;
+    .inventory-table th {
+        padding: 1.25rem 1.5rem;
         text-align: left;
-        font-size: 0.72rem;
-        font-weight: 700;
-        color: #9ca3af;
+        font-size: 0.65rem;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.07em;
-        white-space: nowrap;
+        color: var(--text-muted);
+        letter-spacing: 0.1em;
     }
 
-    .orders-table tbody tr {
-        border-bottom: 1px solid #f3f4f6;
-        transition: background 0.15s;
-    }
-
-    .orders-table tbody tr:last-child { border-bottom: none; }
-    .orders-table tbody tr:hover { background: #fafafa; }
-
-    .orders-table td {
-        padding: 1rem 1.25rem;
-        font-size: 0.9rem;
-        color: #374151;
+    .inventory-table td {
+        padding: 1.25rem 1.5rem;
+        font-size: 0.875rem;
+        color: var(--text-main);
+        border-bottom: 1px solid var(--border-subtle);
         vertical-align: middle;
     }
 
-    .order-items {
-        max-width: 260px;
-        font-size: 0.875rem;
-        color: #6b7280;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    .inventory-table tr:last-child td {
+        border-bottom: none;
     }
 
-    .customer-name {
-        font-weight: 600;
-        color: #1a1a1a;
+    .inventory-table tbody tr:hover {
+        background: var(--bg-base);
+    }
+
+    .order-reference {
+        font-weight: 700;
+        color: var(--midnight);
+        font-family: var(--font-display);
+    }
+
+    .customer-info {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
     }
 
     .order-total {
-        font-weight: 700;
-        color: #1a1a1a;
-        white-space: nowrap;
+        font-weight: 800;
+        color: var(--midnight);
+        font-family: var(--font-display);
     }
 
-    .order-date {
-        font-size: 0.82rem;
-        color: #9ca3af;
-        white-space: nowrap;
+    /* Refined Status Select */
+    .status-wrap {
+        position: relative;
+        display: inline-block;
     }
 
-    /* Status dropdown */
-    .status-select {
-        padding: 0.35rem 2rem 0.35rem 0.75rem;
-        border-radius: 99px;
-        border: 1.5px solid transparent;
-        font-family: 'Inter', sans-serif;
-        font-size: 0.78rem;
-        font-weight: 700;
-        cursor: pointer;
+    .luxury-status-select {
         appearance: none;
-        -webkit-appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239ca3af'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 0.6rem center;
-        transition: box-shadow 0.15s;
+        padding: 0.5rem 2rem 0.5rem 1rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        border: 1.5px solid transparent;
+        transition: var(--transition-smooth);
         outline: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23111827'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
     }
 
-    .status-select:focus {
-        box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
-    }
-
-    /* Status colors */
-    .status-select.pending {
-        background-color: #fffbeb;
-        border-color: #fcd34d;
+    .status-pending {
+        background: #fffbeb;
         color: #92400e;
+        border-color: #fef3c7;
     }
 
-    .status-select.processing {
-        background-color: #eff6ff;
-        border-color: #93c5fd;
+    .status-processing {
+        background: #eff6ff;
         color: #1e40af;
+        border-color: #dbeafe;
     }
 
-    .status-select.shipped {
-        background-color: #ecfdf5;
-        border-color: #6ee7b7;
+    .status-shipped {
+        background: #ecfdf5;
         color: #065f46;
+        border-color: #d1fae5;
     }
 
-    .status-select.delivered {
-        background-color: #ecfdf5;
-        border-color: #6ee7b7;
-        color: #065f46;
+    .status-delivered {
+        background: #f0fdf4;
+        color: #166534;
+        border-color: #dcfce7;
     }
 
-    .status-select.cancelled {
-        background-color: #fef2f2;
-        border-color: #fca5a5;
+    .status-cancelled {
+        background: #fef2f2;
         color: #991b1b;
+        border-color: #fee2e2;
     }
 
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: #9ca3af;
+    .luxury-status-select:focus {
+        box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
     }
-
-    .empty-state p { margin-top: 0.5rem; font-size: 0.9rem; }
 </style>
 
-<script>
-    function applyStatusStyle(sel) {
-        const val = sel.value.toLowerCase();
-        sel.className = 'status-select ' + val;
-    }
-</script>
-
-<div class="admin-page">
-    <div class="page-top">
-        <div>
-            <h1>Orders <span style="color:#10b981">Tracking</span></h1>
-            @{
-                int count = Model.Count();
-            }
-            <span class="orders-count">@count order@(count != 1 ? "s" : "") total</span>
-        </div>
+<div class="container admin-page fade-in">
+    <div class="page-header">
+        <h1 class="admin-title">Order <span style="font-weight: 300; opacity: 0.5;">Logistics</span></h1>
+        <div class="stat-pill">@Model.Count() Orders Tracked</div>
     </div>
 
-    <div class="table-card">
+    <div class="inventory-card">
         @if (!Model.Any())
         {
-            <div class="empty-state">
-                <div style="font-size:2.5rem; margin-bottom:0.5rem;">📋</div>
-                <strong>No orders yet</strong>
-                <p>Customer orders will appear here.</p>
+            <div style="text-align: center; padding: 6rem 2rem;">
+                <div style="font-size: 3rem; margin-bottom: 1.5rem; opacity: 0.3;">📋</div>
+                <h4 style="font-family: var(--font-display); color: var(--midnight);">No orders processed</h4>
+                <p style="color: var(--text-muted); font-size: 0.875rem;">Orders will appear here once customers finalize
+                    their selection.</p>
             </div>
         }
         else
         {
-            <table class="orders-table">
+            <table class="inventory-table">
                 <thead>
                     <tr>
-                        <th>Order Items</th>
-                        <th>Customer</th>
-                        <th>Total</th>
-                        <th>Date</th>
-                        <th>Status</th>
+                        <th>Manifest</th>
+                        <th>Stakeholder</th>
+                        <th>Total Value</th>
+                        <th>Status Selection</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var order in Model)
                     {
-                        var statusClass = order.Status.ToString().ToLower();
+                        var statusClass = "status-" + order.Status.ToString().ToLower();
                         <tr>
                             <td>
-                                <div class="order-items" title="@string.Join(", ", order.Products.Select(p => p.Name))">
-                                    @string.Join(", ", order.Products.Select(p => p.Name))
+                                <div class="order-reference">Selection ID: @order.Id.ToString().Substring(0, 8).ToUpper()</div>
+                                <div class="customer-info">
+                                    @order.OrderDate.ToString("MMM d, yyyy") — @order.Products.Count() items
                                 </div>
                             </td>
-                            <td class="customer-name">@order.User.Username</td>
-                            <td class="order-total">@order.Total.ToString("C")</td>
-                            <td class="order-date">@order.OrderDate.ToString("MMM d, yyyy")</td>
                             <td>
-                                <form asp-action="UpdateOrderStatus" method="post">
-                                    <input type="hidden" name="orderId" value="@order.Id" />
-                                    <select name="status"
-                                            class="status-select @statusClass"
-                                            onchange="applyStatusStyle(this); this.form.submit()">
-                                        @foreach (var status in Enum.GetValues(typeof(OnlineStore.Domain.Enums.OrderStatus)))
-                                        {
-                                            <option value="@status"
+                                <div style="font-weight: 700; color: var(--midnight);">@order.User.Username</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">Registered Client</div>
+                            </td>
+                            <td class="order-total">@order.Total.ToString("C0")</td>
+                            <td>
+                                <div class="status-wrap">
+                                    <form asp-action="UpdateOrderStatus" method="post">
+                                        <input type="hidden" name="orderId" value="@order.Id" />
+                                        <select name="status" class="luxury-status-select @statusClass"
+                                            onchange="this.className = 'luxury-status-select status-' + this.value.toLowerCase(); this.form.submit()">
+                                            @foreach (var status in
+                                           Enum.GetValues(typeof(OnlineStore.Domain.Enums.OrderStatus)))
+                                            {
+                                                <option value="@status"
                                                     selected="@(order.Status.ToString() == status.ToString() ? "selected" : null)">
-                                                @status
-                                            </option>
-                                        }
-                                    </select>
-                                </form>
+                                                    @status
+                                                </option>
+                                            }
+                                        </select>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }

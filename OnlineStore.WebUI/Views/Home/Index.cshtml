@@ -1,386 +1,232 @@
 ﻿@model IEnumerable<OnlineStore.Domain.Entities.Product>
 @{
-    ViewData["Title"] = "Minimalist Collection";
-
-    int activeFilterCount = 0;
-    if (!string.IsNullOrEmpty(ViewBag.SearchQuery)) activeFilterCount++;
-    if (!string.IsNullOrEmpty(ViewBag.CategoryFilter) && ViewBag.CategoryFilter != "All") activeFilterCount++;
-    if (ViewBag.MinPrice != null) activeFilterCount++;
-    if (ViewBag.MaxPrice != null) activeFilterCount++;
+    ViewData["Title"] = "The Collection";
 }
 
 <style>
-    .home-hero {
+    /* --- Grid Layout --- */
+    .hero-banner {
+        padding: 4rem 0 3rem;
         text-align: center;
-        padding: 4rem 0 6rem;
     }
 
     .hero-title {
-        font-family: var(--font-serif);
-        font-size: 4.5rem;
-        line-height: 1.1;
-        letter-spacing: -0.04em;
-        margin-bottom: 1.5rem;
-    }
-
-    .hero-title em {
-        font-style: italic;
-        color: var(--accent-green);
+        font-family: var(--font-elegant);
+        font-size: 3.5rem;
+        color: var(--midnight);
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
     }
 
     .hero-subtitle {
+        font-family: var(--font-display);
         font-size: 1.125rem;
         color: var(--text-muted);
         max-width: 600px;
         margin: 0 auto;
+        font-weight: 300;
     }
 
-    /* --- Floating Filter Bar --- */
-    .filter-section {
-        margin-top: -3rem;
-        margin-bottom: 5rem;
-        position: sticky;
-        top: 100px;
-        z-index: 900;
-    }
-
-    .filter-card {
-        background: #fff;
-        border: 1px solid var(--border-light);
-        border-radius: 20px;
-        padding: 1rem 1.5rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
-    }
-
-    .filter-form {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        flex-wrap: wrap;
-    }
-
-    .filter-input-group {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        min-width: 150px;
-    }
-
-    .filter-input-group.search {
-        flex: 2;
-    }
-
-    .input-label {
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.4rem;
-        color: var(--text-muted);
-    }
-
-    .form-input {
-        background: var(--bg-warm);
-        border: 1.5px solid transparent;
-        border-radius: 10px;
-        padding: 0.6rem 1rem;
-        font-family: var(--font-main);
-        font-size: 0.9375rem;
-        color: var(--text-dark);
-        width: 100%;
-        transition: var(--transition);
-    }
-
-    .form-input:focus {
-        background: #fff;
-        border-color: var(--accent-green);
-        outline: none;
-        box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.1);
-    }
-
-    .btn-search {
-        background: var(--text-dark);
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        padding: 0.8rem 2rem;
-        font-weight: 700;
-        cursor: pointer;
-        align-self: flex-end;
-    }
-
-    .btn-search:hover {
-        background: var(--accent-green);
-        transform: translateY(-2px);
-    }
-
-    .clear-link {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-muted);
-        align-self: flex-end;
-        padding: 0.8rem 0.5rem;
-    }
-
-    .clear-link:hover {
-        color: #a4161a;
-    }
-
-    /* --- Product Grid --- */
     .product-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 3rem 2rem;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+        margin-bottom: 6rem;
     }
 
+    /* --- Luxury Card Design --- */
     .product-card {
-        background: #fff;
-        border: 1px solid var(--border-light);
+        background: var(--surface);
+        border: 1px solid var(--border-subtle);
         border-radius: 20px;
-        transition: var(--transition);
+        transition: var(--transition-smooth);
         position: relative;
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        text-decoration: none;
+        color: inherit;
     }
 
     .product-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
-        border-color: var(--accent-green);
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--accent-primary);
     }
 
-    .category-badge {
+    /* Glass Badge for Categories */
+    .glass-badge {
         position: absolute;
-        top: 1.25rem;
-        left: 1.25rem;
-        z-index: 2;
-        padding: 0.25rem 0.75rem;
-        border-radius: 99px;
-        font-size: 0.7rem;
+        top: 1rem;
+        left: 1rem;
+        z-index: 10;
+        padding: 0.35rem 0.75rem;
+        border-radius: 10px;
+        font-size: 0.625rem;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.1em;
+        background: rgba(255, 255, 255, 0.4);
         backdrop-filter: blur(8px);
-        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: var(--midnight);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
 
-    .cat-electronic {
-        color: #0369a1;
-    }
-
-    .cat-clothing {
-        color: #7e22ce;
-    }
-
-    .cat-vehicle {
-        color: #c2410c;
-    }
-
-    .cat-default {
-        color: #475569;
-    }
-
-    .product-visual-container {
-        height: 280px;
+    .visual-container {
+        height: 240px;
         background: #fdfdfb;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
+        position: relative;
     }
 
-    .product-image {
+    .product-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: var(--transition);
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .product-emoji {
-        font-size: 5rem;
-        transition: var(--transition);
+    .card-emoji {
+        font-size: 4rem;
+        transition: transform 0.6s var(--transition-smooth);
     }
 
-    .product-card:hover .product-image,
-    .product-card:hover .product-emoji {
-        transform: scale(1.05);
+    .product-card:hover .product-img,
+    .product-card:hover .card-emoji {
+        transform: scale(1.08);
     }
 
-    .product-info-wrap {
+    .info-container {
         padding: 1.5rem;
-        flex: 1;
         display: flex;
         flex-direction: column;
+        flex: 1;
     }
 
-    .product-name-link {
-        font-family: var(--font-serif);
-        font-size: 1.5rem;
+    .product-name {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--midnight);
         margin-bottom: 0.5rem;
-        color: var(--text-dark);
-        display: block;
+        line-height: 1.2;
     }
 
-    .product-desc {
-        font-size: 0.875rem;
+    .product-summary {
+        font-size: 0.8125rem;
         color: var(--text-muted);
         margin-bottom: 1.25rem;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        height: 2.8rem;
+        line-height: 1.6;
     }
 
-    .product-stock {
-        font-size: 0.75rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
+    .price-tag {
+        font-family: var(--font-display);
+        font-size: 1.375rem;
+        font-weight: 800;
+        color: var(--accent-secondary);
+        letter-spacing: -0.01em;
     }
 
-    .stock-in {
-        color: var(--accent-green);
-    }
-
-    .stock-out {
-        color: #a4161a;
-    }
-
-    .product-footer {
+    .card-footer {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-top: auto;
     }
 
-    .product-price {
-        font-size: 1.5rem;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-    }
-
-    .btn-group {
-        display: flex;
-        gap: 0.75rem;
-    }
-
-    .btn-outline {
-        padding: 0.6rem 1rem;
-        border: 1.5px solid var(--border-light);
-        border-radius: 10px;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-
-    .btn-outline:hover {
-        border-color: var(--text-dark);
-        background: #fafafa;
-    }
-
-    .btn-filled {
-        padding: 0.6rem 1.25rem;
-        background: var(--text-dark);
+    .btn-buy {
+        background: var(--midnight);
         color: #fff;
         border: none;
-        border-radius: 10px;
-        font-size: 0.875rem;
-        font-weight: 600;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
+        transition: var(--transition-smooth);
     }
 
-    .btn-filled:hover {
-        background: var(--accent-green);
+    .btn-buy:hover {
+        background: var(--accent-primary);
+        transform: rotate(90deg);
     }
 
-    .empty-state {
+    .stock-pill {
+        font-size: 0.625rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .stock-on {
+        color: var(--accent-primary);
+    }
+
+    .stock-off {
+        color: #dc2626;
+    }
+
+    /* --- Empty State --- */
+    .empty-gallery {
         text-align: center;
-        padding: 8rem 0;
-        background: #fff;
-        border-radius: 30px;
-        border: 1px dashed var(--border-light);
+        padding: 10rem 0;
+        grid-column: span 4;
     }
 
-    @@media (max-width: 1024px) {
+    @@media (max-width: 1280px) {
+        .product-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @@media (max-width: 900px) {
         .product-grid {
             grid-template-columns: repeat(2, 1fr);
-        }
-
-        .hero-title {
-            font-size: 3.5rem;
-        }
-    }
-
-    @@media (max-width: 768px) {
-        .product-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .filter-section {
-            position: relative;
-            top: 0;
-            margin-top: 0;
         }
 
         .hero-title {
             font-size: 2.75rem;
         }
     }
+
+    @@media (max-width: 600px) {
+        .product-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hero-banner {
+            padding: 2rem 0;
+        }
+    }
 </style>
 
-<div class="container">
-    <section class="home-hero">
-        <h1 class="hero-title">Minimalist <em>Collection</em></h1>
-        <p class="hero-subtitle">Elevated essentials for the conscious consumer, designed with purpose and crafted for
-            longevity.</p>
-    </section>
-
-    <section class="filter-section">
-        <div class="filter-card">
-            <form method="get" asp-action="Index" class="filter-form">
-                <div class="filter-input-group search">
-                    <label class="input-label">Search</label>
-                    <input type="text" name="searchQuery" value="@ViewBag.SearchQuery"
-                        placeholder="Search our collection..." class="form-input" />
-                </div>
-
-                <div class="filter-input-group">
-                    <label class="input-label">Category</label>
-                    <select name="categoryFilter" class="form-input">
-                        <option value="All" selected="@(ViewBag.CategoryFilter == "All")">All Items</option>
-                        <option value="Electronic" selected="@(ViewBag.CategoryFilter == "Electronic")">Electronics
-                        </option>
-                        <option value="Clothing" selected="@(ViewBag.CategoryFilter == "Clothing")">Clothing</option>
-                        <option value="Vehicle" selected="@(ViewBag.CategoryFilter == "Vehicle")">Vehicles</option>
-                    </select>
-                </div>
-
-                <div class="filter-input-group">
-                    <label class="input-label">Price Range</label>
-                    <div style="display: flex; gap: 0.5rem">
-                        <input type="number" name="minPrice" value="@ViewBag.MinPrice" step="0.01" class="form-input"
-                            placeholder="Min" />
-                        <input type="number" name="maxPrice" value="@ViewBag.MaxPrice" step="0.01" class="form-input"
-                            placeholder="Max" />
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-search">Apply</button>
-                <a asp-action="Index" class="clear-link">Clear</a>
-            </form>
-        </div>
-    </section>
+<div class="container fade-in">
+    <div class="hero-banner">
+        <h1 class="hero-title">Refined Living</h1>
+        <p class="hero-subtitle">Curated essentials designed for the modern home. Quality craftsmanship meeting timeless
+            aesthetic.</p>
+    </div>
 
     @if (!Model.Any())
     {
-        <div class="empty-state">
-            <div style="font-size: 4rem; margin-bottom: 1.5rem">empty</div>
-            <h3 class="hero-title" style="font-size: 2rem">No matches found</h3>
-            <p class="hero-subtitle">Try adjusting your filters or search keywords.</p>
-            <a asp-action="Index" class="btn-filled" style="display: inline-block; margin-top: 2rem">View All Products</a>
+        <div class="empty-gallery">
+            <div style="font-size: 4rem; opacity: 0.2; margin-bottom: 2rem;">✧</div>
+            <h3 style="font-family: var(--font-elegant); font-size: 2rem; color: var(--midnight);">No essentials found</h3>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Adjust your filters to discover our unique collection.
+            </p>
+            <a asp-action="Index" class="nav-link" style="text-decoration: underline;">Clear All Filters</a>
         </div>
     }
     else
@@ -389,67 +235,59 @@
             @foreach (var product in Model)
             {
                 var typeName = product.GetType().Name.Replace("Product", "");
-                var badgeClass = typeName switch
-                {
-                    "Electronic" => "cat-electronic",
-                    "Clothing" => "cat-clothing",
-                    "Vehicle" => "cat-vehicle",
-                    _ => "cat-default"
-                };
+                var mainImage = product.Images.FirstOrDefault(i => i.IsMain) ?? product.Images.FirstOrDefault();
 
                 var emoji = typeName switch
                 {
                     "Electronic" => "🔌",
-                    "Clothing" => "👕",
-                    "Vehicle" => "🚗",
+                    "Clothing" => "🏠",
+                    "Vehicle" => "🚲",
                     _ => "📦"
                 };
 
-                var mainImage = product.Images.FirstOrDefault(i => i.IsMain) ?? product.Images.FirstOrDefault();
-
                 <div class="product-card">
-                    <span class="category-badge @badgeClass">@typeName</span>
+                    <span class="glass-badge">@typeName</span>
 
-                    <a asp-action="Details" asp-route-id="@product.Id" class="product-visual-container">
+                    <a asp-action="Details" asp-route-id="@product.Id" class="visual-container">
                         @if (mainImage != null)
                         {
-                            <img src="@mainImage.ImageUrl" alt="@product.Name" class="product-image" />
+                            <img src="@mainImage.ImageUrl" alt="@product.Name" class="product-img" />
                         }
                         else
                         {
-                            <div class="product-emoji">@emoji</div>
+                            <div class="card-emoji">@emoji</div>
                         }
                     </a>
 
-                    <div class="product-info-wrap">
-                        <a asp-action="Details" asp-route-id="@product.Id" class="product-name-link">
-                            <h3 style="font-family: inherit; font-size: inherit; color: inherit;">@product.Name</h3>
-                        </a>
-                        <p class="product-desc">@product.GetDescription()</p>
+                    <div class="info-container">
+                        <div class="stock-pill @(product.Stock > 0 ? "stock-on" : "stock-off")">
+                            @(product.Stock > 0 ? "● AVAILABLE" : "○ SOLD OUT")
+                        </div>
 
-                        <div class="product-stock">
+                        <a asp-action="Details" asp-route-id="@product.Id" style="text-decoration: none;">
+                            <h2 class="product-name">@product.Name</h2>
+                        </a>
+                        <p class="product-summary">@product.GetDescription()</p>
+
+                        <div class="card-footer">
+                            <span class="price-tag">@product.Price.ToString("C0")</span>
+
                             @if (product.Stock > 0)
                             {
-                                <span class="stock-in">● In Stock</span>
-                                <span style="opacity: 0.5">· @product.Stock available</span>
+                                <form asp-controller="Cart" asp-action="Add" asp-route-id="@product.Id" method="post">
+                                    <button type="submit" class="btn-buy" title="Add to bag">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2.5">
+                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg>
+                                    </button>
+                                </form>
                             }
                             else
                             {
-                                <span class="stock-out">○ Out of Stock</span>
+                                <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted);">NOTIFY ME</span>
                             }
-                        </div>
-
-                        <div class="product-footer">
-                            <span class="product-price">@product.Price.ToString("C")</span>
-                            <div class="btn-group">
-                                <a asp-action="Details" asp-route-id="@product.Id" class="btn-outline">Details</a>
-                                @if (product.Stock > 0)
-                                {
-                                    <form asp-controller="Cart" asp-action="Add" asp-route-id="@product.Id" method="post">
-                                        <button type="submit" class="btn-filled">Add</button>
-                                    </form>
-                                }
-                            </div>
                         </div>
                     </div>
                 </div>

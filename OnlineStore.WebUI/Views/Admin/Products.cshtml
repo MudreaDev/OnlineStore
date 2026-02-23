@@ -2,230 +2,243 @@
 @using OnlineStore.Domain.Entities
 
 @{
-    ViewData["Title"] = "Manage Products";
+    ViewData["Title"] = "Inventory Management";
 }
 
 <style>
     .admin-page {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 0 1rem;
+        padding-top: 2rem;
+        padding-bottom: 5rem;
     }
 
-    .page-top {
+    .page-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 2rem;
-        flex-wrap: wrap;
-        gap: 1rem;
+        margin-bottom: 3rem;
     }
 
-    .page-top h1 {
-        font-size: 1.85rem;
-        font-weight: 700;
-        color: #1a1a1a;
+    .admin-title {
+        font-family: var(--font-display);
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: var(--midnight);
         letter-spacing: -0.02em;
     }
 
-    .btn-add {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        padding: 0.7rem 1.4rem;
-        background: #1a1a1a;
+    .btn-create {
+        background: var(--midnight);
         color: #fff;
-        border-radius: 10px;
-        font-size: 0.9rem;
-        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
         text-decoration: none;
-        transition: background 0.2s, transform 0.15s;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 0.875rem;
+        transition: var(--transition-smooth);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: var(--shadow-sm);
     }
 
-    .btn-add:hover {
-        background: #111;
-        transform: translateY(-1px);
+    .btn-create:hover {
+        background: var(--accent-primary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
     }
 
-    .table-card {
+    /* --- Refined Table Card --- */
+    .inventory-card {
         background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
+        border: 1px solid var(--border-subtle);
+        border-radius: 24px;
         overflow: hidden;
+        box-shadow: var(--shadow-sm);
     }
 
-    .products-table {
+    .inventory-table {
         width: 100%;
         border-collapse: collapse;
     }
 
-    .products-table thead tr {
-        background: #f9fafb;
-        border-bottom: 1px solid #e5e7eb;
+    .inventory-table thead {
+        background: var(--bg-base);
+        border-bottom: 1px solid var(--border-subtle);
     }
 
-    .products-table th {
-        padding: 0.85rem 1.25rem;
+    .inventory-table th {
+        padding: 1.25rem 1.5rem;
         text-align: left;
-        font-size: 0.72rem;
-        font-weight: 700;
-        color: #9ca3af;
+        font-size: 0.65rem;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.07em;
-        white-space: nowrap;
+        color: var(--text-muted);
+        letter-spacing: 0.1em;
     }
 
-    .products-table tbody tr {
-        border-bottom: 1px solid #f3f4f6;
-        transition: background 0.15s;
-    }
-
-    .products-table tbody tr:last-child { border-bottom: none; }
-
-    .products-table tbody tr:hover { background: #fafafa; }
-
-    .products-table td {
-        padding: 1rem 1.25rem;
-        font-size: 0.9rem;
-        color: #374151;
+    .inventory-table td {
+        padding: 1.25rem 1.5rem;
+        font-size: 0.875rem;
+        color: var(--text-main);
+        border-bottom: 1px solid var(--border-subtle);
         vertical-align: middle;
     }
 
-    .product-name {
-        font-weight: 600;
-        color: #1a1a1a;
-        font-size: 0.95rem;
+    .inventory-table tr:last-child td {
+        border-bottom: none;
     }
 
-    .product-price {
+    .inventory-table tbody tr:hover {
+        background: var(--bg-base);
+    }
+
+    .item-name {
         font-weight: 700;
-        color: #1a1a1a;
-        font-size: 0.95rem;
-        white-space: nowrap;
+        color: var(--midnight);
+        font-family: var(--font-display);
     }
 
-    .type-badge {
-        display: inline-block;
-        padding: 0.2rem 0.65rem;
-        border-radius: 99px;
-        font-size: 0.72rem;
+    /* Badges */
+    .admin-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .badge-electro {
+        background: #ecfdf5;
+        color: #065f46;
+    }
+
+    .badge-clothing {
+        background: #fdf4ff;
+        color: #7e22ce;
+    }
+
+    .badge-vehicle {
+        background: #fff7ed;
+        color: #c2410c;
+    }
+
+    .badge-neutral {
+        background: var(--bg-base);
+        color: var(--text-muted);
+    }
+
+    .stock-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
         font-weight: 700;
-        letter-spacing: 0.04em;
+        font-size: 0.8125rem;
     }
 
-    .type-electronic { background: #eff6ff; color: #1d4ed8; }
-    .type-clothing { background: #fdf4ff; color: #7e22ce; }
-    .type-vehicle { background: #fff7ed; color: #c2410c; }
-    .type-default { background: #f3f4f6; color: #374151; }
-
-    .spec-tag {
-        display: inline-block;
-        background: #f3f4f6;
-        color: #6b7280;
-        padding: 0.15rem 0.55rem;
-        border-radius: 6px;
-        font-size: 0.78rem;
-        margin-right: 0.25rem;
+    .stock-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
     }
 
-    .spec-tag strong {
-        color: #374151;
-        font-weight: 600;
-    }
-
-    .actions-cell {
+    /* Row Actions */
+    .action-group {
         display: flex;
         align-items: center;
         gap: 0.5rem;
     }
 
-    .btn-action {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.35rem 0.8rem;
-        border-radius: 7px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        cursor: pointer;
-        border: none;
-        font-family: 'Inter', sans-serif;
-        text-decoration: none;
-        transition: background 0.15s, color 0.15s;
-    }
-
-    .btn-edit {
-        background: #f3f4f6;
-        color: #374151;
-    }
-    .btn-edit:hover { background: #e5e7eb; color: #1a1a1a; }
-
-    .btn-clone {
-        background: #ecfdf5;
-        color: #065f46;
-    }
-    .btn-clone:hover { background: #d1fae5; }
-
-    .btn-delete {
-        background: #fef2f2;
-        color: #dc2626;
-    }
-    .btn-delete:hover { background: #fee2e2; }
-
-    .pagination {
+    .btn-icon-action {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
         display: flex;
-        gap: 0.4rem;
+        align-items: center;
         justify-content: center;
-        margin-top: 1.5rem;
-    }
-
-    .page-link {
-        padding: 0.45rem 0.9rem;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 8px;
-        color: #374151;
+        border: 1px solid var(--border-subtle);
+        background: #fff;
+        color: var(--text-muted);
+        transition: var(--transition-smooth);
+        cursor: pointer;
         text-decoration: none;
-        font-weight: 600;
-        font-size: 0.875rem;
-        transition: all 0.15s;
     }
 
-    .page-link:hover { border-color: #10b981; color: #10b981; }
-    .page-link.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
-
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: #9ca3af;
+    .btn-icon-action:hover {
+        border-color: var(--accent-primary);
+        color: var(--accent-primary);
+        background: var(--bg-base);
     }
 
-    .empty-state p { margin-top: 0.5rem; font-size: 0.9rem; }
+    .btn-delete-row:hover {
+        border-color: #fca5a5;
+        color: #dc2626;
+        background: #fef2f2;
+    }
+
+    .pagination-wrap {
+        margin-top: 3rem;
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .admin-page-link {
+        padding: 0.6rem 1rem;
+        border-radius: 10px;
+        border: 1px solid var(--border-subtle);
+        color: var(--text-main);
+        font-weight: 700;
+        text-decoration: none;
+        transition: var(--transition-smooth);
+        font-size: 0.8125rem;
+    }
+
+    .admin-page-link:hover {
+        border-color: var(--accent-primary);
+        color: var(--accent-primary);
+    }
+
+    .admin-page-link.active {
+        background: var(--midnight);
+        color: #fff;
+        border-color: var(--midnight);
+    }
 </style>
 
-<div class="admin-page">
-    <div class="page-top">
-        <h1>Products <span style="color:#10b981">Management</span></h1>
-        <a asp-action="AddProduct" class="btn-add">+ Add Product</a>
+<div class="container admin-page fade-in">
+    <div class="page-header">
+        <h1 class="admin-title">Inventory <span style="font-weight: 300; opacity: 0.5;">Manage</span></h1>
+        <a asp-action="AddProduct" class="btn-create">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Create New Product
+        </a>
     </div>
 
-    <div class="table-card">
+    <div class="inventory-card">
         @if (!Model.Any())
         {
-            <div class="empty-state">
-                <div style="font-size:2.5rem; margin-bottom:0.5rem;">📦</div>
-                <strong>No products yet</strong>
-                <p>Get started by adding your first product.</p>
+            <div style="text-align: center; padding: 6rem 2rem;">
+                <div style="font-size: 3rem; margin-bottom: 1.5rem; opacity: 0.3;">🗃️</div>
+                <h4 style="font-family: var(--font-display); color: var(--midnight);">No inventory items</h4>
+                <p style="color: var(--text-muted); font-size: 0.875rem;">Your digital warehouse is currently empty.</p>
             </div>
         }
         else
         {
-            <table class="products-table">
+            <table class="inventory-table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Price</th>
+                        <th>Product Details</th>
                         <th>Type</th>
-                        <th>Specifications</th>
-                        <th>Stock</th>
+                        <th>Price</th>
+                        <th>Shipment Stock</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -233,50 +246,80 @@
                     @foreach (var product in Model)
                     {
                         <tr>
-                            <td class="product-name">@product.Name</td>
-                            <td class="product-price">@product.Price.ToString("C")</td>
+                            <td>
+                                <div class="item-name">@product.Name</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                    @if (product is ElectronicProduct electro)
+                                    {
+                                        <span>Protection: @electro.WarrantyMonths Months</span>
+                                    }
+                                    else if (product is ClothingProduct clothing)
+                                    {
+                                        <span>Size: @clothing.Size | @clothing.Material</span>
+                                    }
+                                    else if (product is VehicleProduct vehicle)
+                                    {
+                                        <span>@vehicle.Brand @vehicle.Model (@vehicle.Year)</span>
+                                    }
+                                    else
+                                    {
+                                        <span>ID: @product.Id.ToString().Substring(0, 8)</span>
+                                    }
+                                </div>
+                            </td>
                             <td>
                                 @{
                                     var typeName = product.GetType().Name.Replace("Product", "");
-                                    var typeClass = typeName switch {
-                                        "Electronic" => "type-electronic",
-                                        "Clothing" => "type-clothing",
-                                        "Vehicle" => "type-vehicle",
-                                        _ => "type-default"
+                                    var badgeClass = typeName switch
+                                    {
+                                        "Electronic" => "badge-electro",
+                                        "Clothing" => "badge-clothing",
+                                        "Vehicle" => "badge-vehicle",
+                                        _ => "badge-neutral"
                                     };
                                 }
-                                <span class="type-badge @typeClass">@typeName</span>
+                                <span class="admin-badge @badgeClass">@typeName</span>
+                            </td>
+                            <td style="font-weight: 700; color: var(--midnight);">@product.Price.ToString("C0")</td>
+                            <td>
+                                <div class="stock-indicator"
+                                    style="color: @(product.Stock > 0 ? "var(--accent-primary)" : "#dc2626")">
+                                    <div class="stock-dot"
+                                        style="background: @(product.Stock > 0 ? "var(--accent-primary)" : "#dc2626")"></div>
+                                    @product.Stock units
+                                </div>
                             </td>
                             <td>
-                                @if (product is ElectronicProduct electro)
-                                {
-                                    <span class="spec-tag"><strong>Warranty</strong> @electro.WarrantyMonths mo</span>
-                                }
-                                else if (product is ClothingProduct clothing)
-                                {
-                                    <span class="spec-tag"><strong>Size</strong> @clothing.Size</span>
-                                    <span class="spec-tag"><strong>Material</strong> @clothing.Material</span>
-                                }
-                                else if (product is VehicleProduct vehicle)
-                                {
-                                    <span class="spec-tag"><strong>@vehicle.Brand</strong> @vehicle.Model</span>
-                                    <span class="spec-tag">@vehicle.Year</span>
-                                }
-                            </td>
-                            <td>
-                                <span style="font-weight:600; color: @(product.Stock > 0 ? "#065f46" : "#dc2626");">
-                                    @product.Stock
-                                </span>
-                            </td>
-                            <td>
-                                <div class="actions-cell">
-                                    <a asp-action="EditProduct" asp-route-id="@product.Id" class="btn-action btn-edit">Edit</a>
-                                    <form asp-action="CloneProduct" asp-route-id="@product.Id" method="post" style="display:inline">
-                                        <button type="submit" class="btn-action btn-clone">Clone</button>
+                                <div class="action-group">
+                                    <a asp-action="EditProduct" asp-route-id="@product.Id" class="btn-icon-action" title="Edit">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                            stroke-width="2.5">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                    </a>
+                                    <form asp-action="CloneProduct" asp-route-id="@product.Id" method="post">
+                                        <button type="submit" class="btn-icon-action" title="Clone">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2.5">
+                                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                            </svg>
+                                        </button>
                                     </form>
-                                    <form asp-action="DeleteProduct" asp-route-id="@product.Id" method="post" style="display:inline"
-                                          onsubmit="return confirm('Delete \'@product.Name\'? This cannot be undone.')">
-                                        <button type="submit" class="btn-action btn-delete">Delete</button>
+                                    <form asp-action="DeleteProduct" asp-route-id="@product.Id" method="post"
+                                        onsubmit="return confirm('Archive \'@product.Name\'?')">
+                                        <button type="submit" class="btn-icon-action btn-delete-row" title="Delete">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2.5">
+                                                <polyline points="3 6 5 6 21 6"></polyline>
+                                                <path
+                                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                                </path>
+                                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                                            </svg>
+                                        </button>
                                     </form>
                                 </div>
                             </td>
@@ -289,11 +332,11 @@
 
     @if (ViewBag.TotalPages > 1)
     {
-        <div class="pagination">
+        <div class="pagination-wrap">
             @for (int i = 1; i <= ViewBag.TotalPages; i++)
             {
                 <a asp-action="Products" asp-route-page="@i"
-                   class="page-link @(ViewBag.CurrentPage == i ? "active" : "")">@i</a>
+                    class="admin-page-link @(ViewBag.CurrentPage == i ? "active" : "")">@i</a>
             }
         </div>
     }

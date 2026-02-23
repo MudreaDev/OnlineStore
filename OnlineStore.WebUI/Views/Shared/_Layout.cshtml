@@ -17,22 +17,46 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap"
+        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
 
     <style>
         :root {
-            --bg-warm: #f5f4f0;
-            --accent-green: #2d6a4f;
-            --accent-green-hover: #1b4332;
-            --text-dark: #1a1916;
-            --text-muted: #6b6a65;
-            --border-light: #e2e0d8;
-            --card-white: #ffffff;
-            --navbar-height: 80px;
-            --font-main: 'DM Sans', sans-serif;
-            --font-serif: 'DM Serif Display', serif;
-            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --bg-base: #fbfcfb;
+            --surface: #ffffff;
+            --accent-primary: #059669;
+            /* Emerald 600 */
+            --accent-secondary: #064e3b;
+            /* Emerald 900 */
+            --midnight: #022c22;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --border-subtle: #f3f4f6;
+            --border-bold: #e5e7eb;
+            --navbar-height: 64px;
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-elegant: 'DM Serif Display', serif;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframesfadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out forwards;
         }
 
         * {
@@ -42,129 +66,192 @@
         }
 
         body {
-            background-color: var(--bg-warm);
-            color: var(--text-dark);
-            font-family: var(--font-main);
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-body);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-            transition: var(--transition);
+            font-size: 0.9375rem;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1440px;
             margin: 0 auto;
             padding: 0 2rem;
         }
 
-        /* --- Navbar --- */
+        /* --- Header: Glassmorphism --- */
         .site-header {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             height: var(--navbar-height);
-            background: rgba(245, 244, 240, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             z-index: 1000;
             display: flex;
             align-items: center;
-            transition: var(--transition);
-            border-bottom: 1px solid transparent;
-        }
-
-        .site-header.scrolled {
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            border-bottom: 1px solid var(--border-light);
-            height: 70px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: var(--transition-smooth);
         }
 
         .navbar {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
             align-items: center;
+            gap: 3rem;
             width: 100%;
         }
 
         .logo {
-            font-family: var(--font-serif);
+            font-family: var(--font-elegant);
             font-size: 1.75rem;
-            color: var(--text-dark);
-            letter-spacing: -0.02em;
-        }
-
-        .nav-links {
+            color: var(--midnight);
+            letter-spacing: -0.01em;
+            text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 2.5rem;
+        }
+
+        /* Search & Filters: Refined Glow */
+        .nav-search-form {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .search-input-wrap {
+            position: relative;
+            flex: 1;
+        }
+
+        .nav-search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-bold);
+            border-radius: 12px;
+            padding: 0.625rem 1rem 0.625rem 2.75rem;
+            font-size: 0.875rem;
+            font-family: var(--font-body);
+            transition: var(--transition-smooth);
+        }
+
+        .nav-search-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.08);
+            background: #fff;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .nav-select {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-bold);
+            border-radius: 12px;
+            padding: 0.625rem 1rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            min-width: 130px;
+            transition: var(--transition-smooth);
+        }
+
+        .nav-select:hover {
+            border-color: var(--accent-primary);
+        }
+
+        /* Right Side Nav */
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.75rem;
         }
 
         .nav-link {
-            font-size: 0.9375rem;
-            font-weight: 500;
-            color: var(--text-dark);
-            opacity: 0.8;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .nav-link:hover {
-            opacity: 1;
-            color: var(--accent-green);
+            color: var(--accent-primary);
         }
 
         .cart-pill {
-            background: var(--text-dark);
+            background: var(--midnight);
             color: #fff;
-            padding: 0.5rem 1.25rem;
+            padding: 0.5rem 1.125rem;
             border-radius: 99px;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            font-weight: 600;
+            gap: 0.625rem;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-sm);
         }
 
         .cart-pill:hover {
-            transform: translateY(-2px);
-            background: var(--accent-green);
-            color: #fff;
-        }
-
-        /* --- User Menu Dropdown --- */
-        .user-menu {
-            position: relative;
-            cursor: pointer;
+            background: var(--accent-primary);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
 
         .user-trigger {
+            font-weight: 700;
+            font-size: 0.875rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-weight: 600;
-            font-size: 0.9375rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            background: var(--border-subtle);
+            width: 32px;
+            height: 32px;
+            justify-content: center;
+            transition: var(--transition-smooth);
+        }
+
+        .user-trigger:hover {
+            background: var(--border-bold);
         }
 
         .user-dropdown {
             position: absolute;
             top: 100%;
             right: 0;
-            background: var(--card-white);
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            border: 1px solid var(--border-bold);
+            border-radius: 14px;
+            box-shadow: var(--shadow-lg);
             width: 180px;
             padding: 0.5rem;
-            margin-top: 1rem;
+            margin-top: 0.75rem;
             opacity: 0;
             visibility: hidden;
             transform: translateY(10px);
-            transition: var(--transition);
+            transition: var(--transition-smooth);
         }
 
         .user-menu:hover .user-dropdown {
@@ -174,181 +261,91 @@
         }
 
         .dropdown-item {
-            display: block;
-            padding: 0.6rem 1rem;
-            border-radius: 8px;
+            padding: 0.625rem 1rem;
             font-size: 0.875rem;
             font-weight: 500;
+            border-radius: 8px;
+            display: block;
+            color: var(--text-main);
+            text-decoration: none;
+            transition: var(--transition-smooth);
         }
 
         .dropdown-item:hover {
-            background: #fdfdfb;
-            color: var(--accent-green);
-        }
-
-        /* --- Mobile Drawer --- */
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-        }
-
-        .drawer-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
-            z-index: 1100;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
-        }
-
-        .drawer {
-            position: fixed;
-            top: 0;
-            right: -320px;
-            width: 320px;
-            height: 100vh;
-            background: var(--bg-warm);
-            z-index: 1200;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            transition: 0.4s cubic-bezier(0.77, 0, 0.175, 1);
-            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
-        }
-
-        body.menu-open .drawer-overlay {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        body.menu-open .drawer {
-            right: 0;
-        }
-
-        .drawer-header {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 3rem;
-        }
-
-        .drawer-links {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .drawer-link {
-            font-family: var(--font-serif);
-            font-size: 1.5rem;
+            background: var(--border-subtle);
+            color: var(--accent-primary);
         }
 
         /* --- Alerts --- */
         .alerts-container {
             position: fixed;
-            top: 100px;
+            top: 80px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 1500;
             width: 100%;
-            max-width: 500px;
-            pointer-events: none;
+            max-width: 420px;
         }
 
         .alert {
-            padding: 1.25rem 2rem;
-            border-radius: 12px;
-            background: var(--card-white);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            pointer-events: auto;
-            animation: slideDown 0.5s var(--transition);
-            font-weight: 500;
-        }
-
-        @@keyframes slideDown {
-            from {
-                transform: translateY(-20px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .alert-success {
-            border-left: 4px solid #2d6a4f;
-            color: #1b4332;
-        }
-
-        .alert-danger {
-            border-left: 4px solid #a4161a;
-            color: #660708;
-        }
-
-        /* --- Footer --- */
-        .site-footer {
-            background: #fff;
-            border-top: 1px solid var(--border-light);
-            padding: 5rem 0 3rem;
-            margin-top: 8rem;
-        }
-
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 3rem;
-        }
-
-        .footer-logo {
-            font-family: var(--font-serif);
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        .footer-links {
-            list-style: none;
-            display: flex;
-            gap: 2rem;
-        }
-
-        .footer-bottom {
-            margin-top: 4rem;
-            padding-top: 2rem;
-            border-top: 1px solid #f0efea;
+            padding: 1rem 1.5rem;
             font-size: 0.875rem;
-            color: var(--text-muted);
-            text-align: center;
+            font-weight: 500;
+            border-radius: 14px;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(8px);
+            animation: fadeInUp 0.4s ease-out;
         }
 
+        .alert-success { background: rgba(236, 253, 245, 0.9); color: #065f46; border: 1px solid #a7f3d0; }
+        .alert-danger { background: rgba(254, 242, 242, 0.9); color: #991b1b; border: 1px solid #fecaca; }
+
+        /* --- Layout --- */
         .main-content {
-            padding-top: calc(var(--navbar-height) + 3rem);
+            padding-top: calc(var(--navbar-height) + 2rem);
             min-height: 70vh;
         }
 
+        .site-footer {
+            padding: 5rem 0 3rem;
+            border-top: 1px solid var(--border-subtle);
+            background: #fff;
+        }
+
+        .footer-logo {
+            font-family: var(--font-elegant);
+            color: var(--midnight);
+            text-decoration: none;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+        }
+
+        .footer-links a:hover { color: var(--accent-primary); }
+
+        @@media (max-width: 1024px) {
+            .nav-search-form {
+                max-width: 400px;
+            }
+
+            .navbar {
+                gap: 1rem;
+            }
+        }
+
         @@media (max-width: 768px) {
-            .nav-links {
+
+            .nav-search-form,
+            .nav-links-desktop {
                 display: none;
             }
 
             .menu-toggle {
                 display: block;
-            }
-
-            .container {
-                padding: 0 1.5rem;
             }
         }
     </style>
@@ -361,100 +358,138 @@
                 @ApplicationConfigurationManager.Instance.StoreName
             </a>
 
-            <nav class="nav-links">
-                <a class="nav-link" asp-controller="Home" asp-action="Index">Shop</a>
-                <a class="nav-link" asp-controller="Home" asp-action="Privacy">Privacy</a>
-
-                @{
-                    var session = HttpContextAccessor.HttpContext.Session;
-                    var cart = session.Get<ShoppingCart>("Cart");
-                    var count = cart?.ProductIds.Values.Sum() ?? 0;
-                    var username = session.GetString("Username");
-                }
-
-                <a class="cart-pill" asp-controller="Cart" asp-action="Index">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+            <form id="liveFilterForm" method="get" asp-controller="Home" asp-action="Index" class="nav-search-form">
+                <div class="search-input-wrap">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
-                    Cart @(count > 0 ? " (" + count + ")" : "")
-                </a>
+                    <input type="text" name="searchQuery" id="navSearchInput"
+                        value="@Context.Request.Query["searchQuery"]" placeholder="Find essentials..."
+                        class="nav-search-input" autocomplete="off" />
+                </div>
 
-                @if (!string.IsNullOrEmpty(username))
+                <select name="categoryFilter" id="navCategorySelect" class="nav-select">
+                    <option value="All">All Categories</option>
+                    <option value="Electronic">Electronics</option>
+                    <option value="Clothing">Clothing</option>
+                    <option value="Vehicle">Vehicles</option>
+                </select>
+                @* Preserve other filters if they exist in query *@
+                @if (Context.Request.Query.ContainsKey("minPrice"))
                 {
-                    <div class="user-menu">
-                        <div class="user-trigger">
-                            <span>Hello, @username</span>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="3">
-                                <path d="M6 9l6 6 6-6"></path>
-                            </svg>
-                        </div>
-                        <div class="user-dropdown">
-                            <a class="dropdown-item" asp-controller="Profile" asp-action="Index">Account Details</a>
+                    <input type="hidden" name="minPrice" value="@Context.Request.Query["minPrice"]" />
+                }
+                @if (Context.Request.Query.ContainsKey("maxPrice"))
+                {
+                    <input type="hidden" name="maxPrice" value="@Context.Request.Query["maxPrice"]" />
+                }
+            </form>
 
-                            @{
-                                var userIdStr = session.GetString("UserId");
-                                if (!string.IsNullOrEmpty(userIdStr) && Guid.TryParse(userIdStr, out Guid userId))
-                                {
-                                    var user = UserRepo.GetById(userId);
-                                    if (user is Admin)
+            <div class="nav-right">
+                <nav class="nav-links-desktop" style="display: flex; gap: 1.5rem; align-items: center;">
+                    <a class="nav-link" asp-controller="Home" asp-action="Index">Shop</a>
+
+                    @{
+                        var session = HttpContextAccessor.HttpContext.Session;
+                        var cart = session.Get<ShoppingCart>("Cart");
+                        var count = cart?.ProductIds.Values.Sum() ?? 0;
+                        var username = session.GetString("Username");
+                    }
+
+                    <a class="cart-pill" asp-controller="Cart" asp-action="Index">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                        <span>Bag @(count > 0 ? "(" + count + ")" : "")</span>
+                    </a>
+
+                    @if (!string.IsNullOrEmpty(username))
+                    {
+                        <div class="user-menu" style="position: relative;">
+                            <div class="user-trigger">
+                                @username.Substring(0, 1).ToUpper()
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="3">
+                                    <path d="M6 9l6 6 6-6"></path>
+                                </svg>
+                            </div>
+                            <div class="user-dropdown">
+                                <a class="dropdown-item" asp-controller="Profile" asp-action="Index">Profile</a>
+                                @{
+                                    var userIdStr = session.GetString("UserId");
+                                    if (!string.IsNullOrEmpty(userIdStr) && Guid.TryParse(userIdStr, out Guid userId))
                                     {
-                                        <a class="dropdown-item" asp-controller="Admin" asp-action="Index">Admin Panel</a>
-                                    }
-                                    else
-                                    {
-                                        <a class="dropdown-item" asp-controller="Orders" asp-action="MyOrders">My Orders</a>
+                                        var user = UserRepo.GetById(userId);
+                                        if (user is Admin)
+                                        {
+                                            <a class="dropdown-item" asp-controller="Admin" asp-action="Index">Dashboard</a>
+                                        }
+                                        else
+                                        {
+                                            <a class="dropdown-item" asp-controller="Orders" asp-action="MyOrders">Orders</a>
+                                        }
                                     }
                                 }
-                            }
-                            <hr style="margin: 0.5rem 0; border: none; border-top: 1px solid var(--border-light);">
-                            <a class="dropdown-item" style="color: #a4161a" asp-controller="Account"
-                                asp-action="Logout">Logout</a>
+                                <a class="dropdown-item" style="color: #a4161a" asp-controller="Account"
+                                    asp-action="Logout">Sign Out</a>
+                            </div>
                         </div>
-                    </div>
-                }
-                else
-                {
-                    <a class="nav-link" asp-controller="Account" asp-action="Login">Sign In</a>
-                    <a class="nav-link" style="color: var(--accent-green); font-weight: 700" asp-controller="Account"
-                        asp-action="Register">Join</a>
-                }
-            </nav>
+                    }
+                    else
+                    {
+                        <a class="nav-link" asp-controller="Account" asp-action="Login">Sign In</a>
+                    }
+                </nav>
 
-            <button class="menu-toggle" onclick="toggleMenu()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-            </button>
+                <button class="menu-toggle" onclick="toggleMenu()" style="display: none;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
         </div>
     </header>
 
+    @* Mobile Drawer remains similar but with smaller fonts *@
     <div class="drawer-overlay" onclick="toggleMenu()"></div>
     <div class="drawer">
         <div class="drawer-header">
             <button class="menu-toggle" onclick="toggleMenu()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
         </div>
+        <div style="margin-bottom: 2rem;">
+            <form method="get" asp-controller="Home" asp-action="Index">
+                <input type="text" name="searchQuery"
+                    style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-light);"
+                    placeholder="Search..." />
+            </form>
+        </div>
         <nav class="drawer-links">
-            <a class="drawer-link" asp-controller="Home" asp-action="Index">Shop</a>
-            <a class="drawer-link" asp-controller="Cart" asp-action="Index">Cart (@count)</a>
+            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="Index">Shop</a>
+            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Cart" asp-action="Index">Bag
+                (@count)</a>
             @if (!string.IsNullOrEmpty(username))
             {
-                <a class="drawer-link" asp-controller="Profile" asp-action="Index">Profile</a>
-                <a class="drawer-link" asp-controller="Account" asp-action="Logout">Logout</a>
+                <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Profile" asp-action="Index">Profile</a>
+                <a class="drawer-link" style="font-size: 1.125rem; color: #a4161a" asp-controller="Account"
+                    asp-action="Logout">Sign Out</a>
             }
             else
             {
-                <a class="drawer-link" asp-controller="Account" asp-action="Login">Login</a>
-                <a class="drawer-link" asp-controller="Account" asp-action="Register">Register</a>
+                <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Account" asp-action="Login">Sign In</a>
+                <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Account" asp-action="Register">Join
+                    Us</a>
             }
         </nav>
     </div>
@@ -462,17 +497,11 @@
     <div class="alerts-container">
         @if (TempData["Success"] != null)
         {
-            <div class="alert alert-success">
-                <span>@TempData["Success"]</span>
-                <span style="cursor:pointer; margin-left: 20px" onclick="this.parentElement.remove()">×</span>
-            </div>
+            <div class="alert alert-success">@TempData["Success"]</div>
         }
         @if (TempData["Error"] != null)
         {
-            <div class="alert alert-danger">
-                <span>@TempData["Error"]</span>
-                <span style="cursor:pointer; margin-left: 20px" onclick="this.parentElement.remove()">×</span>
-            </div>
+            <div class="alert alert-danger">@TempData["Error"]</div>
         }
     </div>
 
@@ -481,50 +510,70 @@
     </main>
 
     <footer class="site-footer">
-        <div class="container footer-content">
+        <div class="container footer-content" style="font-size: 0.8125rem;">
             <div>
-                <a class="footer-logo" asp-controller="Home"
+                <a class="footer-logo" style="font-size: 1.25rem;" asp-controller="Home"
                     asp-action="Index">@ApplicationConfigurationManager.Instance.StoreName</a>
-                <p style="color: var(--text-muted); max-width: 300px">Premium goods curated for the modern minimalist.
-                    High quality sustained by design.</p>
+                <p style="color: var(--text-muted); max-width: 240px">Curated essentials for the modern home. Quality
+                    over quantity, always.</p>
             </div>
-            <div>
-                <h4 style="margin-bottom: 1.5rem; font-size: 0.9rem">Navigate</h4>
-                <ul class="footer-links">
-                    <li><a asp-controller="Home" asp-action="Index">Shop</a></li>
+            <div style="display: flex; gap: 4rem;">
+                <ul class="footer-links" style="flex-direction: column; gap: 0.75rem;">
+                    <li><span style="font-weight: 700; color: var(--text-dark)">Navigate</span></li>
+                    <li><a asp-controller="Home" asp-action="Index">Shop All</a></li>
                     <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
-                    <li><a asp-controller="Cart" asp-action="Index">Cart</a></li>
+                </ul>
+                <ul class="footer-links" style="flex-direction: column; gap: 0.75rem;">
+                    <li><span style="font-weight: 700; color: var(--text-dark)">Account</span></li>
+                    <li><a asp-controller="Cart" asp-action="Index">Bag</a></li>
+                    <li><a asp-controller="Profile" asp-action="Index">Settings</a></li>
                 </ul>
             </div>
         </div>
-        <div class="container footer-bottom">
-            &copy; 2026 @ApplicationConfigurationManager.Instance.StoreName. All rights reserved.
+        <div class="container"
+            style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border-light); font-size: 0.75rem; color: var(--text-muted); text-align: center;">
+            &copy; 2026 @ApplicationConfigurationManager.Instance.StoreName. Fine Goods.
         </div>
     </footer>
 
     <script>
-        function toggleMenu() {
-            document.body.classList.toggle('menu-open');
+        function toggleMenu() { document.body.classList.toggle('menu-open'); }
+
+        // Live Filtering Logic
+        const filterForm = document.getElementById('liveFilterForm');
+        const searchInput = document.getElementById('navSearchInput');
+        const categorySelect = document.getElementById('navCategorySelect');
+
+        let debounceTimer;
+        const debounceSubmit = () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                filterForm.submit();
+            }, 400);
+        };
+
+        if (searchInput) {
+            searchInput.addEventListener('input', debounceSubmit);
+            // Focus at end of text on load if search was active
+            if (searchInput.value) {
+                searchInput.focus();
+                searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+            }
         }
 
-        window.addEventListener('scroll', function () {
-            const header = document.getElementById('header');
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
+        if (categorySelect) {
+            categorySelect.addEventListener('change', () => filterForm.submit());
+        }
 
-        // Auto-remove alerts
+        // Alert auto-dismiss
         setTimeout(() => {
             document.querySelectorAll('.alert').forEach(a => {
                 a.style.opacity = '0';
-                a.style.transform = 'translateY(-20px)';
-                a.style.transition = '0.5s';
-                setTimeout(() => a.remove(), 500);
+                a.style.transform = 'translateY(-10px)';
+                a.style.transition = '0.4s';
+                setTimeout(() => a.remove(), 400);
             });
-        }, 5000);
+        }, 3000);
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
