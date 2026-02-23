@@ -4,134 +4,302 @@
     var settings = ApplicationConfigurationManager.Instance;
 }
 
-<div class="admin-dashboard">
-    <h1 class="display-title">Admin <span class="highlight">Dashboard</span></h1>
-    <p class="subtitle">Manage products, orders, and users from here.</p>
-
-    @if (TempData["Message"] != null)
-    {
-        <div class="alert alert-success mt-3"
-            style="padding: 1rem; background: #ecfdf5; color: #065f46; border-radius: 8px; border: 1px solid #a7f3d0;">
-            @TempData["Message"]
-        </div>
-    }
-
-    <div class="admin-grid mt-4">
-        <a asp-action="Products" class="admin-card">
-            <div class="admin-card-icon">📦</div>
-            <div class="admin-card-content">
-                <h3>Manage Products</h3>
-                <p>Add, edit, or remove store items.</p>
-            </div>
-        </a>
-
-        <a asp-action="Orders" class="admin-card">
-            <div class="admin-card-icon">📜</div>
-            <div class="admin-card-content">
-                <h3>View Orders</h3>
-                <p>Track and manage customer orders.</p>
-            </div>
-        </a>
-    </div>
-
-    <div class="store-settings-section mt-5">
-        <h2 class="display-title" style="font-size: 1.5rem;">Store <span class="highlight">Settings</span> (Singleton)
-        </h2>
-        <div class="settings-card mt-3">
-            <form asp-action="UpdateSettings" method="post" class="settings-form">
-                <div class="form-group row mb-3">
-                    <label class="col-sm-4 col-form-label">Store Name:</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="storeName" value="@settings.StoreName" class="form-control" required />
-                    </div>
-                </div>
-                <div class="form-group row mb-3">
-                    <label class="col-sm-4 col-form-label">VAT (%):</label>
-                    <div class="col-sm-8">
-                        <input type="number" step="0.01" name="vatPercentage" value="@settings.VatPercentage"
-                            class="form-control" required />
-                    </div>
-                </div>
-                <div class="form-group row mb-3">
-                    <label class="col-sm-4 col-form-label">Free Shipping Threshold:</label>
-                    <div class="col-sm-8">
-                        <input type="number" step="0.01" name="freeShippingThreshold"
-                            value="@settings.FreeShippingThreshold" class="form-control" required />
-                    </div>
-                </div>
-                <div class="d-flex justify-content-end">
-                    <button type="submit" class="cart-link" style="border: none; cursor: pointer;">Update
-                        Settings</button>
-                </div>
-            </form>
-            <div class="mt-4 pt-3 border-top" style="font-size: 0.8rem; color: var(--light-text);">
-                <p>Last Updated: @settings.LastUpdated.ToString("F")</p>
-                <p>Max Items Per Order: @settings.MaxItemsPerOrder</p>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
-    .settings-card {
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        padding: 2rem;
-        border-radius: 16px;
-        max-width: 600px;
+    .admin-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1rem;
     }
 
-    .form-control {
-        width: 100%;
-        padding: 0.5rem 0.75rem;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        font-family: inherit;
+    .page-header {
+        margin-bottom: 2.5rem;
     }
 
-    .border-top {
-        border-top: 1px solid var(--border-color);
+    .page-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -0.03em;
+        margin-bottom: 0.4rem;
     }
 
-    .mt-5 {
-        margin-top: 3rem;
+    .page-header p {
+        color: #6b7280;
+        font-size: 0.95rem;
     }
 
-    .admin-grid {
+    .nav-cards {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 3rem;
     }
 
-    .admin-card {
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        padding: 2rem;
+    .nav-card {
+        background: #ffffff;
+        border: 1.5px solid #e5e7eb;
         border-radius: 16px;
+        padding: 1.75rem;
         display: flex;
         align-items: center;
-        gap: 1.5rem;
-        transition: all 0.3s ease;
+        gap: 1.25rem;
+        text-decoration: none;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
     }
 
-    .admin-card:hover {
-        box-shadow: var(--hover-shadow);
-        transform: translateY(-4px);
-        border-color: var(--accent-color);
+    .nav-card:hover {
+        border-color: #10b981;
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.12);
+        transform: translateY(-3px);
     }
 
-    .admin-card-icon {
-        font-size: 2.5rem;
+    .nav-card-icon {
+        width: 52px;
+        height: 52px;
+        background: #f9fafb;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        transition: background 0.2s, border-color 0.2s;
     }
 
-    .admin-card-content h3 {
-        font-size: 1.25rem;
+    .nav-card:hover .nav-card-icon {
+        background: #ecfdf5;
+        border-color: #10b981;
+    }
+
+    .nav-card-body h3 {
+        font-size: 1.05rem;
         font-weight: 700;
+        color: #1a1a1a;
         margin-bottom: 0.25rem;
     }
 
-    .admin-card-content p {
+    .nav-card-body p {
+        font-size: 0.85rem;
+        color: #6b7280;
+    }
+
+    .nav-card-arrow {
+        margin-left: auto;
+        color: #d1d5db;
+        font-size: 1.1rem;
+        transition: color 0.2s, transform 0.2s;
+    }
+
+    .nav-card:hover .nav-card-arrow {
+        color: #10b981;
+        transform: translateX(3px);
+    }
+
+    /* Settings Section */
+    .settings-section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.35rem;
+    }
+
+    .settings-section-subtitle {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-bottom: 1.5rem;
+    }
+
+    .settings-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        padding: 0.25rem 0.65rem;
+        background: #1a1a1a;
+        color: #10b981;
+        border-radius: 99px;
+        margin-bottom: 1.25rem;
+    }
+
+    .settings-card {
+        background: #ffffff;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .settings-form {
+        padding: 2rem;
+    }
+
+    .field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .field-row.full {
+        grid-template-columns: 1fr;
+    }
+
+    .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .field-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .field-hint {
+        font-size: 0.78rem;
+        color: #9ca3af;
+    }
+
+    .field-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        color: #1a1a1a;
+        background: #fafafa;
+        transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        box-sizing: border-box;
+        outline: none;
+    }
+
+    .field-input:focus {
+        border-color: #10b981;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+    }
+
+    .settings-footer {
+        padding: 1.25rem 2rem;
+        background: #f9fafb;
+        border-top: 1px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .settings-meta {
+        font-size: 0.8rem;
+        color: #9ca3af;
+    }
+
+    .settings-meta span {
+        font-weight: 600;
+        color: #6b7280;
+    }
+
+    .btn-save {
+        padding: 0.75rem 1.75rem;
+        background: #1a1a1a;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        font-family: 'Inter', sans-serif;
         font-size: 0.9rem;
-        color: var(--light-text);
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.15s;
+        white-space: nowrap;
+    }
+
+    .btn-save:hover {
+        background: #111;
+        transform: translateY(-1px);
+    }
+
+    @@media (max-width: 600px) {
+        .field-row {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
+
+<div class="admin-page">
+    <div class="page-header">
+        <h1>Admin <span style="color:#10b981">Dashboard</span></h1>
+        <p>Manage your store's products, orders, and configuration.</p>
+    </div>
+
+    @if (TempData["Message"] != null)
+    {
+        <div
+            style="padding: 0.9rem 1.25rem; background: #ecfdf5; color: #065f46; border-radius: 10px; border: 1px solid #a7f3d0; margin-bottom: 1.5rem; font-size: 0.9rem; font-weight: 500;">
+            ✓ @TempData["Message"]
+        </div>
+    }
+
+    <div class="nav-cards">
+        <a asp-action="Products" class="nav-card">
+            <div class="nav-card-icon">📦</div>
+            <div class="nav-card-body">
+                <h3>Products</h3>
+                <p>Add, edit, clone & remove items</p>
+            </div>
+            <span class="nav-card-arrow">→</span>
+        </a>
+        <a asp-action="Orders" class="nav-card">
+            <div class="nav-card-icon">📋</div>
+            <div class="nav-card-body">
+                <h3>Orders</h3>
+                <p>Track and update order status</p>
+            </div>
+            <span class="nav-card-arrow">→</span>
+        </a>
+    </div>
+
+    <div class="settings-badge">⚙ Singleton · Store Config</div>
+    <p class="settings-section-title">Store Settings</p>
+    <p class="settings-section-subtitle">These settings are stored as a singleton and apply across the entire store.</p>
+
+    <div class="settings-card">
+        <form asp-action="UpdateSettings" method="post" class="settings-form">
+            <div class="field-row full">
+                <div class="field-group">
+                    <label class="field-label" for="storeName">Store Name</label>
+                    <input type="text" name="storeName" id="storeName" class="field-input" value="@settings.StoreName"
+                        required />
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field-group">
+                    <label class="field-label" for="vatPercentage">VAT Rate (%)</label>
+                    <span class="field-hint">Applied to all products at checkout</span>
+                    <input type="number" step="0.01" name="vatPercentage" id="vatPercentage" class="field-input"
+                        value="@settings.VatPercentage" required />
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="freeShippingThreshold">Free Shipping Threshold</label>
+                    <span class="field-hint">Orders above this value ship free</span>
+                    <input type="number" step="0.01" name="freeShippingThreshold" id="freeShippingThreshold"
+                        class="field-input" value="@settings.FreeShippingThreshold" required />
+                </div>
+            </div>
+        </form>
+        <div class="settings-footer">
+            <div class="settings-meta">
+                Last updated: <span>@settings.LastUpdated.ToString("MMM d, yyyy · HH:mm")</span>
+                &nbsp;·&nbsp; Max items/order: <span>@settings.MaxItemsPerOrder</span>
+            </div>
+            <button type="submit" form="settings-form-id" class="btn-save"
+                onclick="this.closest('.settings-card').querySelector('form').submit()">Save Settings</button>
+        </div>
+    </div>
+</div>

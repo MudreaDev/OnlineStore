@@ -1,52 +1,231 @@
 @model OnlineStore.WebUI.Models.RegisterViewModel
 
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Create Account";
 }
 
-<div class="auth-container">
+<style>
+    .auth-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: calc(100vh - 180px);
+        padding: 3rem 1rem;
+    }
+
+    .auth-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        padding: 3rem;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .auth-logo-mark {
+        width: 48px;
+        height: 48px;
+        background: #1a1a1a;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.25rem;
+    }
+
+    .auth-logo-mark svg {
+        width: 22px;
+        height: 22px;
+        fill: #10b981;
+    }
+
+    .auth-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    .field-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .field-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .field-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        color: #1a1a1a;
+        background: #fafafa;
+        transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        box-sizing: border-box;
+        outline: none;
+    }
+
+    .field-input:focus {
+        border-color: #10b981;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+    }
+
+    .field-input::placeholder {
+        color: #9ca3af;
+    }
+
+    .field-error {
+        font-size: 0.8rem;
+        color: #ef4444;
+        margin-top: 0.35rem;
+        display: block;
+    }
+
+    .validation-summary {
+        color: #ef4444;
+        font-size: 0.85rem;
+        margin-bottom: 1.25rem;
+        padding: 0.75rem 1rem;
+        background: #fef2f2;
+        border-radius: 10px;
+        border-left: 3px solid #ef4444;
+    }
+
+    .section-divider {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin: 1.5rem 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .section-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #e5e7eb;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 0.85rem;
+        background: #1a1a1a;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.15s;
+        margin-top: 0.25rem;
+    }
+
+    .btn-submit:hover {
+        background: #111111;
+        transform: translateY(-1px);
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.75rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .auth-footer a {
+        color: #10b981;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        opacity: 0.8;
+    }
+</style>
+
+<div class="auth-wrapper">
     <div class="auth-card">
-        <h2 class="auth-title">Create Account</h2>
-        <p class="auth-subtitle">Join our minimal store community</p>
+        <div class="auth-header">
+            <div class="auth-logo-mark">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+                </svg>
+            </div>
+            <h1 class="auth-title">Create account</h1>
+            <p class="auth-subtitle">Join us and start shopping today</p>
+        </div>
 
-        <form asp-action="Register" method="post" class="auth-form">
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Username" class="form-label">Username</label>
-                <input asp-for="Username" class="form-input" placeholder="Enter username" />
-                <span asp-validation-for="Username" class="text-danger"></span>
+        <form asp-action="Register" method="post">
+            <div class="field-group">
+                <label asp-for="Username" class="field-label">Username</label>
+                <input asp-for="Username" class="field-input" placeholder="Choose a username" autocomplete="username" />
+                <span asp-validation-for="Username" class="field-error"></span>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Email" class="form-label">Email Address</label>
-                <input asp-for="Email" class="form-input" placeholder="example@email.com" />
-                <span asp-validation-for="Email" class="text-danger"></span>
+            <div class="field-group">
+                <label asp-for="Email" class="field-label">Email address</label>
+                <input asp-for="Email" class="field-input" placeholder="you@example.com" autocomplete="email" />
+                <span asp-validation-for="Email" class="field-error"></span>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Password" class="form-label">Password</label>
-                <input asp-for="Password" class="form-input" placeholder="Min. 6 characters" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+            <div class="section-divider">Security</div>
+
+            <div class="field-group">
+                <label asp-for="Password" class="field-label">Password</label>
+                <input asp-for="Password" class="field-input" placeholder="Min. 6 characters"
+                    autocomplete="new-password" />
+                <span asp-validation-for="Password" class="field-error"></span>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
-                <input asp-for="ConfirmPassword" class="form-input" placeholder="Repeat password" />
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            <div class="field-group">
+                <label asp-for="ConfirmPassword" class="field-label">Confirm password</label>
+                <input asp-for="ConfirmPassword" class="field-input" placeholder="Repeat your password"
+                    autocomplete="new-password" />
+                <span asp-validation-for="ConfirmPassword" class="field-error"></span>
             </div>
 
-            <div class="form-group mb-4">
-                <label asp-for="ShippingAddress" class="form-label">Shipping Address</label>
-                <textarea asp-for="ShippingAddress" class="form-input" rows="2" placeholder="Full address for shipping"></textarea>
-                <span asp-validation-for="ShippingAddress" class="text-danger"></span>
+            <div class="section-divider">Shipping</div>
+
+            <div class="field-group">
+                <label asp-for="ShippingAddress" class="field-label">Shipping address</label>
+                <textarea asp-for="ShippingAddress" class="field-input" rows="2" placeholder="Street, city, country"
+                    style="resize:vertical"></textarea>
+                <span asp-validation-for="ShippingAddress" class="field-error"></span>
             </div>
 
-            <button type="submit" class="btn-primary-auth w-100">Register</button>
+            <button type="submit" class="btn-submit">Create Account</button>
         </form>
 
-        <div class="auth-footer mt-4 text-center">
-            <p>Already have an account? <a asp-action="Login" class="auth-link">Login instead</a></p>
+        <div class="auth-footer">
+            <p>Already have an account? <a asp-action="Login">Sign in</a></p>
         </div>
     </div>
 </div>

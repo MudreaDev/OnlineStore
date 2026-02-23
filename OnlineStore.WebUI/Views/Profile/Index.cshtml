@@ -3,47 +3,227 @@
 
 @{
     ViewData["Title"] = "Your Profile";
+    bool isCustomer = Model is Customer;
+    var customer = Model as Customer;
 }
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-5">
-                    <h2 class="mb-4">Profilul Tău</h2>
+<style>
+    .profile-wrapper {
+        max-width: 680px;
+        margin: 3rem auto;
+        padding: 0 1rem;
+    }
 
-                    <form asp-action="Edit" method="post">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Nume utilizator</label>
-                            <input type="text" name="username" id="username" class="form-control"
-                                value="@Model.Username" required />
-                        </div>
+    .profile-header {
+        margin-bottom: 2rem;
+    }
 
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" name="email" id="email" class="form-control" value="@Model.Email"
-                                required />
-                        </div>
+    .profile-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -0.03em;
+        margin-bottom: 0.4rem;
+    }
 
-                        @if (Model is Customer customer)
-                        {
-                            <div class="mb-4">
-                                <label for="shippingAddress" class="form-label">Adresă de livrare</label>
-                                <textarea name="shippingAddress" id="shippingAddress" class="form-control"
-                                    rows="3">@customer.ShippingAddress</textarea>
-                            </div>
-                        }
+    .profile-header p {
+        color: #6b7280;
+        font-size: 0.95rem;
+    }
 
-                        <hr class="my-4" />
+    .profile-avatar {
+        width: 72px;
+        height: 72px;
+        background: #1a1a1a;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #10b981;
+        margin-bottom: 1.25rem;
+        letter-spacing: -0.02em;
+    }
 
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a asp-controller="Home" asp-action="Index"
-                                class="btn btn-outline-secondary me-md-2">Anulează</a>
-                            <button type="submit" class="btn btn-primary px-4">Salvează Modificările</button>
-                        </div>
-                    </form>
-                </div>
+    .profile-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-section-title {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .field-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .field-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .field-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        color: #1a1a1a;
+        background: #fafafa;
+        transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        box-sizing: border-box;
+        outline: none;
+    }
+
+    .field-input:focus {
+        border-color: #10b981;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+    }
+
+    .field-input::placeholder {
+        color: #9ca3af;
+    }
+
+    .role-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.85rem;
+        border-radius: 99px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin-bottom: 2rem;
+    }
+
+    .role-badge.admin {
+        background: #1a1a1a;
+        color: #10b981;
+    }
+
+    .role-badge.customer {
+        background: #ecfdf5;
+        color: #065f46;
+    }
+
+    .form-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #f3f4f6;
+        gap: 1rem;
+    }
+
+    .btn-primary {
+        padding: 0.75rem 1.75rem;
+        background: #1a1a1a;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-primary:hover {
+        background: #111;
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        color: #6b7280;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: border-color 0.2s, color 0.2s;
+        display: inline-block;
+    }
+
+    .btn-secondary:hover {
+        border-color: #1a1a1a;
+        color: #1a1a1a;
+    }
+
+    .shipping-section {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #f3f4f6;
+    }
+</style>
+
+<div class="profile-wrapper">
+    <div class="profile-header">
+        <div class="profile-avatar">@Model.Username.Substring(0, 1).ToUpper()</div>
+        <h1>@Model.Username</h1>
+        <p>@Model.Email</p>
+    </div>
+
+    <div class="profile-card">
+        @if (Model is Admin)
+        {
+            <span class="role-badge admin">⚡ Administrator</span>
+        }
+        else
+        {
+            <span class="role-badge customer">✓ Customer</span>
+        }
+
+        <form asp-action="Edit" method="post">
+            <p class="card-section-title">Account Information</p>
+
+            <div class="field-group">
+                <label class="field-label" for="username">Username</label>
+                <input type="text" name="username" id="username" class="field-input" value="@Model.Username" required />
             </div>
-        </div>
+
+            <div class="field-group">
+                <label class="field-label" for="email">Email address</label>
+                <input type="email" name="email" id="email" class="field-input" value="@Model.Email" required />
+            </div>
+
+            @if (isCustomer && customer != null)
+            {
+                <div class="shipping-section">
+                    <p class="card-section-title">Shipping Details</p>
+                    <div class="field-group">
+                        <label class="field-label" for="shippingAddress">Shipping address</label>
+                        <textarea name="shippingAddress" id="shippingAddress" class="field-input" rows="3"
+                            style="resize:vertical">@customer.ShippingAddress</textarea>
+                    </div>
+                </div>
+            }
+
+            <div class="form-actions">
+                <a asp-controller="Home" asp-action="Index" class="btn-secondary">Cancel</a>
+                <button type="submit" class="btn-primary">Save Changes</button>
+            </div>
+        </form>
     </div>
 </div>

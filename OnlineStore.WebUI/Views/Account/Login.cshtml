@@ -2,17 +2,185 @@
     ViewData["Title"] = "Login";
 }
 
-<h2>Login</h2>
+<style>
+    .auth-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 180px);
+        padding: 2rem 1rem;
+    }
 
-<form asp-action="Login" method="post">
-    <div class="form-group">
-        <label for="username">Username:</label>
-        <input type="text" name="username" class="form-control" required />
+    .auth-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        padding: 3rem;
+        width: 100%;
+        max-width: 440px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .auth-logo-mark {
+        width: 48px;
+        height: 48px;
+        background: #1a1a1a;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.25rem;
+    }
+
+    .auth-logo-mark svg {
+        width: 24px;
+        height: 24px;
+        fill: #10b981;
+    }
+
+    .auth-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    .field-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .field-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .field-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        color: #1a1a1a;
+        background: #fafafa;
+        transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        box-sizing: border-box;
+        outline: none;
+    }
+
+    .field-input:focus {
+        border-color: #10b981;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+    }
+
+    .field-input::placeholder {
+        color: #9ca3af;
+    }
+
+    .validation-msg {
+        color: #ef4444;
+        font-size: 0.82rem;
+        margin-top: 0.75rem;
+        padding: 0.6rem 0.9rem;
+        background: #fef2f2;
+        border-radius: 8px;
+        border-left: 3px solid #ef4444;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 0.85rem;
+        background: #1a1a1a;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.15s;
+        margin-top: 0.5rem;
+    }
+
+    .btn-submit:hover {
+        background: #111111;
+        transform: translateY(-1px);
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 1.75rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .auth-footer a {
+        color: #10b981;
+        font-weight: 600;
+        text-decoration: none;
+        transition: opacity 0.15s;
+    }
+
+    .auth-footer a:hover {
+        opacity: 0.8;
+    }
+
+    .divider {
+        border: none;
+        border-top: 1px solid #e5e7eb;
+        margin: 1.5rem 0;
+    }
+</style>
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo-mark">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 4h16v2H4V4zm2 3h12l-1.5 9H7.5L6 7zm4 2v5h4V9h-4z" />
+                </svg>
+            </div>
+            <h1 class="auth-title">Welcome back</h1>
+            <p class="auth-subtitle">Sign in to your account to continue</p>
+        </div>
+
+        <form asp-action="Login" method="post">
+            <div class="field-group">
+                <label class="field-label" for="username">Username</label>
+                <input type="text" name="username" id="username" class="field-input" placeholder="Enter your username"
+                    required autocomplete="username" />
+            </div>
+            <div class="field-group">
+                <label class="field-label" for="password">Password</label>
+                <input type="password" name="password" id="password" class="field-input"
+                    placeholder="Enter your password" required autocomplete="current-password" />
+            </div>
+            <div asp-validation-summary="All" class="validation-msg"
+                style="@(ViewContext.ViewData.ModelState.IsValid ? "display:none" : "")"></div>
+            <button type="submit" class="btn-submit">Sign In</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Don't have an account? <a asp-action="Register">Create account</a></p>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="password">Parolă:</label>
-        <input type="password" name="password" class="form-control" required />
-    </div>
-    <div class="text-danger" asp-validation-summary="All"></div>
-    <button type="submit" class="btn btn-primary">Login</button>
-</form>
+</div>
