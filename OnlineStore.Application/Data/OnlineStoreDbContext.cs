@@ -15,10 +15,23 @@ namespace OnlineStore.Application.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Admin> Admins { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Configure ProductImages
+            modelBuilder.Entity<ProductImage>(entity =>
+            {
+                entity.HasOne(pi => pi.Product)
+                    .WithMany(p => p.Images)
+                    .HasForeignKey(pi => pi.ProductId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(pi => pi.ImageUrl).IsRequired();
+                entity.Property(pi => pi.PublicId).IsRequired();
+            });
 
             // Configure Product Hierarchy (TPH)
             modelBuilder.Entity<Product>()

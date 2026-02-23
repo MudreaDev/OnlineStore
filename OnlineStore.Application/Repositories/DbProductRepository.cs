@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using OnlineStore.Application.Data;
 using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Interfaces;
@@ -34,12 +35,12 @@ namespace OnlineStore.Application.Repositories
 
         public IEnumerable<Product> GetAll()
         {
-            return _context.Products.ToList();
+            return _context.Products.Include(p => p.Images).ToList();
         }
 
         public Product GetById(Guid id)
         {
-            return _context.Products.Find(id);
+            return _context.Products.Include(p => p.Images).FirstOrDefault(p => p.Id == id);
         }
 
         public void Update(Product entity)

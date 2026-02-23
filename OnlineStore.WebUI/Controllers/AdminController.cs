@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using OnlineStore.Application.Repositories;
+using OnlineStore.Application.Data;
+using OnlineStore.Application.Services;
 using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Factories;
 using OnlineStore.Domain.Singleton;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace OnlineStore.WebUI.Controllers
 {
@@ -15,12 +18,21 @@ namespace OnlineStore.WebUI.Controllers
         private readonly DbProductRepository _productRepo;
         private readonly DbOrderRepository _orderRepo;
         private readonly DbUserRepository _userRepo;
+        private readonly CloudinaryService _cloudinaryService;
+        private readonly OnlineStoreDbContext _context;
 
-        public AdminController(DbProductRepository productRepo, DbOrderRepository orderRepo, DbUserRepository userRepo)
+        public AdminController(
+            DbProductRepository productRepo, 
+            DbOrderRepository orderRepo, 
+            DbUserRepository userRepo,
+            CloudinaryService cloudinaryService,
+            OnlineStoreDbContext context)
         {
             _productRepo = productRepo;
             _orderRepo = orderRepo;
             _userRepo = userRepo;
+            _cloudinaryService = cloudinaryService;
+            _context = context;
         }
 
         private bool IsAdmin()
@@ -91,7 +103,7 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddProduct(string type, string name, decimal price, int? warrantyMonths, string size, string material, string brand, string model, int? year)
+        public async Task<IActionResult> AddProduct(string type, string name, decimal price, int? warrantyMonths, string size, string material, string brand, string model, int? year, List<IFormFile>? images)
         {
             var accessCheck = CheckAccess();
             if (accessCheck != null) return accessCheck;
@@ -108,7 +120,6 @@ namespace OnlineStore.WebUI.Controllers
             {
                 var newProduct = factory.CreateProduct(name, price);
 
-                // Override defaults if specific values provided in form
                 if (newProduct is ElectronicProduct electronic)
                 {
                     if (warrantyMonths.HasValue) electronic.WarrantyMonths = warrantyMonths.Value;
@@ -126,6 +137,36 @@ namespace OnlineStore.WebUI.Controllers
                 }
 
                 _productRepo.Add(newProduct);
+
+                if (images != null && images.Any())
+                {
+                    try
+                    {
+                        var uploadCount = Math.Min(images.Count, 5);
+                        for (int i = 0; i < uploadCount; i++)
+                        {
+                            var file = images[i];
+                            var uploadResult = await _cloudinaryService.UploadImageAsync(file);
+                            
+                            var productImage = new ProductImage
+                            {
+                                ProductId = newProduct.Id,
+                                ImageUrl = uploadResult.Url,
+                                PublicId = uploadResult.PublicId,
+                                IsMain = (i == 0),
+                                DisplayOrder = i
+                            };
+                            
+                            _context.ProductImages.Add(productImage);
+                        }
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        TempData["Error"] = $"Eroare la încărcarea imaginilor: {ex.Message}";
+                    }
+                }
+                TempData["Success"] = "Produsul a fost adăugat cu succes!";
             }
 
             return RedirectToAction("Products");
@@ -144,7 +185,7 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditProduct(Guid id, string name, decimal price, int? warrantyMonths, string size, string material, string brand, string model, int? year)
+        public async Task<IActionResult> EditProduct(Guid id, string name, decimal price, int? warrantyMonths, string size, string material, string brand, string model, int? year, List<IFormFile>? newImages, List<string>? deletePublicIds)
         {
             var accessCheck = CheckAccess();
             if (accessCheck != null) return accessCheck;
@@ -171,7 +212,59 @@ namespace OnlineStore.WebUI.Controllers
                 if (year.HasValue) vehicleUpdate.Year = year.Value;
             }
 
+            // Handle deletions
+            if (deletePublicIds != null && deletePublicIds.Any())
+            {
+                foreach (var publicId in deletePublicIds)
+                {
+                    var img = _context.ProductImages.FirstOrDefault(pi => pi.PublicId == publicId);
+                    if (img != null)
+                    {
+                        await _cloudinaryService.DeleteImageAsync(publicId);
+                        _context.ProductImages.Remove(img);
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+
+            // Handle new uploads
+            if (newImages != null && newImages.Any())
+            {
+                var existingCount = _context.ProductImages.Count(pi => pi.ProductId == id);
+                var availableSlots = Math.Max(0, 5 - existingCount);
+                var uploadCount = Math.Min(newImages.Count, availableSlots);
+
+                if (uploadCount > 0)
+                {
+                    try
+                    {
+                        for (int i = 0; i < uploadCount; i++)
+                        {
+                            var file = newImages[i];
+                            var uploadResult = await _cloudinaryService.UploadImageAsync(file);
+                            
+                            var productImage = new ProductImage
+                            {
+                                ProductId = id,
+                                ImageUrl = uploadResult.Url,
+                                PublicId = uploadResult.PublicId,
+                                IsMain = (existingCount == 0 && i == 0),
+                                DisplayOrder = existingCount + i
+                            };
+                            
+                            _context.ProductImages.Add(productImage);
+                        }
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        TempData["Error"] = $"Eroare la încărcarea noilor imagini: {ex.Message}";
+                    }
+                }
+            }
+
             _productRepo.Update(product);
+            TempData["Success"] = "Produsul a fost actualizat!";
             return RedirectToAction("Products");
         }
 
@@ -186,6 +279,28 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> DeleteProductImage(Guid imageId)
+        {
+            var accessCheck = CheckAccess();
+            if (accessCheck != null) return accessCheck;
+
+            var image = _context.ProductImages.Find(imageId);
+            if (image != null)
+            {
+                await _cloudinaryService.DeleteImageAsync(image.PublicId);
+                _context.ProductImages.Remove(image);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Imaginea a fost ștearsă.";
+            }
+            else
+            {
+                TempData["Error"] = "Imaginea nu a fost găsită.";
+            }
+
+            return RedirectToAction("Products");
+        }
+
+        [HttpPost]
         public IActionResult CloneProduct(Guid id)
         {
             var accessCheck = CheckAccess();
@@ -194,8 +309,6 @@ namespace OnlineStore.WebUI.Controllers
             var product = _productRepo.GetById(id);
             if (product == null) return NotFound();
 
-            // Pattern 2: Prototype - Folosim metoda Clone() pentru a crea o copie a produsului existent
-            // Acest lucru permite crearea rapidă de variante fără a reintroduce toate datele.
             Product clone = product switch
             {
                 ElectronicProduct ep => ep.Clone(),
@@ -235,7 +348,6 @@ namespace OnlineStore.WebUI.Controllers
             var accessCheck = CheckAccess();
             if (accessCheck != null) return accessCheck;
 
-            // Pattern 3: Singleton - Actualizăm instanța unică a setărilor
             ApplicationConfigurationManager.Instance.UpdateSettings(storeName, vatPercentage, freeShippingThreshold);
 
             TempData["Message"] = "Setările magazinului au fost actualizate.";

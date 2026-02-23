@@ -19,6 +19,7 @@ builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
 builder.Services.AddScoped<DbProductRepository>();
 builder.Services.AddScoped<DbUserRepository>();
 builder.Services.AddScoped<DbOrderRepository>();
+builder.Services.AddScoped<CloudinaryService>();
 
 var app = builder.Build();
 

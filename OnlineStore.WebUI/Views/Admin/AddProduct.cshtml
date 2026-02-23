@@ -3,13 +3,161 @@
     ViewData["Title"] = "Add Product";
 }
 
+<style>
+    .admin-form-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding-top: 2rem;
+    }
+
+    .auth-card {
+        background: #fff;
+        border: 1px solid var(--border-light);
+        border-radius: 30px;
+        padding: 3rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    }
+
+    .form-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-input {
+        width: 100%;
+        background: var(--bg-warm);
+        border: 1.5px solid transparent;
+        border-radius: 12px;
+        padding: 0.8rem 1.25rem;
+        font-family: var(--font-main);
+        transition: var(--transition);
+        outline: none;
+    }
+
+    .form-input:focus {
+        background: #fff;
+        border-color: var(--accent-green);
+        box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.1);
+    }
+
+    .type-fields {
+        border-left: 2px solid var(--accent-green);
+        padding-left: 1.5rem;
+        margin: 1.5rem 0;
+    }
+
+    /* Image Upload Styles */
+    .image-upload-section {
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-light);
+    }
+
+    .upload-zone {
+        border: 2px dashed var(--border-light);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+        background: #fafafa;
+    }
+
+    .upload-zone:hover {
+        border-color: var(--accent-green);
+        background: #fdfdfb;
+    }
+
+    .upload-icon {
+        font-size: 2.5rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+    }
+
+    .preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .preview-item {
+        position: relative;
+        aspect-ratio: 1;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-light);
+    }
+
+    .preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .remove-preview {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #a4161a;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .main-badge {
+        position: absolute;
+        bottom: 4px;
+        left: 4px;
+        background: var(--accent-green);
+        color: #fff;
+        font-size: 0.6rem;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 4px;
+        text-transform: uppercase;
+    }
+
+    .btn-submit {
+        background: var(--text-dark);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 2rem;
+        transition: var(--transition);
+    }
+
+    .btn-submit:hover {
+        background: var(--accent-green);
+        transform: translateY(-2px);
+    }
+</style>
+
 <div class="admin-form-container">
-    <h1 class="display-title">Add <span class="highlight">Product</span></h1>
-    <p class="subtitle mb-4">Create a new item in the store inventory.</p>
+    <h1 class="display-title" style="font-family: var(--font-serif); font-size: 2.5rem; margin-bottom: 0.5rem;">Add
+        <span class="highlight">Product</span></h1>
+    <p class="subtitle mb-5" style="color: var(--text-muted);">Create a new item in the store inventory.</p>
 
     <div class="auth-card">
-        <form asp-action="AddProduct" method="post" class="auth-form">
-            <div class="form-group mb-3">
+        <form asp-action="AddProduct" method="post" enctype="multipart/form-data">
+            <div class="form-group mb-4">
                 <label for="Type" class="form-label">Product Type</label>
                 <select name="Type" id="Type" class="form-input" onchange="toggleFields()">
                     <option value="Electronic">Electronic</option>
@@ -18,51 +166,69 @@
                 </select>
             </div>
 
-            <div class="form-group mb-3">
+            <div class="form-group mb-4">
                 <label for="Name" class="form-label">Name</label>
                 <input type="text" name="Name" id="Name" class="form-input" required />
             </div>
 
-            <div class="form-group mb-3">
+            <div class="form-group mb-4">
                 <label for="Price" class="form-label">Price</label>
                 <input type="number" name="Price" id="Price" step="0.01" class="form-input" required />
             </div>
 
-            @* Type-specific fields *@
             <div id="ElectronicFields" class="type-fields">
-                <div class="form-group mb-3">
+                <div class="form-group mb-4">
                     <label for="WarrantyMonths" class="form-label">Warranty (Months)</label>
                     <input type="number" name="WarrantyMonths" id="WarrantyMonths" class="form-input" value="24" />
                 </div>
             </div>
 
             <div id="ClothingFields" class="type-fields" style="display:none;">
-                <div class="form-group mb-3">
+                <div class="form-group mb-4">
                     <label for="Size" class="form-label">Size</label>
-                    <input type="text" name="Size" id="Size" class="form-input" placeholder="e.g., M, L, XL" />
+                    <input type="text" name="Size" id="Size" class="form-input" placeholder="M, L, XL..." />
                 </div>
-                <div class="form-group mb-3">
+                <div class="form-group mb-4">
                     <label for="Material" class="form-label">Material</label>
-                    <input type="text" name="Material" id="Material" class="form-input" placeholder="e.g., Cotton" />
+                    <input type="text" name="Material" id="Material" class="form-input"
+                        placeholder="Cotton, Leather..." />
                 </div>
             </div>
 
             <div id="VehicleFields" class="type-fields" style="display:none;">
-                <div class="form-group mb-3">
+                <div class="form-group mb-4">
                     <label for="Brand" class="form-label">Brand</label>
                     <input type="text" name="Brand" id="Brand" class="form-input" />
                 </div>
-                <div class="form-group mb-3">
+                <div class="form-group mb-4">
                     <label for="Model" class="form-label">Model</label>
                     <input type="text" name="Model" id="Model" class="form-input" />
                 </div>
-                <div class="form-group mb-3">
+                <div class="form-group mb-4">
                     <label for="Year" class="form-label">Year</label>
                     <input type="number" name="Year" id="Year" class="form-input" value="2024" />
                 </div>
             </div>
 
-            <button type="submit" class="btn-primary-auth w-100">Add Product</button>
+            <div class="image-upload-section">
+                <h3 class="form-label" style="margin-bottom: 1rem;">Product Images</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem;">Upload up to 5 images.
+                    The first image will be marked as Main.</p>
+
+                <div class="upload-zone" onclick="document.getElementById('imageInput').click()">
+                    <div class="upload-icon">↑</div>
+                    <p style="font-weight: 600; font-size: 0.9375rem;">Browse Files</p>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">JPG, PNG, WEBP up to 5MB
+                    </p>
+                </div>
+
+                <input type="file" name="images" id="imageInput" multiple accept=".jpg,.jpeg,.png,.webp"
+                    style="display: none;" onchange="handleFileSelect(this)" />
+
+                <div class="preview-grid" id="previewGrid"></div>
+            </div>
+
+            <button type="submit" class="btn-submit">Add Product to Inventory</button>
         </form>
     </div>
 </div>
@@ -75,18 +241,50 @@
             document.getElementById(f).style.display = f.startsWith(type) ? 'block' : 'none';
         });
     }
+
+    let selectedFiles = [];
+
+    function handleFileSelect(input) {
+        const files = Array.from(input.files);
+        const total = selectedFiles.length + files.length;
+
+        if (total > 5) {
+            alert('A maximum of 5 images is allowed per product.');
+            input.value = '';
+            return;
+        }
+
+        files.forEach(file => {
+            selectedFiles.push(file);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const idx = selectedFiles.indexOf(file);
+                addPreview(e.target.result, file.name, idx);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // We don't actually clear the input yet because we need the files for the post
+        // But in a real app with "X" to remove, we'd use a DataTransfer object to sync
+    }
+
+    function addPreview(src, name, index) {
+        const grid = document.getElementById('previewGrid');
+        const item = document.createElement('div');
+        item.className = 'preview-item';
+        item.innerHTML = `
+            <img src="${src}" alt="${name}">
+            <button type="button" class="remove-preview" onclick="removeFile(${index})">×</button>
+            ${index === 0 ? '<span class="main-badge">Main</span>' : ''}
+        `;
+        grid.appendChild(item);
+    }
+
+    function removeFile(index) {
+        // Simple implementation: for a production app, we'd use DataTransfer to manage the FileList
+        alert('File selection reset. Please re-select the files you want to keep.');
+        selectedFiles = [];
+        document.getElementById('imageInput').value = '';
+        document.getElementById('previewGrid').innerHTML = '';
+    }
 </script>
-
-<style>
-    .admin-form-container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding-top: 2rem;
-    }
-
-    .type-fields {
-        border-left: 2px solid var(--accent-color);
-        padding-left: 1rem;
-        margin-bottom: 1rem;
-    }
-</style>

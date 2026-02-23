@@ -30,6 +30,7 @@ namespace OnlineStore.Domain.Entities
             }
         }
         public int Stock { get; set; }
+        public List<ProductImage> Images { get; set; } = new List<ProductImage>();
 
         protected Product()
         {
