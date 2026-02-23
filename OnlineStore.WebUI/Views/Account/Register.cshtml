@@ -1,232 +1,225 @@
 @model OnlineStore.WebUI.Models.RegisterViewModel
 
 @{
-    ViewData["Title"] = "Create Account";
+    ViewData["Title"] = "Join the Collection";
 }
 
 <style>
-    .auth-wrapper {
+    .auth-page {
         display: flex;
         justify-content: center;
-        align-items: flex-start;
-        min-height: calc(100vh - 180px);
-        padding: 3rem 1rem;
+        align-items: center;
+        min-height: calc(100vh - 300px);
+        padding: 6rem 1rem;
     }
 
     .auth-card {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 20px;
-        padding: 3rem;
+        background: #fff;
+        border: 1px solid var(--border-light);
+        border-radius: 40px;
+        padding: 5rem 4rem;
         width: 100%;
-        max-width: 500px;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-    }
-
-    .auth-header {
+        max-width: 560px;
+        box-shadow: 0 10px 50px rgba(0, 0, 0, 0.05);
         text-align: center;
-        margin-bottom: 2.5rem;
-    }
-
-    .auth-logo-mark {
-        width: 48px;
-        height: 48px;
-        background: #1a1a1a;
-        border-radius: 12px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 1.25rem;
-    }
-
-    .auth-logo-mark svg {
-        width: 22px;
-        height: 22px;
-        fill: #10b981;
     }
 
     .auth-title {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #1a1a1a;
-        letter-spacing: -0.02em;
-        margin-bottom: 0.5rem;
+        font-family: var(--font-serif);
+        font-size: 2.5rem;
+        letter-spacing: -0.04em;
+        margin-bottom: 0.75rem;
     }
 
     .auth-subtitle {
-        font-size: 0.9rem;
-        color: #6b7280;
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin-bottom: 4rem;
+        max-width: 380px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
-    .field-group {
-        margin-bottom: 1.25rem;
+    .auth-form {
+        text-align: left;
     }
 
-    .field-label {
-        display: block;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 0.5rem;
-    }
-
-    .field-input {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 10px;
-        font-family: 'Inter', sans-serif;
-        font-size: 0.95rem;
-        color: #1a1a1a;
-        background: #fafafa;
-        transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-        box-sizing: border-box;
-        outline: none;
-    }
-
-    .field-input:focus {
-        border-color: #10b981;
-        background: #ffffff;
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
-    }
-
-    .field-input::placeholder {
-        color: #9ca3af;
-    }
-
-    .field-error {
-        font-size: 0.8rem;
-        color: #ef4444;
-        margin-top: 0.35rem;
-        display: block;
-    }
-
-    .validation-summary {
-        color: #ef4444;
-        font-size: 0.85rem;
-        margin-bottom: 1.25rem;
-        padding: 0.75rem 1rem;
-        background: #fef2f2;
-        border-radius: 10px;
-        border-left: 3px solid #ef4444;
-    }
-
-    .section-divider {
-        font-size: 0.78rem;
-        font-weight: 700;
-        color: #9ca3af;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin: 1.5rem 0 1rem;
+    .section-headline {
+        font-family: var(--font-serif);
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+        margin-top: 3rem;
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 1rem;
+        color: var(--text-dark);
     }
 
-    .section-divider::after {
+    .section-headline::after {
         content: '';
         flex: 1;
         height: 1px;
-        background: #e5e7eb;
+        background: var(--border-light);
     }
 
-    .btn-submit {
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 2rem;
+    }
+
+    .form-group.full {
+        grid-column: span 2;
+    }
+
+    .form-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .form-control {
         width: 100%;
-        padding: 0.85rem;
-        background: #1a1a1a;
-        color: #ffffff;
-        border: none;
-        border-radius: 10px;
-        font-family: 'Inter', sans-serif;
+        background: var(--bg-warm);
+        border: 1.5px solid transparent;
+        border-radius: 12px;
+        padding: 0.9rem 1.25rem;
+        font-family: var(--font-main);
         font-size: 0.95rem;
+        color: var(--text-dark);
+        transition: var(--transition);
+        outline: none;
+    }
+
+    .form-control:focus {
+        background: #fff;
+        border-color: var(--accent-green);
+        box-shadow: 0 0 0 5px rgba(45, 106, 79, 0.1);
+    }
+
+    .input-error {
+        color: #a4161a;
+        font-size: 0.8rem;
         font-weight: 600;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    .btn-register {
+        width: 100%;
+        background: var(--text-dark);
+        color: #fff;
+        border: none;
+        border-radius: 15px;
+        padding: 1.25rem;
+        font-size: 1.125rem;
+        font-weight: 700;
         cursor: pointer;
-        transition: background 0.2s, transform 0.15s;
-        margin-top: 0.25rem;
+        transition: var(--transition);
+        margin-top: 2rem;
+        margin-bottom: 2.5rem;
     }
 
-    .btn-submit:hover {
-        background: #111111;
-        transform: translateY(-1px);
+    .btn-register:hover {
+        background: var(--accent-green);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(45, 106, 79, 0.2);
     }
 
-    .auth-footer {
-        text-align: center;
-        margin-top: 1.75rem;
-        font-size: 0.875rem;
-        color: #6b7280;
-    }
-
-    .auth-footer a {
-        color: #10b981;
+    .auth-link {
+        display: block;
+        margin-top: 2rem;
         font-weight: 600;
-        text-decoration: none;
+        color: var(--text-muted);
+        text-align: center;
     }
 
-    .auth-footer a:hover {
-        opacity: 0.8;
+    .auth-link strong {
+        color: var(--accent-green);
+    }
+
+    @@media (max-width: 600px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group.full {
+            grid-column: span 1;
+        }
+
+        .auth-card {
+            padding: 3rem 2rem;
+        }
     }
 </style>
 
-<div class="auth-wrapper">
+<div class="auth-page">
     <div class="auth-card">
-        <div class="auth-header">
-            <div class="auth-logo-mark">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
-                </svg>
+        <h1 class="auth-title">Join the collection</h1>
+        <p class="auth-subtitle">Create an account to start curating your minimalist home and lifestyle.</p>
+
+        @if (!ViewContext.ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="ModelOnly"
+                style="padding: 1rem; background: #fff1f2; border: 1px solid #fecaca; border-radius: 12px; color: #991b1b; font-size: 0.875rem; margin-bottom: 2rem; text-align: left;">
             </div>
-            <h1 class="auth-title">Create account</h1>
-            <p class="auth-subtitle">Join us and start shopping today</p>
-        </div>
+        }
 
-        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <form asp-action="Register" method="post" class="auth-form">
+            <h3 class="section-headline">Account Details</h3>
 
-        <form asp-action="Register" method="post">
-            <div class="field-group">
-                <label asp-for="Username" class="field-label">Username</label>
-                <input asp-for="Username" class="field-input" placeholder="Choose a username" autocomplete="username" />
-                <span asp-validation-for="Username" class="field-error"></span>
-            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="Username" class="form-label">Username</label>
+                    <input asp-for="Username" class="form-control" placeholder="minimal.user" />
+                    <span asp-validation-for="Username" class="input-error"></span>
+                </div>
 
-            <div class="field-group">
-                <label asp-for="Email" class="field-label">Email address</label>
-                <input asp-for="Email" class="field-input" placeholder="you@example.com" autocomplete="email" />
-                <span asp-validation-for="Email" class="field-error"></span>
-            </div>
-
-            <div class="section-divider">Security</div>
-
-            <div class="field-group">
-                <label asp-for="Password" class="field-label">Password</label>
-                <input asp-for="Password" class="field-input" placeholder="Min. 6 characters"
-                    autocomplete="new-password" />
-                <span asp-validation-for="Password" class="field-error"></span>
+                <div class="form-group">
+                    <label asp-for="Email" class="form-label">Email Address</label>
+                    <input asp-for="Email" class="form-control" placeholder="you@minimal.com" />
+                    <span asp-validation-for="Email" class="input-error"></span>
+                </div>
             </div>
 
-            <div class="field-group">
-                <label asp-for="ConfirmPassword" class="field-label">Confirm password</label>
-                <input asp-for="ConfirmPassword" class="field-input" placeholder="Repeat your password"
-                    autocomplete="new-password" />
-                <span asp-validation-for="ConfirmPassword" class="field-error"></span>
+            <h3 class="section-headline">Security</h3>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" />
+                    <span asp-validation-for="Password" class="input-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="••••••••" />
+                    <span asp-validation-for="ConfirmPassword" class="input-error"></span>
+                </div>
             </div>
 
-            <div class="section-divider">Shipping</div>
+            <h3 class="section-headline">Fulfillment</h3>
 
-            <div class="field-group">
-                <label asp-for="ShippingAddress" class="field-label">Shipping address</label>
-                <textarea asp-for="ShippingAddress" class="field-input" rows="2" placeholder="Street, city, country"
-                    style="resize:vertical"></textarea>
-                <span asp-validation-for="ShippingAddress" class="field-error"></span>
+            <div class="form-group">
+                <label asp-for="ShippingAddress" class="form-label">Primary Shipping Address</label>
+                <textarea asp-for="ShippingAddress" class="form-control" style="min-height: 100px; resize: vertical"
+                    placeholder="Where should we send your orders?"></textarea>
+                <span asp-validation-for="ShippingAddress" class="input-error"></span>
             </div>
 
-            <button type="submit" class="btn-submit">Create Account</button>
+            <button type="submit" class="btn-register">Create Account</button>
         </form>
 
-        <div class="auth-footer">
-            <p>Already have an account? <a asp-action="Login">Sign in</a></p>
-        </div>
+        <a asp-action="Login" class="auth-link">Already a member? <strong>Sign in here</strong></a>
     </div>
 </div>
 

@@ -1,186 +1,168 @@
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Sign In";
 }
 
 <style>
-    .auth-wrapper {
+    .auth-page {
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: calc(100vh - 180px);
-        padding: 2rem 1rem;
+        min-height: calc(100vh - 300px);
+        padding: 4rem 1rem;
     }
 
     .auth-card {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 20px;
-        padding: 3rem;
+        background: #fff;
+        border: 1px solid var(--border-light);
+        border-radius: 30px;
+        padding: 4rem 3.5rem;
         width: 100%;
-        max-width: 440px;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-    }
-
-    .auth-header {
+        max-width: 480px;
+        box-shadow: 0 10px 50px rgba(0, 0, 0, 0.05);
         text-align: center;
-        margin-bottom: 2.5rem;
     }
 
-    .auth-logo-mark {
-        width: 48px;
-        height: 48px;
-        background: #1a1a1a;
-        border-radius: 12px;
-        display: inline-flex;
+    .auth-logo {
+        width: 60px;
+        height: 60px;
+        background: var(--text-dark);
+        color: var(--accent-green);
+        border-radius: 16px;
+        display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1.25rem;
-    }
-
-    .auth-logo-mark svg {
-        width: 24px;
-        height: 24px;
-        fill: #10b981;
+        margin: 0 auto 2rem;
+        font-size: 1.5rem;
     }
 
     .auth-title {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #1a1a1a;
-        letter-spacing: -0.02em;
-        margin-bottom: 0.5rem;
+        font-family: var(--font-serif);
+        font-size: 2.25rem;
+        letter-spacing: -0.03em;
+        margin-bottom: 1rem;
     }
 
     .auth-subtitle {
-        font-size: 0.9rem;
-        color: #6b7280;
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin-bottom: 3rem;
     }
 
-    .field-group {
-        margin-bottom: 1.25rem;
+    .form-group {
+        text-align: left;
+        margin-bottom: 2.5rem;
+        position: relative;
     }
 
-    .field-label {
+    .form-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
         display: block;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 0.5rem;
     }
 
-    .field-input {
+    .form-control {
         width: 100%;
-        padding: 0.75rem 1rem;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 10px;
-        font-family: 'Inter', sans-serif;
-        font-size: 0.95rem;
-        color: #1a1a1a;
-        background: #fafafa;
-        transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-        box-sizing: border-box;
+        background: var(--bg-warm);
+        border: 1.5px solid transparent;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        font-family: var(--font-main);
+        font-size: 1rem;
+        color: var(--text-dark);
+        transition: var(--transition);
         outline: none;
     }
 
-    .field-input:focus {
-        border-color: #10b981;
-        background: #ffffff;
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+    .form-control:focus {
+        background: #fff;
+        border-color: var(--accent-green);
+        box-shadow: 0 0 0 5px rgba(45, 106, 79, 0.1);
     }
 
-    .field-input::placeholder {
-        color: #9ca3af;
-    }
-
-    .validation-msg {
-        color: #ef4444;
-        font-size: 0.82rem;
-        margin-top: 0.75rem;
-        padding: 0.6rem 0.9rem;
-        background: #fef2f2;
-        border-radius: 8px;
-        border-left: 3px solid #ef4444;
-    }
-
-    .btn-submit {
+    .btn-login {
         width: 100%;
-        padding: 0.85rem;
-        background: #1a1a1a;
-        color: #ffffff;
+        background: var(--text-dark);
+        color: #fff;
         border: none;
-        border-radius: 10px;
-        font-family: 'Inter', sans-serif;
-        font-size: 0.95rem;
-        font-weight: 600;
+        border-radius: 12px;
+        padding: 1.25rem;
+        font-size: 1.125rem;
+        font-weight: 700;
         cursor: pointer;
-        transition: background 0.2s, transform 0.15s;
-        margin-top: 0.5rem;
+        transition: var(--transition);
+        margin-bottom: 2rem;
     }
 
-    .btn-submit:hover {
-        background: #111111;
-        transform: translateY(-1px);
+    .btn-login:hover {
+        background: var(--accent-green);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(45, 106, 79, 0.2);
     }
 
-    .btn-submit:active {
-        transform: translateY(0);
-    }
-
-    .auth-footer {
-        text-align: center;
-        margin-top: 1.75rem;
-        font-size: 0.875rem;
-        color: #6b7280;
-    }
-
-    .auth-footer a {
-        color: #10b981;
+    .auth-link {
         font-weight: 600;
-        text-decoration: none;
-        transition: opacity 0.15s;
+        color: var(--text-muted);
+        font-size: 0.9375rem;
     }
 
-    .auth-footer a:hover {
-        opacity: 0.8;
+    .auth-link strong {
+        color: var(--accent-green);
     }
 
-    .divider {
-        border: none;
-        border-top: 1px solid #e5e7eb;
-        margin: 1.5rem 0;
+    .validation-summary {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: #fff1f2;
+        border: 1px solid #fecaca;
+        border-radius: 12px;
+        color: #991b1b;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .validation-summary ul {
+        list-style: none;
     }
 </style>
 
-<div class="auth-wrapper">
+<div class="auth-page">
     <div class="auth-card">
-        <div class="auth-header">
-            <div class="auth-logo-mark">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 4h16v2H4V4zm2 3h12l-1.5 9H7.5L6 7zm4 2v5h4V9h-4z" />
-                </svg>
-            </div>
-            <h1 class="auth-title">Welcome back</h1>
-            <p class="auth-subtitle">Sign in to your account to continue</p>
+        <div class="auth-logo">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path
+                    d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-7.247-9.571c0 3.517 1.009 6.799 2.753 9.571m0 0c.847.658 1.776 1.148 2.753 1.429m14.494-11c0 3.517 1.009 6.799 2.753 9.571m-2.753-9.571h-14.494m14.494 0c0-3.517-1.009-6.799-2.753-9.571m-7.247 9.571c0-3.517 1.009-6.799 2.753-9.571m0 0c.847-.658 1.776-1.148 2.753-1.429m11.741 11c0 3.517-1.009 6.799-2.753 9.571m-2.753-11c0-3.517 1.009-6.799 2.753-9.571m-2.753 9.571c0 3.517 1.009 6.799 2.753 9.571">
+                </path>
+            </svg>
         </div>
+
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-subtitle">Sign in to experience the collection.</p>
+
+        @if (!ViewContext.ViewData.ModelState.IsValid)
+        {
+            <div asp-validation-summary="All" class="validation-summary"></div>
+        }
 
         <form asp-action="Login" method="post">
-            <div class="field-group">
-                <label class="field-label" for="username">Username</label>
-                <input type="text" name="username" id="username" class="field-input" placeholder="Enter your username"
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input type="text" name="username" id="username" class="form-control" placeholder="Enter your username"
                     required autocomplete="username" />
             </div>
-            <div class="field-group">
-                <label class="field-label" for="password">Password</label>
-                <input type="password" name="password" id="password" class="field-input"
-                    placeholder="Enter your password" required autocomplete="current-password" />
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" name="password" id="password" class="form-control" placeholder="••••••••"
+                    required autocomplete="current-password" />
             </div>
-            <div asp-validation-summary="All" class="validation-msg"
-                style="@(ViewContext.ViewData.ModelState.IsValid ? "display:none" : "")"></div>
-            <button type="submit" class="btn-submit">Sign In</button>
+
+            <button type="submit" class="btn-login">Explore Now</button>
         </form>
 
-        <div class="auth-footer">
-            <p>Don't have an account? <a asp-action="Register">Create account</a></p>
-        </div>
+        <a asp-action="Register" class="auth-link">Not a member? <strong>Join the collection</strong></a>
     </div>
 </div>

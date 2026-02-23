@@ -1,4 +1,11 @@
 ﻿@using OnlineStore.Domain.Singleton
+@using Microsoft.AspNetCore.Http
+@using OnlineStore.WebUI.Extensions
+@using OnlineStore.Domain.Entities
+@using OnlineStore.Application.Repositories
+@inject IHttpContextAccessor HttpContextAccessor
+@inject DbUserRepository UserRepo
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,28 +13,357 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - @ApplicationConfigurationManager.Instance.StoreName</title>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-warm: #f5f4f0;
+            --accent-green: #2d6a4f;
+            --accent-green-hover: #1b4332;
+            --text-dark: #1a1916;
+            --text-muted: #6b6a65;
+            --border-light: #e2e0d8;
+            --card-white: #ffffff;
+            --navbar-height: 80px;
+            --font-main: 'DM Sans', sans-serif;
+            --font-serif: 'DM Serif Display', serif;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-warm);
+            color: var(--text-dark);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* --- Navbar --- */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--navbar-height);
+            background: rgba(245, 244, 240, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+            border-bottom: 1px solid transparent;
+        }
+
+        .site-header.scrolled {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid var(--border-light);
+            height: 70px;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo {
+            font-family: var(--font-serif);
+            font-size: 1.75rem;
+            color: var(--text-dark);
+            letter-spacing: -0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .nav-link {
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            opacity: 0.8;
+        }
+
+        .nav-link:hover {
+            opacity: 1;
+            color: var(--accent-green);
+        }
+
+        .cart-pill {
+            background: var(--text-dark);
+            color: #fff;
+            padding: 0.5rem 1.25rem;
+            border-radius: 99px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .cart-pill:hover {
+            transform: translateY(-2px);
+            background: var(--accent-green);
+            color: #fff;
+        }
+
+        /* --- User Menu Dropdown --- */
+        .user-menu {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-trigger {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9375rem;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--card-white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 180px;
+            padding: 0.5rem;
+            margin-top: 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: var(--transition);
+        }
+
+        .user-menu:hover .user-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .dropdown-item:hover {
+            background: #fdfdfb;
+            color: var(--accent-green);
+        }
+
+        /* --- Mobile Drawer --- */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .drawer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 1100;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 320px;
+            height: 100vh;
+            background: var(--bg-warm);
+            z-index: 1200;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            transition: 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.1);
+        }
+
+        body.menu-open .drawer-overlay {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        body.menu-open .drawer {
+            right: 0;
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 3rem;
+        }
+
+        .drawer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .drawer-link {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+        }
+
+        /* --- Alerts --- */
+        .alerts-container {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1500;
+            width: 100%;
+            max-width: 500px;
+            pointer-events: none;
+        }
+
+        .alert {
+            padding: 1.25rem 2rem;
+            border-radius: 12px;
+            background: var(--card-white);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            pointer-events: auto;
+            animation: slideDown 0.5s var(--transition);
+            font-weight: 500;
+        }
+
+        @@keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-success {
+            border-left: 4px solid #2d6a4f;
+            color: #1b4332;
+        }
+
+        .alert-danger {
+            border-left: 4px solid #a4161a;
+            color: #660708;
+        }
+
+        /* --- Footer --- */
+        .site-footer {
+            background: #fff;
+            border-top: 1px solid var(--border-light);
+            padding: 5rem 0 3rem;
+            margin-top: 8rem;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 3rem;
+        }
+
+        .footer-logo {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-bottom {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid #f0efea;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .main-content {
+            padding-top: calc(var(--navbar-height) + 3rem);
+            min-height: 70vh;
+        }
+
+        @@media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .container {
+                padding: 0 1.5rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <header class="site-header">
+    <header class="site-header" id="header">
         <div class="container navbar">
-            <a class="logo" asp-area="" asp-controller="Home" asp-action="Index">
-                @ApplicationConfigurationManager.Instance.StoreName.ToUpper()
+            <a class="logo" asp-controller="Home" asp-action="Index">
+                @ApplicationConfigurationManager.Instance.StoreName
             </a>
-            <nav class="nav-links">
-                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Shop</a>
-                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
 
-                @using Microsoft.AspNetCore.Http
-                @using OnlineStore.WebUI.Extensions
-                @using OnlineStore.Domain.Entities
-                @using OnlineStore.Application.Repositories
-                @inject IHttpContextAccessor HttpContextAccessor
-                @inject DbUserRepository UserRepo
+            <nav class="nav-links">
+                <a class="nav-link" asp-controller="Home" asp-action="Index">Shop</a>
+                <a class="nav-link" asp-controller="Home" asp-action="Privacy">Privacy</a>
 
                 @{
                     var session = HttpContextAccessor.HttpContext.Session;
@@ -36,58 +372,160 @@
                     var username = session.GetString("Username");
                 }
 
-                <a class="nav-link cart-link" asp-controller="Cart" asp-action="Index">Cart (@count)</a>
+                <a class="cart-pill" asp-controller="Cart" asp-action="Index">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                    Cart @(count > 0 ? " (" + count + ")" : "")
+                </a>
 
                 @if (!string.IsNullOrEmpty(username))
                 {
-                    <a class="nav-link" asp-controller="Profile" asp-action="Index">Hello, @username</a>
+                    <div class="user-menu">
+                        <div class="user-trigger">
+                            <span>Hello, @username</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="3">
+                                <path d="M6 9l6 6 6-6"></path>
+                            </svg>
+                        </div>
+                        <div class="user-dropdown">
+                            <a class="dropdown-item" asp-controller="Profile" asp-action="Index">Account Details</a>
 
-
-                    var userIdStr = HttpContextAccessor.HttpContext.Session.GetString("UserId");
-                    if (!string.IsNullOrEmpty(userIdStr) && Guid.TryParse(userIdStr, out Guid userId))
-                    {
-                        var user = UserRepo.GetById(userId);
-                        if (user is Admin)
-                        {
-                            <a class="nav-link highlight" asp-controller="Admin" asp-action="Index">Admin Panel</a>
-                        }
-                        else
-                        {
-                            <a class="nav-link" asp-controller="Orders" asp-action="MyOrders">My Orders</a>
-                        }
-                    }
-
-
-                    <a class="nav-link" asp-controller="Account" asp-action="Logout">Logout</a>
+                            @{
+                                var userIdStr = session.GetString("UserId");
+                                if (!string.IsNullOrEmpty(userIdStr) && Guid.TryParse(userIdStr, out Guid userId))
+                                {
+                                    var user = UserRepo.GetById(userId);
+                                    if (user is Admin)
+                                    {
+                                        <a class="dropdown-item" asp-controller="Admin" asp-action="Index">Admin Panel</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="dropdown-item" asp-controller="Orders" asp-action="MyOrders">My Orders</a>
+                                    }
+                                }
+                            }
+                            <hr style="margin: 0.5rem 0; border: none; border-top: 1px solid var(--border-light);">
+                            <a class="dropdown-item" style="color: #a4161a" asp-controller="Account"
+                                asp-action="Logout">Logout</a>
+                        </div>
+                    </div>
                 }
                 else
                 {
-                    <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
-                    <a class="nav-link" asp-controller="Account" asp-action="Register">Register</a>
+                    <a class="nav-link" asp-controller="Account" asp-action="Login">Sign In</a>
+                    <a class="nav-link" style="color: var(--accent-green); font-weight: 700" asp-controller="Account"
+                        asp-action="Register">Join</a>
                 }
             </nav>
+
+            <button class="menu-toggle" onclick="toggleMenu()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
         </div>
     </header>
 
-    <main role="main" class="main-content container">
+    <div class="drawer-overlay" onclick="toggleMenu()"></div>
+    <div class="drawer">
+        <div class="drawer-header">
+            <button class="menu-toggle" onclick="toggleMenu()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <nav class="drawer-links">
+            <a class="drawer-link" asp-controller="Home" asp-action="Index">Shop</a>
+            <a class="drawer-link" asp-controller="Cart" asp-action="Index">Cart (@count)</a>
+            @if (!string.IsNullOrEmpty(username))
+            {
+                <a class="drawer-link" asp-controller="Profile" asp-action="Index">Profile</a>
+                <a class="drawer-link" asp-controller="Account" asp-action="Logout">Logout</a>
+            }
+            else
+            {
+                <a class="drawer-link" asp-controller="Account" asp-action="Login">Login</a>
+                <a class="drawer-link" asp-controller="Account" asp-action="Register">Register</a>
+            }
+        </nav>
+    </div>
+
+    <div class="alerts-container">
         @if (TempData["Success"] != null)
         {
-            <div class="alert alert-success mt-3">@TempData["Success"]</div>
+            <div class="alert alert-success">
+                <span>@TempData["Success"]</span>
+                <span style="cursor:pointer; margin-left: 20px" onclick="this.parentElement.remove()">×</span>
+            </div>
         }
         @if (TempData["Error"] != null)
         {
-            <div class="alert alert-danger mt-3">@TempData["Error"]</div>
+            <div class="alert alert-danger">
+                <span>@TempData["Error"]</span>
+                <span style="cursor:pointer; margin-left: 20px" onclick="this.parentElement.remove()">×</span>
+            </div>
         }
+    </div>
+
+    <main role="main" class="main-content">
         @RenderBody()
     </main>
 
     <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 @ApplicationConfigurationManager.Instance.StoreName. All rights reserved.</p>
+        <div class="container footer-content">
+            <div>
+                <a class="footer-logo" asp-controller="Home"
+                    asp-action="Index">@ApplicationConfigurationManager.Instance.StoreName</a>
+                <p style="color: var(--text-muted); max-width: 300px">Premium goods curated for the modern minimalist.
+                    High quality sustained by design.</p>
+            </div>
+            <div>
+                <h4 style="margin-bottom: 1.5rem; font-size: 0.9rem">Navigate</h4>
+                <ul class="footer-links">
+                    <li><a asp-controller="Home" asp-action="Index">Shop</a></li>
+                    <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+                    <li><a asp-controller="Cart" asp-action="Index">Cart</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="container footer-bottom">
+            &copy; 2026 @ApplicationConfigurationManager.Instance.StoreName. All rights reserved.
         </div>
     </footer>
 
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        function toggleMenu() {
+            document.body.classList.toggle('menu-open');
+        }
+
+        window.addEventListener('scroll', function () {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Auto-remove alerts
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(a => {
+                a.style.opacity = '0';
+                a.style.transform = 'translateY(-20px)';
+                a.style.transition = '0.5s';
+                setTimeout(() => a.remove(), 500);
+            });
+        }, 5000);
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 

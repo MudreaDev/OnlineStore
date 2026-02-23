@@ -1,8 +1,7 @@
 ﻿@model IEnumerable<OnlineStore.Domain.Entities.Product>
 @{
-    ViewData["Title"] = "Shop Products";
+    ViewData["Title"] = "Minimalist Collection";
 
-    // Calculate active filters
     int activeFilterCount = 0;
     if (!string.IsNullOrEmpty(ViewBag.SearchQuery)) activeFilterCount++;
     if (!string.IsNullOrEmpty(ViewBag.CategoryFilter) && ViewBag.CategoryFilter != "All") activeFilterCount++;
@@ -10,25 +9,337 @@
     if (ViewBag.MaxPrice != null) activeFilterCount++;
 }
 
-<div class="shop-container">
-    <div class="hero-section">
-        <h1 class="display-title">Minimalist <span class="highlight">Collection</span></h1>
-        <p class="subtitle">Discover our curated selection of high-quality products.</p>
-    </div>
+<style>
+    .home-hero {
+        text-align: center;
+        padding: 4rem 0 6rem;
+    }
 
-    <!-- Search & Filter Bar -->
-    <div class="filter-bar">
-        <form method="get" asp-action="Index" class="filter-form">
-            <div class="search-box">
-                <input type="text" name="searchQuery" value="@ViewBag.SearchQuery" placeholder="Search products..."
-                    class="form-input" />
-            </div>
+    .hero-title {
+        font-family: var(--font-serif);
+        font-size: 4.5rem;
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+        margin-bottom: 1.5rem;
+    }
 
-            <div class="filter-options">
-                <div class="filter-group">
-                    <label class="filter-label">Category</label>
-                    <select name="categoryFilter" class="form-input select-input">
-                        <option value="All" selected="@(ViewBag.CategoryFilter == "All")">All Categories</option>
+    .hero-title em {
+        font-style: italic;
+        color: var(--accent-green);
+    }
+
+    .hero-subtitle {
+        font-size: 1.125rem;
+        color: var(--text-muted);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* --- Floating Filter Bar --- */
+    .filter-section {
+        margin-top: -3rem;
+        margin-bottom: 5rem;
+        position: sticky;
+        top: 100px;
+        z-index: 900;
+    }
+
+    .filter-card {
+        background: #fff;
+        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+    }
+
+    .filter-form {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-input-group {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .filter-input-group.search {
+        flex: 2;
+    }
+
+    .input-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.4rem;
+        color: var(--text-muted);
+    }
+
+    .form-input {
+        background: var(--bg-warm);
+        border: 1.5px solid transparent;
+        border-radius: 10px;
+        padding: 0.6rem 1rem;
+        font-family: var(--font-main);
+        font-size: 0.9375rem;
+        color: var(--text-dark);
+        width: 100%;
+        transition: var(--transition);
+    }
+
+    .form-input:focus {
+        background: #fff;
+        border-color: var(--accent-green);
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.1);
+    }
+
+    .btn-search {
+        background: var(--text-dark);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.8rem 2rem;
+        font-weight: 700;
+        cursor: pointer;
+        align-self: flex-end;
+    }
+
+    .btn-search:hover {
+        background: var(--accent-green);
+        transform: translateY(-2px);
+    }
+
+    .clear-link {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        align-self: flex-end;
+        padding: 0.8rem 0.5rem;
+    }
+
+    .clear-link:hover {
+        color: #a4161a;
+    }
+
+    /* --- Product Grid --- */
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 3rem 2rem;
+    }
+
+    .product-card {
+        background: #fff;
+        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        padding: 1.5rem;
+        transition: var(--transition);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+        border-color: var(--accent-green);
+    }
+
+    .category-badge {
+        position: absolute;
+        top: 1.5rem;
+        left: 1.5rem;
+        z-index: 2;
+        padding: 0.25rem 0.75rem;
+        border-radius: 99px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .cat-electronic {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .cat-clothing {
+        background: #f3e8ff;
+        color: #7e22ce;
+    }
+
+    .cat-vehicle {
+        background: #ffedd5;
+        color: #c2410c;
+    }
+
+    .cat-default {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .product-visual {
+        height: 240px;
+        background: #fdfdfb;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        transition: var(--transition);
+    }
+
+    .product-card:hover .product-visual {
+        background: #fff;
+        transform: scale(1.05);
+    }
+
+    .product-info {
+        flex: 1;
+    }
+
+    .product-name {
+        font-family: var(--font-serif);
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+    }
+
+    .product-desc {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin-bottom: 1.25rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 2.8rem;
+    }
+
+    .product-stock {
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .stock-in {
+        color: var(--accent-green);
+    }
+
+    .stock-out {
+        color: #a4161a;
+    }
+
+    .product-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: auto;
+    }
+
+    .product-price {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-outline {
+        padding: 0.6rem 1rem;
+        border: 1.5px solid var(--border-light);
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .btn-outline:hover {
+        border-color: var(--text-dark);
+        background: #fafafa;
+    }
+
+    .btn-filled {
+        padding: 0.6rem 1.25rem;
+        background: var(--text-dark);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-filled:hover {
+        background: var(--accent-green);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 8rem 0;
+        background: #fff;
+        border-radius: 30px;
+        border: 1px dashed var(--border-light);
+    }
+
+    @@media (max-width: 1024px) {
+        .product-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .product-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-section {
+            position: relative;
+            top: 0;
+            margin-top: 0;
+        }
+
+        .hero-title {
+            font-size: 2.75rem;
+        }
+    }
+</style>
+
+<div class="container">
+    <section class="home-hero">
+        <h1 class="hero-title">Minimalist <em>Collection</em></h1>
+        <p class="hero-subtitle">Elevated essentials for the conscious consumer, designed with purpose and crafted for
+            longevity.</p>
+    </section>
+
+    <section class="filter-section">
+        <div class="filter-card">
+            <form method="get" asp-action="Index" class="filter-form">
+                <div class="filter-input-group search">
+                    <label class="input-label">Search</label>
+                    <input type="text" name="searchQuery" value="@ViewBag.SearchQuery"
+                        placeholder="Search our collection..." class="form-input" />
+                </div>
+
+                <div class="filter-input-group">
+                    <label class="input-label">Category</label>
+                    <select name="categoryFilter" class="form-input">
+                        <option value="All" selected="@(ViewBag.CategoryFilter == "All")">All Items</option>
                         <option value="Electronic" selected="@(ViewBag.CategoryFilter == "Electronic")">Electronics
                         </option>
                         <option value="Clothing" selected="@(ViewBag.CategoryFilter == "Clothing")">Clothing</option>
@@ -36,37 +347,29 @@
                     </select>
                 </div>
 
-                <div class="filter-group">
-                    <label class="filter-label">Min Price</label>
-                    <input type="number" name="minPrice" value="@ViewBag.MinPrice" step="0.01"
-                        class="form-input price-input" placeholder="0" />
+                <div class="filter-input-group">
+                    <label class="input-label">Price Range</label>
+                    <div style="display: flex; gap: 0.5rem">
+                        <input type="number" name="minPrice" value="@ViewBag.MinPrice" step="0.01" class="form-input"
+                            placeholder="Min" />
+                        <input type="number" name="maxPrice" value="@ViewBag.MaxPrice" step="0.01" class="form-input"
+                            placeholder="Max" />
+                    </div>
                 </div>
 
-                <div class="filter-group">
-                    <label class="filter-label">Max Price</label>
-                    <input type="number" name="maxPrice" value="@ViewBag.MaxPrice" step="0.01"
-                        class="form-input price-input" placeholder="∞" />
-                </div>
-
-                <div class="filter-actions">
-                    <button type="submit" class="btn-search">Search</button>
-                    <a asp-action="Index" class="btn-clear">Clear</a>
-                    @if (activeFilterCount > 0)
-                    {
-                        <span class="active-badge">@activeFilterCount filters active</span>
-                    }
-                </div>
-            </div>
-        </form>
-    </div>
+                <button type="submit" class="btn-search">Apply</button>
+                <a asp-action="Index" class="clear-link">Clear</a>
+            </form>
+        </div>
+    </section>
 
     @if (!Model.Any())
     {
-        <div class="no-results mt-4">
-            <div class="no-results-icon">🔍</div>
-            <h3>No products found</h3>
-            <p>Try adjusting your search or filters to find what you're looking for.</p>
-            <a asp-action="Index" class="btn-link mt-2">View all products</a>
+        <div class="empty-state">
+            <div style="font-size: 4rem; margin-bottom: 1.5rem">empty</div>
+            <h3 class="hero-title" style="font-size: 2rem">No matches found</h3>
+            <p class="hero-subtitle">Try adjusting your filters or search keywords.</p>
+            <a asp-action="Index" class="btn-filled" style="display: inline-block; margin-top: 2rem">View All Products</a>
         </div>
     }
     else
@@ -74,39 +377,59 @@
         <div class="product-grid">
             @foreach (var product in Model)
             {
+                var typeName = product.GetType().Name.Replace("Product", "");
+                var badgeClass = typeName switch
+                {
+                    "Electronic" => "cat-electronic",
+                    "Clothing" => "cat-clothing",
+                    "Vehicle" => "cat-vehicle",
+                    _ => "cat-default"
+                };
+
+                var emoji = typeName switch
+                {
+                    "Electronic" => "🔌",
+                    "Clothing" => "👕",
+                    "Vehicle" => "🚗",
+                    _ => "📦"
+                };
+
                 <div class="product-card">
-                    <a asp-action="Details" asp-route-id="@product.Id" class="product-image-link">
-                        <div class="product-image-placeholder">
-                            @if (product is OnlineStore.Domain.Entities.ElectronicProduct)
+                    <span class="category-badge @badgeClass">@typeName</span>
+
+                    <a asp-action="Details" asp-route-id="@product.Id">
+                        <div class="product-visual">
+                            @emoji
+                        </div>
+                    </a>
+
+                    <div class="product-info">
+                        <h3 class="product-name">@product.Name</h3>
+                        <p class="product-desc">@product.GetDescription()</p>
+
+                        <div class="product-stock">
+                            @if (product.Stock > 0)
                             {
-                                <span>🔌</span>
-                            }
-                            else if (product is OnlineStore.Domain.Entities.ClothingProduct)
-                            {
-                                <span>👕</span>
-                            }
-                            else if (product is OnlineStore.Domain.Entities.VehicleProduct)
-                            {
-                                <span>🚗</span>
+                                <span class="stock-in">● In Stock</span>
+                                <span style="opacity: 0.5">· @product.Stock available</span>
                             }
                             else
                             {
-                                <span>📦</span>
+                                <span class="stock-out">○ Out of Stock</span>
                             }
                         </div>
-                    </a>
-                    <div class="product-details">
-                        <span class="product-category">@product.GetType().Name.Replace("Product", "")</span>
-                        <h3 class="product-name"><a asp-action="Details" asp-route-id="@product.Id">@product.Name</a></h3>
-                        <p class="product-description">@product.GetDescription()</p>
-                        <div class="product-footer">
-                            <span class="product-price">@product.Price.ToString("C")</span>
-                            <div class="product-actions-grid">
-                                <a asp-action="Details" asp-route-id="@product.Id" class="btn-details">Details</a>
+                    </div>
+
+                    <div class="product-footer">
+                        <span class="product-price">@product.Price.ToString("C")</span>
+                        <div class="btn-group">
+                            <a asp-action="Details" asp-route-id="@product.Id" class="btn-outline">Details</a>
+                            @if (product.Stock > 0)
+                            {
                                 <form asp-controller="Cart" asp-action="Add" asp-route-id="@product.Id" method="post">
-                                    <button type="submit" class="btn-add">Add</button>
+                                    <button type="submit" class="btn-filled">Add to Cart</button>
                                 </form>
-                            </div>
+                            }
                         </div>
                     </div>
                 </div>

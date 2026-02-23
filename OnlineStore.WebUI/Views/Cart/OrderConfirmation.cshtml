@@ -1,10 +1,150 @@
 @model OnlineStore.Domain.Entities.Order
 
-<h2>Order Confirmation</h2>
+@{
+    ViewData["Title"] = "Order Confirmation";
+}
 
-<p>Thank you for your order!</p>
-<p>Order ID: @Model.Id</p>
-<p>Total: @Model.Total</p>
-<p>Status: @Model.Status</p>
+<style>
+    .confetti-page {
+        text-align: center;
+        padding: 6rem 1rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
 
-<a asp-controller="Home" asp-action="Index">Back to Home</a>
+    .success-icon {
+        width: 100px;
+        height: 100px;
+        background: var(--accent-green);
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 3rem;
+        font-size: 3rem;
+        animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @@keyframes popIn {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .confetti-title {
+        font-family: var(--font-serif);
+        font-size: 3.5rem;
+        letter-spacing: -0.04em;
+        margin-bottom: 1rem;
+    }
+
+    .confetti-subtitle {
+        color: var(--text-muted);
+        font-size: 1.125rem;
+        margin-bottom: 4rem;
+    }
+
+    .order-details-card {
+        background: #fff;
+        border: 1px solid var(--border-light);
+        border-radius: 30px;
+        padding: 3rem;
+        text-align: left;
+        margin-bottom: 4rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 1.25rem 0;
+        border-bottom: 1px solid #f0efea;
+        font-weight: 500;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        color: var(--text-muted);
+        font-size: 0.9375rem;
+    }
+
+    .detail-value {
+        color: var(--text-dark);
+        font-weight: 700;
+    }
+
+    .btn-row {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+    }
+
+    .btn-main {
+        background: var(--text-dark);
+        color: #fff;
+        padding: 1rem 2.5rem;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: var(--transition);
+    }
+
+    .btn-main:hover {
+        background: var(--accent-green);
+        transform: translateY(-2px);
+    }
+
+    .btn-sub {
+        background: #fff;
+        border: 1.5px solid var(--border-light);
+        padding: 1rem 2.5rem;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: var(--transition);
+    }
+
+    .btn-sub:hover {
+        border-color: var(--text-dark);
+    }
+</style>
+
+<div class="confetti-page">
+    <div class="success-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+    </div>
+
+    <h1 class="confetti-title">Confirmed.</h1>
+    <p class="confetti-subtitle">Thank you for curating with us. Your order is being prepared with care and will be
+        dispatched shortly.</p>
+
+    <div class="order-details-card">
+        <div class="detail-row">
+            <span class="detail-label">Order Manifest</span>
+            <span class="detail-value">#@Model.Id.ToString().Substring(0, 8).ToUpper()</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Settlement Amount</span>
+            <span class="detail-value">@Model.Total.ToString("C")</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Current Phase</span>
+            <span class="detail-value" style="color: var(--accent-green)">@Model.Status</span>
+        </div>
+    </div>
+
+    <div class="btn-row">
+        <a asp-controller="Home" asp-action="Index" class="btn-main">Continue Selection</a>
+        <a asp-controller="Orders" asp-action="MyOrders" class="btn-sub">View History</a>
+    </div>
+</div>
