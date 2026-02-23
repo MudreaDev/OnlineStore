@@ -225,7 +225,7 @@
                                         @foreach (var status in Enum.GetValues(typeof(OnlineStore.Domain.Enums.OrderStatus)))
                                         {
                                             <option value="@status"
-                                                    @(order.Status.ToString() == status.ToString() ? "selected" : "")>
+                                                    selected="@(order.Status.ToString() == status.ToString() ? "selected" : null)">
                                                 @status
                                             </option>
                                         }
