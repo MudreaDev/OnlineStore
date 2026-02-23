@@ -209,6 +209,27 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
+        public IActionResult UpdateOrderStatus(Guid orderId, OnlineStore.Domain.Enums.OrderStatus status)
+        {
+            var accessCheck = CheckAccess();
+            if (accessCheck != null) return accessCheck;
+
+            var order = _orderRepo.GetById(orderId);
+            if (order != null)
+            {
+                order.Status = status;
+                _orderRepo.Update(order);
+                TempData["Success"] = $"Statusul comenzii {orderId} a fost actualizat la {status}.";
+            }
+            else
+            {
+                TempData["Error"] = "Comanda nu a fost găsită.";
+            }
+
+            return RedirectToAction("Orders");
+        }
+
+        [HttpPost]
         public IActionResult UpdateSettings(string storeName, decimal vatPercentage, decimal freeShippingThreshold)
         {
             var accessCheck = CheckAccess();

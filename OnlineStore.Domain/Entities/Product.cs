@@ -29,6 +29,8 @@ namespace OnlineStore.Domain.Entities
                 _price = value;
             }
         }
+        public int Stock { get; set; }
+
         protected Product()
         {
             _name = null!;

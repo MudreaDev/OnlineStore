@@ -173,13 +173,13 @@ namespace OnlineStore.ConsoleUI
         {
             Console.Clear();
             decimal total = 0;
-            foreach (var id in currentCart.ProductIds)
+            foreach (var item in currentCart.ProductIds)
             {
-                var p = productRepo.GetById(id);
+                var p = productRepo.GetById(item.Key);
                 if (p != null)
                 {
-                    Console.WriteLine($"{p.Name} - {p.Price}");
-                    total += p.Price;
+                    Console.WriteLine($"{p.Name} (x{item.Value}) - {p.Price * item.Value}");
+                    total += p.Price * item.Value;
                 }
             }
             Console.WriteLine($"Total: {total}");
@@ -197,10 +197,16 @@ namespace OnlineStore.ConsoleUI
             }
 
             var products = new List<Product>();
-            foreach (var id in currentCart.ProductIds)
+            foreach (var item in currentCart.ProductIds)
             {
-                var p = productRepo.GetById(id);
-                if (p != null) products.Add(p);
+                var p = productRepo.GetById(item.Key);
+                if (p != null)
+                {
+                    for (int i = 0; i < item.Value; i++)
+                    {
+                        products.Add(p);
+                    }
+                }
             }
 
             // Applying discount strategy

@@ -1,0 +1,49 @@
+@model OnlineStore.Domain.Entities.User
+@using OnlineStore.Domain.Entities
+
+@{
+    ViewData["Title"] = "Your Profile";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-5">
+                    <h2 class="mb-4">Profilul Tău</h2>
+
+                    <form asp-action="Edit" method="post">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nume utilizator</label>
+                            <input type="text" name="username" id="username" class="form-control"
+                                value="@Model.Username" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" name="email" id="email" class="form-control" value="@Model.Email"
+                                required />
+                        </div>
+
+                        @if (Model is Customer customer)
+                        {
+                            <div class="mb-4">
+                                <label for="shippingAddress" class="form-label">Adresă de livrare</label>
+                                <textarea name="shippingAddress" id="shippingAddress" class="form-control"
+                                    rows="3">@customer.ShippingAddress</textarea>
+                            </div>
+                        }
+
+                        <hr class="my-4" />
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-controller="Home" asp-action="Index"
+                                class="btn btn-outline-secondary me-md-2">Anulează</a>
+                            <button type="submit" class="btn btn-primary px-4">Salvează Modificările</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

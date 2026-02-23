@@ -31,7 +31,19 @@
                         <td>@order.User.Username</td>
                         <td class="font-bold">@order.Total.ToString("C")</td>
                         <td class="text-muted">@order.OrderDate.ToShortDateString()</td>
-                        <td><span class="status-badge @order.Status.ToString().ToLower()">@order.Status</span></td>
+                        <td>
+                            <form asp-action="UpdateOrderStatus" method="post">
+                                <input type="hidden" name="orderId" value="@order.Id" />
+                                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                    @foreach (var status in Enum.GetValues(typeof(OnlineStore.Domain.Enums.OrderStatus)))
+                                    {
+                                        <option value="@status"
+                                            selected="@(order.Status.ToString() == status.ToString() ? "selected" : null)">
+                                            @status</option>
+                                    }
+                                </select>
+                            </form>
+                        </td>
                     </tr>
                 }
             </tbody>

@@ -6,11 +6,19 @@ namespace OnlineStore.Domain.Entities
     {
         public string Username { get; set; }
         public string Email { get; set; }
+        public string PasswordHash { get; set; } = string.Empty;
 
         public User(string username, string email)
         {
             Username = username;
             Email = email;
+        }
+
+        public User(string username, string email, string passwordHash)
+        {
+            Username = username;
+            Email = email;
+            PasswordHash = passwordHash;
         }
     }
 }

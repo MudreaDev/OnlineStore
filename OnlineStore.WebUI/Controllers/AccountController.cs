@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineStore.Application.Repositories;
 using OnlineStore.Domain.Entities;
-using OnlineStore.WebUI.Extensions;
+using OnlineStore.WebUI.Utils;
 using OnlineStore.WebUI.Models;
 
 namespace OnlineStore.WebUI.Controllers
@@ -22,25 +22,26 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login(string username, string email)
+        public IActionResult Login(string username, string password)
         {
-            // Simple logic: Find or Create
             var user = _userRepo.GetAll().FirstOrDefault(u => u.Username == username);
-            if (user == null)
+
+            if (user != null && PasswordHasher.Verify(password, user.PasswordHash))
             {
-                user = new Customer(username, email, "Default Address");
-                _userRepo.Add(user);
+                HttpContext.Session.SetString("UserId", user.Id.ToString());
+                HttpContext.Session.SetString("Username", user.Username);
+                TempData["Success"] = "Autentificare reușită!";
+                return RedirectToAction("Index", "Home");
             }
 
-            HttpContext.Session.SetString("UserId", user.Id.ToString());
-            HttpContext.Session.SetString("Username", user.Username);
-
-            return RedirectToAction("Index", "Home");
+            ModelState.AddModelError("", "Nume de utilizator sau parolă incorectă.");
+            return View();
         }
 
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
+            TempData["Success"] = "V-ați deconectat cu succes.";
             return RedirectToAction("Index", "Home");
         }
 
@@ -62,17 +63,21 @@ namespace OnlineStore.WebUI.Controllers
             var existingUser = _userRepo.GetAll().FirstOrDefault(u => u.Username == model.Username);
             if (existingUser != null)
             {
-                ModelState.AddModelError("Username", "Username is already taken.");
+                ModelState.AddModelError("Username", "Utilizatorul există deja.");
                 return View(model);
             }
 
             // Create new Customer
+            string hashedPassword = PasswordHasher.Hash(model.Password);
             var customer = new Customer(model.Username, model.Email, model.ShippingAddress);
+            customer.PasswordHash = hashedPassword;
+
             _userRepo.Add(customer);
 
             // Log in the new user
             HttpContext.Session.SetString("UserId", customer.Id.ToString());
             HttpContext.Session.SetString("Username", customer.Username);
+            TempData["Success"] = "Cont creat cu succes!";
 
             return RedirectToAction("Index", "Home");
         }

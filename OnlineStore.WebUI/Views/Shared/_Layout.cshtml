@@ -32,7 +32,7 @@
                 @{
                     var session = HttpContextAccessor.HttpContext.Session;
                     var cart = session.Get<ShoppingCart>("Cart");
-                    var count = cart?.ProductIds.Count ?? 0;
+                    var count = cart?.ProductIds.Values.Sum() ?? 0;
                     var username = session.GetString("Username");
                 }
 
@@ -40,7 +40,7 @@
 
                 @if (!string.IsNullOrEmpty(username))
                 {
-                    <span class="nav-link">Hello, @username</span>
+                    <a class="nav-link" asp-controller="Profile" asp-action="Index">Hello, @username</a>
 
 
                     var userIdStr = HttpContextAccessor.HttpContext.Session.GetString("UserId");
@@ -70,6 +70,14 @@
     </header>
 
     <main role="main" class="main-content container">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success mt-3">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger mt-3">@TempData["Error"]</div>
+        }
         @RenderBody()
     </main>
 

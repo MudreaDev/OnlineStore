@@ -26,32 +26,42 @@ namespace OnlineStore.WebUI.Controllers
         public IActionResult Index()
         {
             var cart = GetCart();
-            var products = new List<Product>();
-            foreach (var id in cart.ProductIds)
+            var products = new List<(Product Product, int Quantity)>();
+            decimal total = 0;
+
+            foreach (var item in cart.ProductIds)
             {
-                var p = _productRepo.GetById(id);
-                if (p != null) products.Add(p);
+                var p = _productRepo.GetById(item.Key);
+                if (p != null)
+                {
+                    products.Add((p, item.Value));
+                    total += p.Price * item.Value;
+                }
             }
 
-            var vm = new CartViewModel
-            {
-                Products = products,
-                Total = products.Sum(p => p.Price)
-            };
+            ViewBag.CartItems = products;
+            ViewBag.Total = total;
 
-            return View(vm);
+            return View();
         }
 
         [HttpPost]
         public IActionResult Add(Guid id)
         {
-            // Verify product exists
+            // Verify product exists and has stock
             var product = _productRepo.GetById(id);
             if (product != null)
             {
+                if (product.Stock <= 0)
+                {
+                    TempData["Error"] = "Produsul nu mai este în stoc.";
+                    return RedirectToAction("Index", "Home");
+                }
+
                 var cart = GetCart();
                 cart.AddProduct(id);
                 SaveCart(cart);
+                TempData["Success"] = $"Produsul {product.Name} a fost adăugat în coș.";
             }
             return RedirectToAction("Index", "Home");
         }
@@ -70,6 +80,7 @@ namespace OnlineStore.WebUI.Controllers
             var userIdStr = HttpContext.Session.GetString("UserId");
             if (string.IsNullOrEmpty(userIdStr))
             {
+                TempData["Error"] = "Trebuie să fiți autentificat pentru a plasa o comandă.";
                 return RedirectToAction("Login", "Account");
             }
 
@@ -77,42 +88,67 @@ namespace OnlineStore.WebUI.Controllers
             var user = _userRepo.GetById(userId);
             var cart = GetCart();
 
-            // Pattern 3: Singleton - Verificăm limita maximă de produse dintr-o comandă setată global
-            if (cart.ProductIds.Count > ApplicationConfigurationManager.Instance.MaxItemsPerOrder)
+            if (!cart.ProductIds.Any())
             {
-                TempData["ErrorMessage"] = $"Comanda nu poate depăși {ApplicationConfigurationManager.Instance.MaxItemsPerOrder} produse.";
+                TempData["Error"] = "Coșul este gol.";
                 return RedirectToAction("Index");
             }
 
-            var products = new List<Product>();
-            foreach (var id in cart.ProductIds)
+            // Pattern 3: Singleton - Verificăm limita maximă de produse dintr-o comandă setată global
+            int totalItems = cart.ProductIds.Values.Sum();
+            if (totalItems > ApplicationConfigurationManager.Instance.MaxItemsPerOrder)
             {
-                var p = _productRepo.GetById(id);
-                if (p != null) products.Add(p);
+                TempData["Error"] = $"Comanda nu poate depăși {ApplicationConfigurationManager.Instance.MaxItemsPerOrder} produse.";
+                return RedirectToAction("Index");
             }
 
-            if (user != null && products.Any())
+            var productsToOrder = new List<Product>();
+            foreach (var item in cart.ProductIds)
+            {
+                var p = _productRepo.GetById(item.Key);
+                if (p == null) continue;
+
+                if (p.Stock < item.Value)
+                {
+                    TempData["Error"] = $"Stoc insuficient pentru {p.Name}. Disponibil: {p.Stock}";
+                    return RedirectToAction("Index");
+                }
+
+                for (int i = 0; i < item.Value; i++)
+                {
+                    productsToOrder.Add(p);
+                }
+            }
+
+            if (user != null && productsToOrder.Any())
             {
                 // Pattern 1: Builder - Folosim Directorul pentru a construi comanda
-                // Alegem tipul de comandă (Standard vs Premium) în funcție de numărul de produse
                 var builder = new OrderBuilder();
                 var director = new OrderDirector(builder);
 
                 Order order;
-                if (products.Count > 3)
+                if (productsToOrder.Count > 3)
                 {
-                    // Comandă Premium cu 10% discount dacă sunt mai mult de 3 produse
-                    order = director.BuildPremiumOrder(user, products);
+                    order = director.BuildPremiumOrder(user, productsToOrder);
                 }
                 else
                 {
-                    // Comandă Standard fără discount
-                    order = director.BuildStandardOrder(user, products);
+                    order = director.BuildStandardOrder(user, productsToOrder);
                 }
 
                 _orderRepo.Add(order);
 
-                // For Customer type, we might want to ensure the list is updated if using in-memory or specific tracking
+                // Decrement stock
+                foreach (var item in cart.ProductIds)
+                {
+                    var p = _productRepo.GetById(item.Key);
+                    if (p != null)
+                    {
+                        p.Stock -= item.Value;
+                        _productRepo.Update(p);
+                    }
+                }
+
                 if (user is Customer customer)
                 {
                     if (customer.OrderHistory == null) customer.OrderHistory = new List<Order>();
@@ -124,6 +160,7 @@ namespace OnlineStore.WebUI.Controllers
                 cart.Clear();
                 SaveCart(cart);
 
+                TempData["Success"] = "Comanda a fost plasată cu succes!";
                 return View("OrderConfirmation", order);
             }
 
