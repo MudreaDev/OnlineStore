@@ -29,7 +29,10 @@ namespace OnlineStore.Domain.Entities
         /// </summary>
         public VehicleProduct Clone()
         {
-            return new VehicleProduct(Name + " (Copy)", Price, Brand, Model, Year);
+            return new VehicleProduct(Name + " (Copy)", Price, Brand, Model, Year)
+            {
+                Stock = this.Stock
+            };
         }
 
         public override string GetDescription()

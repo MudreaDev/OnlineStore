@@ -2,7 +2,7 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace OnlineStore.WebUI.Utils
+namespace OnlineStore.Domain.Utils
 {
     public static class PasswordHasher
     {

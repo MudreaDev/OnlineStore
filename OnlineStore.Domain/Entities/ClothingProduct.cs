@@ -22,7 +22,10 @@ namespace OnlineStore.Domain.Entities
         /// </summary>
         public ClothingProduct Clone()
         {
-            return new ClothingProduct(Name + " (Copy)", Price, Size, Material);
+            return new ClothingProduct(Name + " (Copy)", Price, Size, Material)
+            {
+                Stock = this.Stock
+            };
         }
 
         public override string GetDescription()

@@ -20,7 +20,10 @@ namespace OnlineStore.Domain.Entities
         /// </summary>
         public ElectronicProduct Clone()
         {
-            return new ElectronicProduct(Name + " (Copy)", Price, WarrantyMonths);
+            return new ElectronicProduct(Name + " (Copy)", Price, WarrantyMonths)
+            {
+                Stock = this.Stock
+            };
         }
 
         public override string GetDescription()//polimorfism

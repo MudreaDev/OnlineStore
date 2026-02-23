@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineStore.Application.Repositories;
 using OnlineStore.Domain.Entities;
-using OnlineStore.WebUI.Utils;
+using OnlineStore.Domain.Utils;
 using OnlineStore.WebUI.Models;
 
 namespace OnlineStore.WebUI.Controllers

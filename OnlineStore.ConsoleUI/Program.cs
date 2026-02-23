@@ -73,9 +73,14 @@ namespace OnlineStore.ConsoleUI
             productRepo.Add(vehicleFactory.CreateProduct("Electric Scooter", 500m));
             productRepo.Add(vehicleFactory.CreateProduct("Mountain Bike", 300m));
 
-            // Add users
-            userRepo.Add(new Customer("johndoe", "john@example.com", "123 Main St"));
-            userRepo.Add(new Admin("admin", "admin@store.com", "SuperAdmin"));
+            // Add users with hashed passwords
+            var admin = new Admin("admin", "admin@store.com", "SuperAdmin");
+            admin.PasswordHash = OnlineStore.Domain.Utils.PasswordHasher.Hash("admin123");
+            userRepo.Add(admin);
+
+            var customer = new Customer("testuser", "test@test.com", "123 Demo St");
+            customer.PasswordHash = OnlineStore.Domain.Utils.PasswordHasher.Hash("test123");
+            userRepo.Add(customer);
         }
 
         static void GuestMenu()
