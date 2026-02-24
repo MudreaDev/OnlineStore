@@ -40,7 +40,7 @@ namespace OnlineStore.Application.Repositories
         {
             // Include related data
             return _context.Orders
-                .Include(o => o.Products)
+                .Include(o => o.Items)
                 .Include(o => o.User)
                 .ToList();
         }
@@ -48,7 +48,7 @@ namespace OnlineStore.Application.Repositories
         public Order GetById(Guid id)
         {
             return _context.Orders
-                .Include(o => o.Products)
+                .Include(o => o.Items)
                 .Include(o => o.User)
                 .FirstOrDefault(o => o.Id == id);
         }

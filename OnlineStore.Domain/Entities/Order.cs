@@ -8,7 +8,7 @@ namespace OnlineStore.Domain.Entities
     public class Order : Entity
     {
         public User User { get; set; }
-        public List<Product> Products { get; set; }
+        public List<OrderItem> Items { get; set; }
         public decimal Total { get; set; }
         public DateTime OrderDate { get; set; }
         public OrderStatus Status { get; set; }
@@ -16,13 +16,13 @@ namespace OnlineStore.Domain.Entities
         protected Order()
         {
             User = null!;
-            Products = new List<Product>();
+            Items = new List<OrderItem>();
         }
 
-        public Order(User user, List<Product> products, decimal total)
+        public Order(User user, List<OrderItem> items, decimal total)
         {
             User = user;
-            Products = products;
+            Items = items;
             Total = total;
             OrderDate = DateTime.Now;
             Status = OrderStatus.Pending;

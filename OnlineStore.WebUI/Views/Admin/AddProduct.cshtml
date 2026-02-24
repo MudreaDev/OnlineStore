@@ -154,7 +154,7 @@
         background: var(--accent-primary);
         transform: translateY(-2px);
 
-    box-shadow: 0 10px 30px rgba(5, 150, 105, 0.2);
+        box-shadow: 0 10px 30px rgba(5, 150, 105, 0.2);
     }
 
     .remove-thumb {
@@ -172,7 +172,7 @@
         cursor: pointer;
         color: #dc2626;
         font-size: 14px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 </style>
 
@@ -197,17 +197,19 @@
 
             <div class="field-group">
                 <label for="Name" class="field-label">Product Naming</label>
-                <input type="text" name="Name" id="Name" class="premium-input" placeholder="Enter an elegant name..." required />
+                <input type="text" name="Name" id="Name" class="premium-input" placeholder="Enter an elegant name..."
+                    required />
             </div>
 
             <div class="field-group">
                 <label for="Price" class="field-label">Retail Value (€)</label>
-                <input type="number" name="Price" id="Price" step="0.01" class="premium-input" placeholder="0.00" required />
+                <input type="number" name="Price" id="Price" step="0.01" class="premium-input" placeholder="0.00"
+                    required />
             </div>
 
             <div class="field-group">
                 <label for="Stock" class="field-label">Initial Stock</label>
-                <input type="number" name="Stock" id="Stock" class="premium-input" value="10" required />
+                <input type="number" name="stock" id="Stock" class="premium-input" value="10" required />
             </div>
 
             <div id="ElectronicFields" class="type-container">
@@ -219,19 +221,28 @@
             </div>
 
             <div id="ClothingFields" class="type-container" style="display:none;">
-                <span class="form-section-title" style="color: var(--midnight); font-size: 0.65rem;">Material Details</span>
+                <span class="form-section-title" style="color: var(--midnight); font-size: 0.65rem;">Clothing
+                    Specs</span>
                 <div class="field-group">
-                    <label for="Size" class="field-label">Size Availability</label>
-                    <input type="text" name="Size" id="Size" class="premium-input" placeholder="M, L, XL..." />
+                    <label for="Material" class="field-label">Material Composition</label>
+                    <input type="text" name="material" id="Material" class="premium-input"
+                        placeholder="Organic Cotton, Silk..." />
+                </div>
+                <div class="field-group">
+                    <label for="AvailableSizes" class="field-label">Size Options (Comma separated)</label>
+                    <input type="text" name="availableSizes" id="AvailableSizes" class="premium-input"
+                        placeholder="S, M, L, XL..." />
                 </div>
                 <div class="field-group" style="margin-bottom: 0;">
-                    <label for="Material" class="field-label">Textile Material</label>
-                    <input type="text" name="Material" id="Material" class="premium-input" placeholder="Organic Cotton, Silk..." />
+                    <label for="AvailableColors" class="field-label">Color Options (Comma separated)</label>
+                    <input type="text" name="availableColors" id="AvailableColors" class="premium-input"
+                        placeholder="Black, White, Navy..." />
                 </div>
             </div>
 
             <div id="VehicleFields" class="type-container" style="display:none;">
-                <span class="form-section-title" style="color: var(--midnight); font-size: 0.65rem;">Vehicle Origins</span>
+                <span class="form-section-title" style="color: var(--midnight); font-size: 0.65rem;">Vehicle
+                    Origins</span>
                 <div class="field-group">
                     <label for="Brand" class="field-label">Brand / Manufacturer</label>
                     <input type="text" name="Brand" id="Brand" class="premium-input" />
@@ -248,22 +259,25 @@
 
             <div style="margin-top: 4rem;">
                 <span class="form-section-title">Visual Assets</span>
-                <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1.5rem;">Upload up to 5 high-resolution images. First image serves as the Main cover.</p>
+                <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1.5rem;">Upload up to 5
+                    high-resolution images. First image serves as the Main cover.</p>
 
                 <div class="upload-box" onclick="document.getElementById('imageInput').click()">
                     <div class="upload-icon-wrap">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="17 8 12 3 7 8"></polyline>
                             <line x1="12" y1="3" x2="12" y2="15"></line>
                         </svg>
                     </div>
                     <p style="font-weight: 700; font-size: 0.9375rem; color: var(--midnight);">Select Media Files</p>
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">PNG, JPEG, WEBP up to 8MB each</p>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">PNG, JPEG, WEBP up to
+                        8MB each</p>
                 </div>
 
                 <input type="file" name="images" id="imageInput" multiple accept=".jpg,.jpeg,.png,.webp"
-                       style="display: none;" onchange="handleFileSelect(this)" />
+                    style="display: none;" onchange="handleFileSelect(this)" />
 
                 <div class="preview-list" id="previewGrid"></div>
             </div>

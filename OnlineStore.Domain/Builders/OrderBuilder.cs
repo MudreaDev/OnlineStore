@@ -14,7 +14,7 @@ namespace OnlineStore.Domain.Builders
     public class OrderBuilder : IOrderBuilder
     {
         private User? _user;
-        private readonly List<Product> _products = new();
+        private readonly List<OrderItem> _items = new();
         private IDiscountStrategy _discountStrategy = new NoDiscountStrategy();
 
         public IOrderBuilder SetUser(User user)
@@ -23,15 +23,16 @@ namespace OnlineStore.Domain.Builders
             return this;
         }
 
-        public IOrderBuilder AddProduct(Product product)
+        public IOrderBuilder AddOrderItem(OrderItem item)
         {
-            _products.Add(product);
+            _items.Add(item);
             return this;
         }
 
-        public IOrderBuilder AddProducts(List<Product> products)
+        public IOrderBuilder AddProduct(Product product, int quantity = 1, string? size = null, string? color = null)
         {
-            _products.AddRange(products);
+            var item = new OrderItem(product.Id, product.Name, product.Price, quantity, size, color);
+            _items.Add(item);
             return this;
         }
 
@@ -48,15 +49,15 @@ namespace OnlineStore.Domain.Builders
                 throw new InvalidOperationException("User must be set before building an order.");
             }
 
-            if (!_products.Any())
+            if (!_items.Any())
             {
                 throw new InvalidOperationException("Order must contain at least one product.");
             }
 
-            decimal subtotal = _products.Sum(p => p.Price);
+            decimal subtotal = _items.Sum(i => i.UnitPrice * i.Quantity);
             decimal total = _discountStrategy.ApplyDiscount(subtotal);
 
-            return new Order(_user, new List<Product>(_products), total);
+            return new Order(_user, new List<OrderItem>(_items), total);
         }
     }
 }

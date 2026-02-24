@@ -18,29 +18,32 @@ namespace OnlineStore.Domain.Builders
             _builder = builder;
         }
 
-        public Order BuildStandardOrder(User user, List<Product> products)
+        public Order BuildStandardOrder(User user, List<OrderItem> items)
         {
+            _builder.SetUser(user);
+            foreach (var item in items) _builder.AddOrderItem(item);
+            
             return _builder
-                .SetUser(user)
-                .AddProducts(products)
                 .ApplyDiscount(new NoDiscountStrategy())
                 .Build();
         }
 
-        public Order BuildPremiumOrder(User user, List<Product> products)
+        public Order BuildPremiumOrder(User user, List<OrderItem> items)
         {
+            _builder.SetUser(user);
+            foreach (var item in items) _builder.AddOrderItem(item);
+
             return _builder
-                .SetUser(user)
-                .AddProducts(products)
                 .ApplyDiscount(new PercentageDiscountStrategy(10)) // 10% discount pentru clienți premium
                 .Build();
         }
 
-        public Order BuildSaleOrder(User user, List<Product> products, decimal fixedDiscount)
+        public Order BuildSaleOrder(User user, List<OrderItem> items, decimal fixedDiscount)
         {
+            _builder.SetUser(user);
+            foreach (var item in items) _builder.AddOrderItem(item);
+
             return _builder
-                .SetUser(user)
-                .AddProducts(products)
                 .ApplyDiscount(new FixedAmountDiscountStrategy(fixedDiscount))
                 .Build();
         }

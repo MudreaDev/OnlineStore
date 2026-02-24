@@ -18,14 +18,14 @@
 
 <style>
     .details-page {
-        padding-top: 3rem;
-        padding-bottom: 8rem;
+        padding-top: 1.5rem;
+        padding-bottom: 3rem;
     }
 
     .details-grid {
         display: grid;
-        grid-template-columns: 1.1fr 0.9fr;
-        gap: 6rem;
+        grid-template-columns: 0.85fr 1.15fr;
+        gap: 2.5rem;
         align-items: start;
     }
 
@@ -33,17 +33,18 @@
     .gallery-stack {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 0.75rem;
         position: sticky;
-        top: 100px;
+        top: 80px;
     }
 
     .main-visual-wrap {
         width: 100%;
-        aspect-ratio: 4/5;
+        max-height: 420px;
+        aspect-ratio: 1/1;
         background: #fff;
         border: 1px solid var(--border-subtle);
-        border-radius: 32px;
+        border-radius: 20px;
         overflow: hidden;
         display: flex;
         align-items: center;
@@ -60,7 +61,7 @@
     }
 
     .main-emoji-hero {
-        font-size: 8rem;
+        font-size: 5rem;
         opacity: 0.8;
     }
 
@@ -72,9 +73,9 @@
     }
 
     .thumb-pill {
-        width: 72px;
-        height: 72px;
-        border-radius: 16px;
+        width: 52px;
+        height: 52px;
+        border-radius: 10px;
         cursor: pointer;
         border: 2px solid transparent;
         overflow: hidden;
@@ -98,71 +99,71 @@
 
     /* --- Right Editorial Content --- */
     .product-manifesto {
-        margin-bottom: 2.5rem;
+        margin-bottom: 1rem;
     }
 
     .manif-cat {
         display: inline-block;
         font-family: var(--font-display);
-        font-size: 0.75rem;
+        font-size: 0.65rem;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.15em;
         color: var(--accent-primary);
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
     }
 
     .manif-title {
         font-family: var(--font-display);
-        font-size: 3.5rem;
+        font-size: 1.875rem;
         font-weight: 800;
         line-height: 1.1;
-        letter-spacing: -0.04em;
+        letter-spacing: -0.03em;
         color: var(--midnight);
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.75rem;
     }
 
     .manif-price {
         font-family: var(--font-display);
-        font-size: 2.25rem;
+        font-size: 1.5rem;
         font-weight: 300;
         color: var(--text-main);
         letter-spacing: -0.02em;
     }
 
     .manif-section {
-        margin-top: 4rem;
-        padding-top: 2.5rem;
+        margin-top: 1.25rem;
+        padding-top: 1.25rem;
         border-top: 1px solid var(--border-subtle);
     }
 
     .manif-section-title {
         font-family: var(--font-display);
-        font-size: 1.25rem;
+        font-size: 0.875rem;
         font-weight: 700;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.75rem;
         color: var(--midnight);
     }
 
     .manif-text {
-        font-size: 1.0625rem;
+        font-size: 0.875rem;
         color: var(--text-muted);
-        line-height: 1.8;
-        font-weight: 300;
+        line-height: 1.6;
+        font-weight: 400;
     }
 
     /* Technical Specs as Glassy Badges */
     .spec-cloud {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
+        gap: 0.75rem;
     }
 
     .spec-card {
         background: #fff;
         border: 1px solid var(--border-subtle);
-        padding: 1.25rem;
-        border-radius: 16px;
+        padding: 0.75rem;
+        border-radius: 10px;
         transition: var(--transition-smooth);
     }
 
@@ -190,19 +191,19 @@
 
     /* Actions Bar */
     .bag-action-bar {
-        margin-top: 5rem;
+        margin-top: 1.5rem;
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 0.75rem;
     }
 
     .btn-bag-add {
         background: var(--midnight);
         color: #fff;
         border: none;
-        border-radius: 18px;
-        padding: 1.5rem;
-        font-size: 1.125rem;
+        border-radius: 12px;
+        padding: 1rem;
+        font-size: 0.9375rem;
         font-family: var(--font-display);
         font-weight: 700;
         cursor: pointer;
@@ -210,7 +211,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 1rem;
+        gap: 0.75rem;
         box-shadow: var(--shadow-sm);
     }
 
@@ -228,12 +229,12 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.8125rem;
+        font-size: 0.75rem;
         font-weight: 600;
         color: var(--text-muted);
         text-decoration: none;
         transition: var(--transition-smooth);
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
     }
 
     .back-nav:hover {
@@ -244,7 +245,7 @@
     @@media (max-width: 1024px) {
         .details-grid {
             grid-template-columns: 1fr;
-            gap: 4rem;
+            gap: 2rem;
         }
 
         .gallery-stack {
@@ -253,7 +254,7 @@
         }
 
         .manif-title {
-            font-size: 2.75rem;
+            font-size: 1.5rem;
         }
     }
 </style>

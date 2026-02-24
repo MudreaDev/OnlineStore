@@ -237,7 +237,7 @@
 
             <div class="field-group">
                 <label for="Stock" class="field-label">Available Inventory</label>
-                <input type="number" name="Stock" id="Stock" value="@Model.Stock" class="premium-input" required />
+                <input type="number" name="stock" id="Stock" value="@Model.Stock" class="premium-input" required />
             </div>
 
             @if (Model is ElectronicProduct electronic)
@@ -252,13 +252,19 @@
             {
                 <div class="field-grid">
                     <div class="field-group">
-                        <label for="Size" class="field-label">Measured Size</label>
-                        <input type="text" name="Size" id="Size" value="@clothing.Size" class="premium-input" />
-                    </div>
-                    <div class="field-group">
                         <label for="Material" class="field-label">Material Composition</label>
                         <input type="text" name="Material" id="Material" value="@clothing.Material" class="premium-input" />
                     </div>
+                    <div class="field-group">
+                        <label for="AvailableSizes" class="field-label">Size Options (Comma separated)</label>
+                        <input type="text" name="availableSizes" id="AvailableSizes" value="@clothing.AvailableSizes"
+                            class="premium-input" />
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label for="AvailableColors" class="field-label">Color Options (Comma separated)</label>
+                    <input type="text" name="availableColors" id="AvailableColors" value="@clothing.AvailableColors"
+                        class="premium-input" />
                 </div>
             }
             else if (Model is VehicleProduct vehicle)

@@ -14,12 +14,12 @@ namespace OnlineStore.Application.Services
             _discountStrategy = discountStrategy;
         }
 
-        public Order PlaceOrder(User user, List<Product> products)
+        public Order PlaceOrder(User user, List<OrderItem> items)
         {
-            decimal total = products.Sum(p => p.Price);
+            decimal total = items.Sum(i => i.UnitPrice * i.Quantity);
             decimal finalTotal = _discountStrategy.ApplyDiscount(total);
 
-            return new Order(user, products, finalTotal);
+            return new Order(user, items, finalTotal);
         }
     }
 }

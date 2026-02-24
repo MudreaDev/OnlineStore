@@ -39,17 +39,29 @@
             <div class="order-items mt-4">
                 <h3>Items in this Order</h3>
                 <ul class="item-list">
-                    @foreach (var product in Model.Products)
+                    @foreach (var item in Model.Items)
                     {
                         <li class="item-row">
                             <div class="item-info">
                                 <span class="item-icon">📦</span>
                                 <div class="item-text">
-                                    <span class="item-name">@product.Name</span>
-                                    <span class="item-category">@product.GetType().Name.Replace("Product", "")</span>
+                                    <span class="item-name">@item.ProductName x @item.Quantity</span>
+                                    @if (!string.IsNullOrEmpty(item.Size) || !string.IsNullOrEmpty(item.Color))
+                                    {
+                                        <span class="item-category">
+                                            @if (!string.IsNullOrEmpty(item.Size))
+                                            {
+                                                <span>Size: @item.Size </span>
+                                            }
+                                            @if (!string.IsNullOrEmpty(item.Color))
+                                            {
+                                                <span>Color: @item.Color</span>
+                                            }
+                                        </span>
+                                    }
                                 </div>
                             </div>
-                            <span class="item-price">@product.Price.ToString("C")</span>
+                            <span class="item-price">@((item.UnitPrice * item.Quantity).ToString("C"))</span>
                         </li>
                     }
                 </ul>

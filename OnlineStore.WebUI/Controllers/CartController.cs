@@ -26,16 +26,16 @@ namespace OnlineStore.WebUI.Controllers
         public IActionResult Index()
         {
             var cart = GetCart();
-            var products = new List<(Product Product, int Quantity)>();
+            var products = new List<(Product Product, int Quantity, string? Size, string? Color)>();
             decimal total = 0;
 
-            foreach (var item in cart.ProductIds)
+            foreach (var item in cart.Items)
             {
-                var p = _productRepo.GetById(item.Key);
+                var p = _productRepo.GetById(item.ProductId);
                 if (p != null)
                 {
-                    products.Add((p, item.Value));
-                    total += p.Price * item.Value;
+                    products.Add((p, item.Quantity, item.Size, item.Color));
+                    total += p.Price * item.Quantity;
                 }
             }
 
@@ -46,7 +46,7 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Add(Guid id)
+        public IActionResult Add(Guid id, string? size, string? color)
         {
             // Verify product exists and has stock
             var product = _productRepo.GetById(id);
@@ -59,17 +59,38 @@ namespace OnlineStore.WebUI.Controllers
                 }
 
                 var cart = GetCart();
-                cart.AddProduct(id);
+                cart.AddProduct(id, size, color);
                 SaveCart(cart);
                 TempData["Success"] = $"Produsul {product.Name} a fost adăugat în coș.";
             }
             return RedirectToAction("Index", "Home");
         }
 
-        public IActionResult Remove(Guid id)
+        [HttpPost]
+        public IActionResult UpdateQuantity(Guid id, int quantity, string? size, string? color)
         {
             var cart = GetCart();
-            cart.RemoveProduct(id);
+            var item = cart.Items.FirstOrDefault(i => i.ProductId == id && i.Size == size && i.Color == color);
+            if (item != null)
+            {
+                if (quantity > 0)
+                {
+                    item.Quantity = quantity;
+                }
+                else
+                {
+                    cart.Items.Remove(item);
+                }
+                SaveCart(cart);
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult Remove(Guid id, string? size, string? color)
+        {
+            var cart = GetCart();
+            cart.RemoveProduct(id, size, color);
             SaveCart(cart);
             return RedirectToAction("Index");
         }
@@ -88,63 +109,60 @@ namespace OnlineStore.WebUI.Controllers
             var user = _userRepo.GetById(userId);
             var cart = GetCart();
 
-            if (!cart.ProductIds.Any())
+            if (!cart.Items.Any())
             {
                 TempData["Error"] = "Coșul este gol.";
                 return RedirectToAction("Index");
             }
 
             // Pattern 3: Singleton - Verificăm limita maximă de produse dintr-o comandă setată global
-            int totalItems = cart.ProductIds.Values.Sum();
+            int totalItems = cart.Items.Sum(i => i.Quantity);
             if (totalItems > ApplicationConfigurationManager.Instance.MaxItemsPerOrder)
             {
                 TempData["Error"] = $"Comanda nu poate depăși {ApplicationConfigurationManager.Instance.MaxItemsPerOrder} produse.";
                 return RedirectToAction("Index");
             }
 
-            var productsToOrder = new List<Product>();
-            foreach (var item in cart.ProductIds)
+            var orderItems = new List<OrderItem>();
+            foreach (var item in cart.Items)
             {
-                var p = _productRepo.GetById(item.Key);
+                var p = _productRepo.GetById(item.ProductId);
                 if (p == null) continue;
 
-                if (p.Stock < item.Value)
+                if (p.Stock < item.Quantity)
                 {
                     TempData["Error"] = $"Stoc insuficient pentru {p.Name}. Disponibil: {p.Stock}";
                     return RedirectToAction("Index");
                 }
 
-                for (int i = 0; i < item.Value; i++)
-                {
-                    productsToOrder.Add(p);
-                }
+                orderItems.Add(new OrderItem(p.Id, p.Name, p.Price, item.Quantity, item.Size, item.Color));
             }
 
-            if (user != null && productsToOrder.Any())
+            if (user != null && orderItems.Any())
             {
                 // Pattern 1: Builder - Folosim Directorul pentru a construi comanda
                 var builder = new OrderBuilder();
                 var director = new OrderDirector(builder);
 
                 Order order;
-                if (productsToOrder.Count > 3)
+                if (orderItems.Sum(i => i.Quantity) > 3)
                 {
-                    order = director.BuildPremiumOrder(user, productsToOrder);
+                    order = director.BuildPremiumOrder(user, orderItems);
                 }
                 else
                 {
-                    order = director.BuildStandardOrder(user, productsToOrder);
+                    order = director.BuildStandardOrder(user, orderItems);
                 }
 
                 _orderRepo.Add(order);
 
                 // Decrement stock
-                foreach (var item in cart.ProductIds)
+                foreach (var item in cart.Items)
                 {
-                    var p = _productRepo.GetById(item.Key);
+                    var p = _productRepo.GetById(item.ProductId);
                     if (p != null)
                     {
-                        p.Stock -= item.Value;
+                        p.Stock -= item.Quantity;
                         _productRepo.Update(p);
                     }
                 }

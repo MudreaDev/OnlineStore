@@ -62,6 +62,14 @@ namespace OnlineStore.WebUI.Controllers
             var accessCheck = CheckAccess();
             if (accessCheck != null) return accessCheck;
 
+            var products = _productRepo.GetAll().ToList();
+            var orders = _orderRepo.GetAll().ToList();
+            
+            ViewBag.TotalProducts = products.Count;
+            ViewBag.TotalOrders = orders.Count;
+            ViewBag.TotalRevenue = orders.Sum(o => o.Total);
+            ViewBag.LowStock = products.Count(p => p.Stock < 5);
+
             return View();
         }
 
@@ -103,7 +111,7 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddProduct(string type, string name, decimal price, int? warrantyMonths, string size, string material, string brand, string model, int? year, List<IFormFile>? images)
+        public async Task<IActionResult> AddProduct(string type, string name, decimal price, int? stock, int? warrantyMonths, string size, string material, string availableSizes, string availableColors, string brand, string model, int? year, List<IFormFile>? images)
         {
             var accessCheck = CheckAccess();
             if (accessCheck != null) return accessCheck;
@@ -119,6 +127,7 @@ namespace OnlineStore.WebUI.Controllers
             if (factory != null)
             {
                 var newProduct = factory.CreateProduct(name, price);
+                newProduct.Stock = stock ?? 10;
 
                 if (newProduct is ElectronicProduct electronic)
                 {
@@ -128,6 +137,8 @@ namespace OnlineStore.WebUI.Controllers
                 {
                     if (!string.IsNullOrEmpty(size)) clothing.Size = size;
                     if (!string.IsNullOrEmpty(material)) clothing.Material = material;
+                    clothing.AvailableSizes = availableSizes;
+                    clothing.AvailableColors = availableColors;
                 }
                 else if (newProduct is VehicleProduct vehicle)
                 {
@@ -185,7 +196,7 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditProduct(Guid id, string name, decimal price, int? warrantyMonths, string size, string material, string brand, string model, int? year, List<IFormFile>? newImages, List<string>? deletePublicIds)
+        public async Task<IActionResult> EditProduct(Guid id, string name, decimal price, int? stock, int? warrantyMonths, string size, string material, string availableSizes, string availableColors, string brand, string model, int? year, List<IFormFile>? newImages, List<string>? deletePublicIds)
         {
             var accessCheck = CheckAccess();
             if (accessCheck != null) return accessCheck;
@@ -195,6 +206,7 @@ namespace OnlineStore.WebUI.Controllers
 
             product.Name = name;
             product.Price = price;
+            product.Stock = stock ?? product.Stock;
 
             if (product is ElectronicProduct electroUpdate)
             {
@@ -204,6 +216,8 @@ namespace OnlineStore.WebUI.Controllers
             {
                 clothingUpdate.Size = size;
                 clothingUpdate.Material = material;
+                clothingUpdate.AvailableSizes = availableSizes;
+                clothingUpdate.AvailableColors = availableColors;
             }
             else if (product is VehicleProduct vehicleUpdate)
             {

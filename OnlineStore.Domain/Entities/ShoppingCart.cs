@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using OnlineStore.Domain.Common;
 
 namespace OnlineStore.Domain.Entities
@@ -7,50 +8,51 @@ namespace OnlineStore.Domain.Entities
     public class ShoppingCart : Entity
     {
         public Guid? UserId { get; set; }
-        public Dictionary<Guid, int> ProductIds { get; set; }
+        public List<CartItem> Items { get; set; }
 
         public ShoppingCart(Guid? userId)
         {
             UserId = userId;
-            ProductIds = new Dictionary<Guid, int>();
+            Items = new List<CartItem>();
         }
 
-        // Constructor for serialization
         public ShoppingCart()
         {
-            ProductIds = new Dictionary<Guid, int>();
+            Items = new List<CartItem>();
         }
 
-        public void AddProduct(Guid productId)
+        public void AddProduct(Guid productId, string? size = null, string? color = null)
         {
-            if (ProductIds.ContainsKey(productId))
+            var existingItem = Items.FirstOrDefault(i => i.ProductId == productId && i.Size == size && i.Color == color);
+            if (existingItem != null)
             {
-                ProductIds[productId]++;
+                existingItem.Quantity++;
             }
             else
             {
-                ProductIds[productId] = 1;
+                Items.Add(new CartItem(productId, 1, size, color));
             }
         }
 
-        public void RemoveProduct(Guid productId)
+        public void RemoveProduct(Guid productId, string? size = null, string? color = null)
         {
-            if (ProductIds.ContainsKey(productId))
+            var existingItem = Items.FirstOrDefault(i => i.ProductId == productId && i.Size == size && i.Color == color);
+            if (existingItem != null)
             {
-                if (ProductIds[productId] > 1)
+                if (existingItem.Quantity > 1)
                 {
-                    ProductIds[productId]--;
+                    existingItem.Quantity--;
                 }
                 else
                 {
-                    ProductIds.Remove(productId);
+                    Items.Remove(existingItem);
                 }
             }
         }
 
         public void Clear()
         {
-            ProductIds.Clear();
+            Items.Clear();
         }
     }
 }

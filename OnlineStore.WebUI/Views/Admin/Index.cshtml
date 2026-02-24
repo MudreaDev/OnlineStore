@@ -230,6 +230,51 @@
             grid-template-columns: 1fr;
         }
     }
+
+    /* Stats Bar */
+    .stats-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: #fff;
+        border: 1px solid var(--border-subtle);
+        border-radius: 20px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-smooth);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--accent-primary);
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 0.1em;
+    }
+
+    .stat-value {
+        font-family: var(--font-display);
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--midnight);
+    }
+
+    .stat-alert {
+        color: #dc2626 !important;
+    }
 </style>
 
 <div class="admin-page">
@@ -245,6 +290,25 @@
             ✓ @TempData["Message"]
         </div>
     }
+
+    <div class="stats-bar">
+        <div class="stat-card">
+            <span class="stat-label">Total Products</span>
+            <span class="stat-value">@ViewBag.TotalProducts</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Orders Processed</span>
+            <span class="stat-value">@ViewBag.TotalOrders</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Gross Revenue</span>
+            <span class="stat-value">@ViewBag.TotalRevenue.ToString("C0")</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Low Stock Alert</span>
+            <span class="stat-value @(ViewBag.LowStock > 0 ? "stat-alert" : "")">@ViewBag.LowStock</span>
+        </div>
+    </div>
 
     <div class="nav-cards">
         <a asp-action="Products" class="nav-card">

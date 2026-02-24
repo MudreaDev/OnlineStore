@@ -191,7 +191,7 @@
                             <td>
                                 <div class="order-reference">Selection ID: @order.Id.ToString().Substring(0, 8).ToUpper()</div>
                                 <div class="customer-info">
-                                    @order.OrderDate.ToString("MMM d, yyyy") — @order.Products.Count() items
+                                    @order.OrderDate.ToString("MMM d, yyyy") — @order.Items.Sum(i => i.Quantity) items
                                 </div>
                             </td>
                             <td>

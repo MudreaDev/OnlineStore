@@ -43,7 +43,8 @@
             --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @keyframesfadeInUp {
+        @@keyframes fadeInUp {
+
             from {
                 opacity: 0;
                 transform: translateY(10px);
@@ -298,8 +299,17 @@
             animation: fadeInUp 0.4s ease-out;
         }
 
-        .alert-success { background: rgba(236, 253, 245, 0.9); color: #065f46; border: 1px solid #a7f3d0; }
-        .alert-danger { background: rgba(254, 242, 242, 0.9); color: #991b1b; border: 1px solid #fecaca; }
+        .alert-success {
+            background: rgba(236, 253, 245, 0.9);
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-danger {
+            background: rgba(254, 242, 242, 0.9);
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
 
         /* --- Layout --- */
         .main-content {
@@ -325,7 +335,52 @@
             transition: var(--transition-smooth);
         }
 
-        .footer-links a:hover { color: var(--accent-primary); }
+        .footer-links a:hover {
+            color: var(--accent-primary);
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 4rem;
+        }
+
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 280px;
+            height: 100vh;
+            background: #fff;
+            z-index: 2000;
+            padding: 2rem;
+            transition: right 0.3s ease;
+        }
+
+        .drawer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1999;
+        }
+
+        body.menu-open .drawer {
+            right: 0;
+        }
+
+        body.menu-open .drawer-overlay {
+            display: block;
+        }
 
         @@media (max-width: 1024px) {
             .nav-search-form {
@@ -394,7 +449,7 @@
                     @{
                         var session = HttpContextAccessor.HttpContext.Session;
                         var cart = session.Get<ShoppingCart>("Cart");
-                        var count = cart?.ProductIds.Values.Sum() ?? 0;
+                        var count = cart?.Items.Sum(i => i.Quantity) ?? 0;
                         var username = session.GetString("Username");
                     }
 
@@ -405,7 +460,7 @@
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <path d="M16 10a4 4 0 0 1-8 0"></path>
                         </svg>
-                        <span>Bag @(count > 0 ? "(" + count + ")" : "")</span>
+                        <span>Cart @(count > 0 ? "(" + count + ")" : "")</span>
                     </a>
 
                     @if (!string.IsNullOrEmpty(username))
@@ -477,7 +532,7 @@
         </div>
         <nav class="drawer-links">
             <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="Index">Shop</a>
-            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Cart" asp-action="Index">Bag
+            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Cart" asp-action="Index">Cart
                 (@count)</a>
             @if (!string.IsNullOrEmpty(username))
             {
@@ -518,14 +573,14 @@
                     over quantity, always.</p>
             </div>
             <div style="display: flex; gap: 4rem;">
-                <ul class="footer-links" style="flex-direction: column; gap: 0.75rem;">
+                <ul class="footer-links">
                     <li><span style="font-weight: 700; color: var(--text-dark)">Navigate</span></li>
                     <li><a asp-controller="Home" asp-action="Index">Shop All</a></li>
                     <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
                 </ul>
-                <ul class="footer-links" style="flex-direction: column; gap: 0.75rem;">
+                <ul class="footer-links">
                     <li><span style="font-weight: 700; color: var(--text-dark)">Account</span></li>
-                    <li><a asp-controller="Cart" asp-action="Index">Bag</a></li>
+                    <li><a asp-controller="Cart" asp-action="Index">Cart</a></li>
                     <li><a asp-controller="Profile" asp-action="Index">Settings</a></li>
                 </ul>
             </div>

@@ -10,8 +10,8 @@ namespace OnlineStore.Domain.Interfaces
     public interface IOrderBuilder
     {
         IOrderBuilder SetUser(User user);
-        IOrderBuilder AddProduct(Product product);
-        IOrderBuilder AddProducts(List<Product> products);
+        IOrderBuilder AddOrderItem(OrderItem item);
+        IOrderBuilder AddProduct(Product product, int quantity = 1, string? size = null, string? color = null);
         IOrderBuilder ApplyDiscount(IDiscountStrategy discountStrategy);
         Order Build();
     }

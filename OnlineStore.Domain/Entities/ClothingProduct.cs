@@ -6,8 +6,10 @@ namespace OnlineStore.Domain.Entities
     //respectând Open/Closed Principle.”  Demonstrează: OCP override LSP
     public class ClothingProduct : Product, IPrototype<ClothingProduct>
     {
-        public string Size { get; set; }
+        public string Size { get; set; } // Legacy or default
         public string Material { get; set; }
+        public string? AvailableSizes { get; set; } // e.g. "S,M,L,XL"
+        public string? AvailableColors { get; set; } // e.g. "Black,White,Navy"
 
         public ClothingProduct(string name, decimal price, string size, string material)
             : base(name, price)
@@ -24,13 +26,18 @@ namespace OnlineStore.Domain.Entities
         {
             return new ClothingProduct(Name + " (Copy)", Price, Size, Material)
             {
-                Stock = this.Stock
+                Stock = this.Stock,
+                AvailableSizes = this.AvailableSizes,
+                AvailableColors = this.AvailableColors
             };
         }
 
         public override string GetDescription()
         {
-            return $"Clothing: {Name}, Size: {Size}, Material: {Material}, Price: {Price:C}";
+            var variants = "";
+            if (!string.IsNullOrEmpty(AvailableSizes)) variants += $" Sizes: {AvailableSizes}";
+            if (!string.IsNullOrEmpty(AvailableColors)) variants += $" Colors: {AvailableColors}";
+            return $"Clothing: {Name}, Material: {Material}, Price: {Price:C}{variants}";
         }
     }
 }
