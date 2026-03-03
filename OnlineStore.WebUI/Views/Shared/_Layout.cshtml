@@ -445,6 +445,7 @@
             <div class="nav-right">
                 <nav class="nav-links-desktop" style="display: flex; gap: 1.5rem; align-items: center;">
                     <a class="nav-link" asp-controller="Home" asp-action="Index">Shop</a>
+                    <a class="nav-link" asp-controller="Home" asp-action="Catalog">Catalog (Composite)</a>
 
                     @{
                         var session = HttpContextAccessor.HttpContext.Session;
@@ -532,6 +533,8 @@
         </div>
         <nav class="drawer-links">
             <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="Index">Shop</a>
+            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="Catalog">Catalog
+                (Composite)</a>
             <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Cart" asp-action="Index">Cart
                 (@count)</a>
             @if (!string.IsNullOrEmpty(username))

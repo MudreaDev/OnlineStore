@@ -1,82 +1,176 @@
 using System;
+using System.Linq;
+using System.Collections.Generic;
+using OnlineStore.Domain.Entities;
+using OnlineStore.Domain.DesignPatterns.Structural.Adapter;
+using OnlineStore.Domain.Singleton;
+using OnlineStore.Domain.Interfaces;
+using OnlineStore.Domain.Builders;
 
 namespace OnlineStore.Domain.DesignPatterns.Structural.Facade
 {
-    // Subsistem 1: Verificare Stoc
+    // Subsistem 1: Verificare și Reducere Stoc (integrat cu IReadableRepository/IWriteableRepository)
     public class InventoryService
     {
-        public bool CheckStock(string productId, int quantity)
+        private readonly IReadableRepository<Product> _productReadRepo;
+        private readonly IWriteableRepository<Product> _productWriteRepo;
+
+        public InventoryService(IReadableRepository<Product> productReadRepo, IWriteableRepository<Product> productWriteRepo)
         {
-            Console.WriteLine($"[Inventory] Verificare stoc pentru produsul {productId}. Cantitate solicitată: {quantity}.");
-            return true; // Simplificat
+            _productReadRepo = productReadRepo;
+            _productWriteRepo = productWriteRepo;
         }
 
-        public void DeductStock(string productId, int quantity)
+        public bool CheckStockAndDeduct(ShoppingCart cart, out string errorMessage)
         {
-            Console.WriteLine($"[Inventory] Stoc redus cu {quantity} pentru produsul {productId}.");
-        }
-    }
+            errorMessage = string.Empty;
 
-    // Subsistem 2: Procesare Plată
-    public class PaymentService
-    {
-        public bool ProcessPayment(string customerId, decimal amount)
-        {
-            Console.WriteLine($"[Payment] Procesare plată de {amount} lei pentru clientul {customerId}.");
+            int totalItems = cart.Items.Sum(i => i.Quantity);
+            if (totalItems > ApplicationConfigurationManager.Instance.MaxItemsPerOrder)
+            {
+                errorMessage = $"Comanda nu poate depăși {ApplicationConfigurationManager.Instance.MaxItemsPerOrder} produse.";
+                return false;
+            }
+
+            foreach (var item in cart.Items)
+            {
+                var p = _productReadRepo.GetById(item.ProductId);
+                if (p == null) continue;
+
+                if (p.Stock < item.Quantity)
+                {
+                    errorMessage = $"Stoc insuficient pentru {p.Name}. Disponibil: {p.Stock}";
+                    return false;
+                }
+            }
+
+            // Dacă am ajuns aici, avem stoc disponibil pentru toate produsele.
+            // Executăm scăderea.
+            foreach (var item in cart.Items)
+            {
+                var p = _productReadRepo.GetById(item.ProductId);
+                if (p != null)
+                {
+                    p.Stock -= item.Quantity;
+                    _productWriteRepo.Update(p);
+                }
+            }
+
             return true;
         }
     }
 
-    // Subsistem 3: Trimitere Confirmări (Notificări)
-    public class NotificationService
+    // Subsistem 2: Procesare Plată (integrat cu Adapter)
+    public class PaymentService
     {
-        public void SendOrderConfirmation(string customerEmail, string orderId)
+        private readonly IExternalPaymentProcessor _paymentProcessor;
+
+        public PaymentService(IExternalPaymentProcessor paymentProcessor)
         {
-            Console.WriteLine($"[Notification] Email de confirmare trimis la {customerEmail} pentru comanda {orderId}.");
+            _paymentProcessor = paymentProcessor;
+        }
+
+        public bool ProcessPayment(string orderId, decimal amount)
+        {
+            Console.WriteLine($"[Payment] Inițiere plată de {amount} via Adapter.");
+            // Utilizăm paternul Adapter!
+            return _paymentProcessor.ProcessPayment(amount, "RON", orderId);
         }
     }
 
-    // Facade: Oferă o metodă simplă pentru a plasa o comandă
+    // Subsistem 3: Salvare Comandă
+    public class OrderRecordService
+    {
+        private readonly IWriteableRepository<Order> _orderWriteRepo;
+        private readonly IWriteableRepository<User> _userWriteRepo;
+        private readonly IReadableRepository<Product> _productReadRepo;
+
+        public OrderRecordService(IWriteableRepository<Order> orderWriteRepo, IWriteableRepository<User> userWriteRepo, IReadableRepository<Product> productReadRepo)
+        {
+            _orderWriteRepo = orderWriteRepo;
+            _userWriteRepo = userWriteRepo;
+            _productReadRepo = productReadRepo;
+        }
+
+        public Order CreateAndSaveOrder(User user, ShoppingCart cart)
+        {
+            var orderItems = new List<OrderItem>();
+            foreach (var item in cart.Items)
+            {
+                var p = _productReadRepo.GetById(item.ProductId);
+                if (p == null) continue;
+                orderItems.Add(new OrderItem(p.Id, p.Name, p.Price, item.Quantity, item.Size, item.Color));
+            }
+
+            var builder = new OrderBuilder();
+            var director = new OrderDirector(builder);
+
+            Order order;
+            if (orderItems.Sum(i => i.Quantity) > 3)
+            {
+                order = director.BuildPremiumOrder(user, orderItems);
+            }
+            else
+            {
+                order = director.BuildStandardOrder(user, orderItems);
+            }
+
+            _orderWriteRepo.Add(order);
+
+            if (user is Customer customer)
+            {
+                if (customer.OrderHistory == null) customer.OrderHistory = new List<Order>();
+                customer.OrderHistory.Add(order);
+                _userWriteRepo.Update(user);
+            }
+
+            return order;
+        }
+    }
+
+    // Facade: O singură metodă pentru checkout, care coordonează subsistemele
     public class OrderProcessingFacade
     {
         private readonly InventoryService _inventory;
         private readonly PaymentService _payment;
-        private readonly NotificationService _notification;
+        private readonly OrderRecordService _orderRecord;
 
-        public OrderProcessingFacade()
+        public OrderProcessingFacade(
+            IReadableRepository<Product> productReadRepo,
+            IWriteableRepository<Product> productWriteRepo,
+            IWriteableRepository<Order> orderWriteRepo,
+            IWriteableRepository<User> userWriteRepo,
+            IExternalPaymentProcessor paymentProcessor)
         {
-            _inventory = new InventoryService();
-            _payment = new PaymentService();
-            _notification = new NotificationService();
+            _inventory = new InventoryService(productReadRepo, productWriteRepo);
+            _payment = new PaymentService(paymentProcessor);
+            _orderRecord = new OrderRecordService(orderWriteRepo, userWriteRepo, productReadRepo);
         }
 
-        public bool PlaceOrder(string productId, int quantity, string customerId, string email, decimal totalAmount)
+        public bool Checkout(User user, ShoppingCart cart, out string message, out Order placedOrder)
         {
-            Console.WriteLine("--- Începere procesare comandă via Facade ---");
+            placedOrder = null!;
 
-            // 1. Verificare stoc
-            if (!_inventory.CheckStock(productId, quantity))
+            // 1. Verificare și Reducere Stoc (și verificare limită)
+            if (!_inventory.CheckStockAndDeduct(cart, out message))
             {
-                Console.WriteLine("Comanda eșuată: Stoc insuficient.");
                 return false;
             }
 
-            // 2. Procesare plată
-            if (!_payment.ProcessPayment(customerId, totalAmount))
+            // 2. Creare și Salvare Comandă (inclusiv Builder Pattern din lab anterior)
+            placedOrder = _orderRecord.CreateAndSaveOrder(user, cart);
+
+            // 3. Procesare Plată cu Adapter
+            if (!_payment.ProcessPayment(placedOrder.Id.ToString(), placedOrder.Total))
             {
-                Console.WriteLine("Comanda eșuată: Plata nu a fost acceptată.");
+                message = "Plata a fost respinsă de procesator.";
+                // Observație: Pentru simplificare nu dăm un rollback la stoc/baza de date...
                 return false;
             }
 
-            // 3. Reducere stoc
-            _inventory.DeductStock(productId, quantity);
-
-            // 4. Trimitere confirmare
-            string orderId = Guid.NewGuid().ToString().Substring(0, 8);
-            _notification.SendOrderConfirmation(email, orderId);
-
-            Console.WriteLine("--- Comandă plasată cu succes ---");
+            message = "Comanda a fost finalizată și plătită cu succes!";
             return true;
         }
     }
 }
+

@@ -3,7 +3,7 @@ using System;
 namespace OnlineStore.Domain.DesignPatterns.Structural.Adapter
 {
     // 1. Target Interface: The standard interface our system expects.
-    public interface IPaymentProcessor
+    public interface IExternalPaymentProcessor
     {
         bool ProcessPayment(decimal amount, string currency, string orderId);
     }
@@ -19,7 +19,7 @@ namespace OnlineStore.Domain.DesignPatterns.Structural.Adapter
     }
 
     // 3. Adapter 1: PayPal Adapter
-    public class PayPalAdapter : IPaymentProcessor
+    public class PayPalAdapter : IExternalPaymentProcessor
     {
         private readonly PayPalApi _payPalApi;
 
@@ -46,7 +46,7 @@ namespace OnlineStore.Domain.DesignPatterns.Structural.Adapter
     }
 
     // 5. Adapter 2: Stripe Adapter
-    public class StripeAdapter : IPaymentProcessor
+    public class StripeAdapter : IExternalPaymentProcessor
     {
         private readonly StripeApi _stripeApi;
 

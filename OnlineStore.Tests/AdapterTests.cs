@@ -11,7 +11,7 @@ namespace OnlineStore.Tests
         {
             // Arrange
             var payPalApi = new PayPalApi();
-            IPaymentProcessor paymentProcessor = new PayPalAdapter(payPalApi);
+            IExternalPaymentProcessor paymentProcessor = new PayPalAdapter(payPalApi);
             decimal amount = 150m;
             string currency = "USD";
             string orderId = "ORD12345";
@@ -28,7 +28,7 @@ namespace OnlineStore.Tests
         {
             // Arrange
             var stripeApi = new StripeApi();
-            IPaymentProcessor paymentProcessor = new StripeAdapter(stripeApi);
+            IExternalPaymentProcessor paymentProcessor = new StripeAdapter(stripeApi);
             decimal amount = 200m;
             string currency = "EUR";
             string orderId = "ORD98765";

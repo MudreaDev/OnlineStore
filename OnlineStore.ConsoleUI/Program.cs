@@ -178,13 +178,13 @@ namespace OnlineStore.ConsoleUI
         {
             Console.Clear();
             decimal total = 0;
-            foreach (var item in currentCart.ProductIds)
+            foreach (var item in currentCart.Items)
             {
-                var p = productRepo.GetById(item.Key);
+                var p = productRepo.GetById(item.ProductId);
                 if (p != null)
                 {
-                    Console.WriteLine($"{p.Name} (x{item.Value}) - {p.Price * item.Value}");
-                    total += p.Price * item.Value;
+                    Console.WriteLine($"{p.Name} (x{item.Quantity}) - {p.Price * item.Quantity}");
+                    total += p.Price * item.Quantity;
                 }
             }
             Console.WriteLine($"Total: {total}");
@@ -194,23 +194,20 @@ namespace OnlineStore.ConsoleUI
         static void Checkout()
         {
             Console.Clear();
-            if (!currentCart.ProductIds.Any())
+            if (!currentCart.Items.Any())
             {
                 Console.WriteLine("Cart is empty.");
                 Console.ReadKey();
                 return;
             }
 
-            var products = new List<Product>();
-            foreach (var item in currentCart.ProductIds)
+            var orderItems = new List<OrderItem>();
+            foreach (var item in currentCart.Items)
             {
-                var p = productRepo.GetById(item.Key);
+                var p = productRepo.GetById(item.ProductId);
                 if (p != null)
                 {
-                    for (int i = 0; i < item.Value; i++)
-                    {
-                        products.Add(p);
-                    }
+                    orderItems.Add(new OrderItem(p.Id, p.Name, p.Price, item.Quantity, item.Size, item.Color));
                 }
             }
 
@@ -218,7 +215,7 @@ namespace OnlineStore.ConsoleUI
             IDiscountStrategy discount = new FixedAmountDiscountStrategy(50); // $50 off
             OrderService orderService = new OrderService(discount);
 
-            Order order = orderService.PlaceOrder(currentUser, products);
+            Order order = orderService.PlaceOrder(currentUser, orderItems);
             orderRepo.Add(order);
 
             // Update Customer history

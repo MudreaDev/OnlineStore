@@ -7,6 +7,9 @@ using OnlineStore.Domain.Singleton;
 using OnlineStore.Domain.Strategies;
 using OnlineStore.WebUI.Extensions;
 using OnlineStore.WebUI.Models;
+using OnlineStore.Domain.DesignPatterns.Structural.Facade;
+using OnlineStore.Domain.DesignPatterns.Structural.Adapter;
+using OnlineStore.Domain.Interfaces;
 
 namespace OnlineStore.WebUI.Controllers
 {
@@ -96,7 +99,7 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Checkout()
+        public IActionResult Checkout(string paymentMethod)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
             if (string.IsNullOrEmpty(userIdStr))
@@ -115,74 +118,42 @@ namespace OnlineStore.WebUI.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Pattern 3: Singleton - Verificăm limita maximă de produse dintr-o comandă setată global
-            int totalItems = cart.Items.Sum(i => i.Quantity);
-            if (totalItems > ApplicationConfigurationManager.Instance.MaxItemsPerOrder)
+            if (user == null)
             {
-                TempData["Error"] = $"Comanda nu poate depăși {ApplicationConfigurationManager.Instance.MaxItemsPerOrder} produse.";
+                TempData["Error"] = "Utilizator invalid.";
                 return RedirectToAction("Index");
             }
 
-            var orderItems = new List<OrderItem>();
-            foreach (var item in cart.Items)
+            // Setup the Payment Adapter based on user selection
+            IExternalPaymentProcessor paymentProcessor;
+            if (paymentMethod == "Stripe")
             {
-                var p = _productRepo.GetById(item.ProductId);
-                if (p == null) continue;
-
-                if (p.Stock < item.Quantity)
-                {
-                    TempData["Error"] = $"Stoc insuficient pentru {p.Name}. Disponibil: {p.Stock}";
-                    return RedirectToAction("Index");
-                }
-
-                orderItems.Add(new OrderItem(p.Id, p.Name, p.Price, item.Quantity, item.Size, item.Color));
+                paymentProcessor = new StripeAdapter(new StripeApi());
+            }
+            else
+            {
+                // Default to PayPal
+                paymentProcessor = new PayPalAdapter(new PayPalApi());
             }
 
-            if (user != null && orderItems.Any())
+            // Create Facade using the requested Repositories and Payment Processor
+            var orderFacade = new OrderProcessingFacade(_productRepo, _productRepo, _orderRepo, _userRepo, paymentProcessor);
+
+            // Execute Checkout via Facade
+            if (orderFacade.Checkout(user, cart, out string message, out Order placedOrder))
             {
-                // Pattern 1: Builder - Folosim Directorul pentru a construi comanda
-                var builder = new OrderBuilder();
-                var director = new OrderDirector(builder);
-
-                Order order;
-                if (orderItems.Sum(i => i.Quantity) > 3)
-                {
-                    order = director.BuildPremiumOrder(user, orderItems);
-                }
-                else
-                {
-                    order = director.BuildStandardOrder(user, orderItems);
-                }
-
-                _orderRepo.Add(order);
-
-                // Decrement stock
-                foreach (var item in cart.Items)
-                {
-                    var p = _productRepo.GetById(item.ProductId);
-                    if (p != null)
-                    {
-                        p.Stock -= item.Quantity;
-                        _productRepo.Update(p);
-                    }
-                }
-
-                if (user is Customer customer)
-                {
-                    if (customer.OrderHistory == null) customer.OrderHistory = new List<Order>();
-                    customer.OrderHistory.Add(order);
-                    _userRepo.Update(user);
-                }
-
                 // Clear Cart
                 cart.Clear();
                 SaveCart(cart);
 
-                TempData["Success"] = "Comanda a fost plasată cu succes!";
-                return View("OrderConfirmation", order);
+                TempData["Success"] = message;
+                return View("OrderConfirmation", placedOrder);
             }
-
-            return RedirectToAction("Index");
+            else
+            {
+                TempData["Error"] = message;
+                return RedirectToAction("Index");
+            }
         }
 
         private ShoppingCart GetCart()

@@ -4,6 +4,7 @@ using OnlineStore.Application.Repositories;
 using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Singleton;
 using OnlineStore.WebUI.Models;
+using OnlineStore.Domain.DesignPatterns.Structural.Composite;
 
 namespace OnlineStore.WebUI.Controllers
 {
@@ -53,6 +54,28 @@ namespace OnlineStore.WebUI.Controllers
             ViewBag.CurrencySymbol = ApplicationConfigurationManager.Instance.CurrencySymbol;
 
             return View(products.ToList());
+        }
+
+        public IActionResult Catalog()
+        {
+            var products = _productRepo.GetAll().ToList();
+
+            var mainCatalog = new ProductCategory("Catalog Produse (Composite Pattern)");
+
+            var groups = products.GroupBy(p => p.GetType().Name.Replace("Product", ""));
+
+            foreach (var group in groups)
+            {
+                var category = new ProductCategory(group.Key);
+                foreach (var p in group)
+                {
+                    var mainImage = p.Images?.FirstOrDefault(i => i.IsMain)?.ImageUrl ?? "";
+                    category.Add(new ProductItem(p.Name, p.Price, p.Id, mainImage));
+                }
+                mainCatalog.Add(category);
+            }
+
+            return View(mainCatalog);
         }
 
         public IActionResult Details(Guid id)

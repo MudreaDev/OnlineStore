@@ -16,12 +16,16 @@ namespace OnlineStore.Domain.DesignPatterns.Structural.Composite
     public class ProductItem : ICatalogComponent
     {
         public string Name { get; }
+        public Guid ProductId { get; }
+        public string ImageUrl { get; }
         private readonly decimal _price;
 
-        public ProductItem(string name, decimal price)
+        public ProductItem(string name, decimal price, Guid productId = default, string imageUrl = "")
         {
             Name = name;
             _price = price;
+            ProductId = productId;
+            ImageUrl = imageUrl;
         }
 
         public decimal GetPrice()
@@ -39,6 +43,7 @@ namespace OnlineStore.Domain.DesignPatterns.Structural.Composite
     public class ProductCategory : ICatalogComponent
     {
         private List<ICatalogComponent> _children = new List<ICatalogComponent>();
+        public IReadOnlyList<ICatalogComponent> Children => _children.AsReadOnly();
         public string Name { get; }
 
         public ProductCategory(string name)
