@@ -5,6 +5,7 @@ using OnlineStore.Domain.Entities;
 using OnlineStore.Application.Repositories;
 using OnlineStore.Domain.DesignPatterns.Structural.Adapter;
 using OnlineStore.Domain.Factories;
+using OnlineStore.Domain.Interfaces;
 
 namespace OnlineStore.Tests
 {
@@ -30,7 +31,7 @@ namespace OnlineStore.Tests
             var cart = new ShoppingCart(user.Id);
             cart.AddProduct(product.Id);
 
-            var facade = new OrderProcessingFacade(productRepo, productRepo, orderRepo, userRepo, paymentProcessor);
+            var facade = new OrderProcessingFacade(productRepo, productRepo, orderRepo, userRepo, paymentProcessor, new MockEmailService());
 
             // Act
             bool result = facade.Checkout(user, cart, out string message, out Order placedOrder);
@@ -40,5 +41,11 @@ namespace OnlineStore.Tests
             Assert.NotNull(placedOrder);
             Assert.Equal(9, product.Stock);
         }
+    }
+
+    public class MockEmailService : IEmailService
+    {
+        public System.Threading.Tasks.Task SendEmailAsync(string to, string subject, string body) => System.Threading.Tasks.Task.CompletedTask;
+        public System.Threading.Tasks.Task SendOrderConfirmationAsync(string userEmail, string orderId, decimal totalAmount) => System.Threading.Tasks.Task.CompletedTask;
     }
 }

@@ -4,6 +4,7 @@ using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Factories;
 using Microsoft.EntityFrameworkCore;
 using OnlineStore.Application.Services;
+using OnlineStore.Domain.Interfaces;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,7 @@ builder.Services.AddScoped<DbProductRepository>();
 builder.Services.AddScoped<DbUserRepository>();
 builder.Services.AddScoped<DbOrderRepository>();
 builder.Services.AddScoped<CloudinaryService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 

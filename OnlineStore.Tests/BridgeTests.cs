@@ -6,45 +6,33 @@ namespace OnlineStore.Tests
     public class BridgeTests
     {
         [Fact]
-        public void Bridge_AudioOnPhone_ShouldWork()
+        public void Bridge_HomeDeliveryViaCourier_ShouldWork()
         {
             // Arrange
-            IMediaDevice device = new PhoneDevice();
-            MediaFile file = new AudioFile(device, "song.mp3");
+            IShippingImplementation implementation = new CourierProvider();
+            ShippingMethod method = new HomeDelivery(implementation);
 
             // Act
-            string result = file.Play();
+            string result = method.Deliver("PKG-100", "Str. Mihai Eminescu nr. 5");
 
             // Assert
-            Assert.Equal("[Telefon] Redare Audio: song.mp3", result);
+            Assert.Contains("[Curier]", result);
+            Assert.Contains("Adresă de domiciliu:", result);
         }
 
         [Fact]
-        public void Bridge_VideoOnTv_ShouldWork()
+        public void Bridge_PickupPointViaPostal_ShouldWork()
         {
             // Arrange
-            IMediaDevice device = new TvDevice();
-            MediaFile file = new VideoFile(device, "movie.mp4");
+            IShippingImplementation implementation = new PostalProvider();
+            ShippingMethod method = new PickupPointDelivery(implementation);
 
             // Act
-            string result = file.Play();
+            string result = method.Deliver("PKG-200", "Str. Victoriei nr. 10 (Easybox)");
 
             // Assert
-            Assert.Equal("[TV] Redare Video: movie.mp4", result);
-        }
-
-        [Fact]
-        public void Bridge_AudioOnTablet_ShouldWork()
-        {
-            // Arrange
-            IMediaDevice device = new TabletDevice();
-            MediaFile file = new AudioFile(device, "podcast.wav");
-
-            // Act
-            string result = file.Play();
-
-            // Assert
-            Assert.Equal("[Tabletă] Redare Audio: podcast.wav", result);
+            Assert.Contains("[Poștă]", result);
+            Assert.Contains("Punct de ridicare:", result);
         }
     }
 }

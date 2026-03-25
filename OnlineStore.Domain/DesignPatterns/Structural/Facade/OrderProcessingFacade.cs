@@ -135,16 +135,20 @@ namespace OnlineStore.Domain.DesignPatterns.Structural.Facade
         private readonly PaymentService _payment;
         private readonly OrderRecordService _orderRecord;
 
+        private readonly IEmailService _emailService;
+
         public OrderProcessingFacade(
             IReadableRepository<Product> productReadRepo,
             IWriteableRepository<Product> productWriteRepo,
             IWriteableRepository<Order> orderWriteRepo,
             IWriteableRepository<User> userWriteRepo,
-            IExternalPaymentProcessor paymentProcessor)
+            IExternalPaymentProcessor paymentProcessor,
+            IEmailService emailService)
         {
             _inventory = new InventoryService(productReadRepo, productWriteRepo);
             _payment = new PaymentService(paymentProcessor);
             _orderRecord = new OrderRecordService(orderWriteRepo, userWriteRepo, productReadRepo);
+            _emailService = emailService;
         }
 
         public bool Checkout(User user, ShoppingCart cart, out string message, out Order placedOrder)
@@ -169,6 +173,13 @@ namespace OnlineStore.Domain.DesignPatterns.Structural.Facade
             }
 
             message = "Comanda a fost finalizată și plătită cu succes!";
+
+            // 4. Send Email Confirmation (Async - fire and forget or await)
+            // Note: Since this method is synchronous, we run it in a task or make the method async.
+            // For now, we'll try to run it synchronously or just ignore the task (not recommended in prod).
+            // Let's make Checkout async for better practice.
+            _emailService.SendOrderConfirmationAsync(user.Email, placedOrder.Id.ToString(), placedOrder.Total).GetAwaiter().GetResult();
+
             return true;
         }
     }

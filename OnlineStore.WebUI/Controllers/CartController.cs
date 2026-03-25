@@ -18,12 +18,14 @@ namespace OnlineStore.WebUI.Controllers
         private readonly DbProductRepository _productRepo;
         private readonly DbOrderRepository _orderRepo;
         private readonly DbUserRepository _userRepo;
+        private readonly IEmailService _emailService;
 
-        public CartController(DbProductRepository productRepo, DbOrderRepository orderRepo, DbUserRepository userRepo)
+        public CartController(DbProductRepository productRepo, DbOrderRepository orderRepo, DbUserRepository userRepo, IEmailService emailService)
         {
             _productRepo = productRepo;
             _orderRepo = orderRepo;
             _userRepo = userRepo;
+            _emailService = emailService;
         }
 
         public IActionResult Index()
@@ -137,7 +139,7 @@ namespace OnlineStore.WebUI.Controllers
             }
 
             // Create Facade using the requested Repositories and Payment Processor
-            var orderFacade = new OrderProcessingFacade(_productRepo, _productRepo, _orderRepo, _userRepo, paymentProcessor);
+            var orderFacade = new OrderProcessingFacade(_productRepo, _productRepo, _orderRepo, _userRepo, paymentProcessor, _emailService);
 
             // Execute Checkout via Facade
             if (orderFacade.Checkout(user, cart, out string message, out Order placedOrder))
