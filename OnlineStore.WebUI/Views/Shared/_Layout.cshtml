@@ -445,7 +445,6 @@
             <div class="nav-right">
                 <nav class="nav-links-desktop" style="display: flex; gap: 1.5rem; align-items: center;">
                     <a class="nav-link" asp-controller="Home" asp-action="Index">Shop</a>
-                    <a class="nav-link" asp-controller="Home" asp-action="Catalog">Catalog (Composite)</a>
 
                     @{
                         var session = HttpContextAccessor.HttpContext.Session;
@@ -484,6 +483,7 @@
                                         if (user is Admin)
                                         {
                                             <a class="dropdown-item" asp-controller="Admin" asp-action="Index">Dashboard</a>
+                                            <a class="dropdown-item" asp-controller="Home" asp-action="Catalog">Catalog Inventar</a>
                                         }
                                         else
                                         {
@@ -533,12 +533,20 @@
         </div>
         <nav class="drawer-links">
             <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="Index">Shop</a>
-            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="Catalog">Catalog
-                (Composite)</a>
             <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Cart" asp-action="Index">Cart
                 (@count)</a>
             @if (!string.IsNullOrEmpty(username))
             {
+                var userIdStr = session.GetString("UserId");
+                if (!string.IsNullOrEmpty(userIdStr) && Guid.TryParse(userIdStr, out Guid userId))
+                {
+                    var user = UserRepo.GetById(userId);
+                    if (user is Admin)
+                    {
+                        <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="Catalog">Catalog
+                            Inventar</a>
+                    }
+                }
                 <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Profile" asp-action="Index">Profile</a>
                 <a class="drawer-link" style="font-size: 1.125rem; color: #a4161a" asp-controller="Account"
                     asp-action="Logout">Sign Out</a>

@@ -75,12 +75,9 @@
 
 <div class="container catalog-page fade-in">
     <h1 class="catalog-title">@Model.Name</h1>
-    <p style="margin-bottom: 2rem; color: var(--text-muted); max-width: 800px;">
-        Acest ecran demonstrează utilizarea paternului <b>Composite</b>. Atât categoria principală, subcategoriile, cât și produsele individuale implementează interfața <code>ICatalogComponent</code>, permițând calculul recursiv al prețului și afișarea uniformă a elementelor.
-    </p>
     
     <div style="font-size: 1.125rem; font-weight: bold; margin-bottom: 3rem; background: var(--midnight); color: #fff; display: inline-block; padding: 1rem 2rem; border-radius: 12px; box-shadow: var(--shadow-md);">
-        Valoare Totală a tuturor produselor din Catalog: @Model.GetPrice().ToString("C2")
+        Valoare Totală Inventar: @Model.GetPrice().ToString("C2")
     </div>
 
     @foreach (var child in Model.Children)
