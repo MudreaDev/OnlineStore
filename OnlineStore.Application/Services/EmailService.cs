@@ -52,5 +52,21 @@ namespace OnlineStore.Application.Services
 
             await SendEmailAsync(userEmail, subject, body);
         }
+
+        public async Task SendPasswordResetCodeAsync(string email, string code)
+        {
+            string subject = "Cod de resetare parolă";
+            string body = $@"
+                <div style='font-family: Arial, sans-serif; padding: 20px; color: #333;'>
+                    <h2>Resetare parolă</h2>
+                    <p>Ai solicitat resetarea parolei pentru contul tău. Folosește codul de mai jos pentru a continua:</p>
+                    <div style='background-color: #f4f4f4; padding: 15px; font-size: 24px; font-weight: bold; text-align: center; letter-spacing: 5px; border-radius: 5px;'>
+                        {code}
+                    </div>
+                    <p>Acest cod este valabil timp de <strong>3 minute</strong>. Dacă nu ai solicitat tu această resetare, te rugăm să ignori acest email.</p>
+                </div>";
+
+            await SendEmailAsync(email, subject, body);
+        }
     }
 }

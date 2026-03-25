@@ -6,5 +6,6 @@ namespace OnlineStore.Domain.Interfaces
     {
         Task SendEmailAsync(string to, string subject, string body);
         Task SendOrderConfirmationAsync(string userEmail, string orderId, decimal totalAmount);
+        Task SendPasswordResetCodeAsync(string email, string code);
     }
 }

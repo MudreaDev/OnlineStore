@@ -1,4 +1,4 @@
-﻿using OnlineStore.Domain.Common;
+using OnlineStore.Domain.Common;
 //User este o entitate separată, responsabilă doar de datele utilizatorului, respectând SRP
 namespace OnlineStore.Domain.Entities
 {
@@ -7,6 +7,8 @@ namespace OnlineStore.Domain.Entities
         public string Username { get; set; }
         public string Email { get; set; }
         public string PasswordHash { get; set; } = string.Empty;
+        public string? PasswordResetCode { get; set; }
+        public DateTime? PasswordResetCodeExpiration { get; set; }
 
         public User(string username, string email)
         {

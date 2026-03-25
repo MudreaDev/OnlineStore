@@ -47,5 +47,6 @@ namespace OnlineStore.Tests
     {
         public System.Threading.Tasks.Task SendEmailAsync(string to, string subject, string body) => System.Threading.Tasks.Task.CompletedTask;
         public System.Threading.Tasks.Task SendOrderConfirmationAsync(string userEmail, string orderId, decimal totalAmount) => System.Threading.Tasks.Task.CompletedTask;
+        public System.Threading.Tasks.Task SendPasswordResetCodeAsync(string email, string code) => System.Threading.Tasks.Task.CompletedTask;
     }
 }
