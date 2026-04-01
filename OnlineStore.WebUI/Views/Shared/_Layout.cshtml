@@ -1,4 +1,4 @@
-﻿@using OnlineStore.Domain.Singleton
+@using OnlineStore.Domain.Singleton
 @using Microsoft.AspNetCore.Http
 @using OnlineStore.WebUI.Extensions
 @using OnlineStore.Domain.Entities
@@ -427,9 +427,17 @@
 
                 <select name="categoryFilter" id="navCategorySelect" class="nav-select">
                     <option value="All">All Categories</option>
-                    <option value="Electronic">Electronics</option>
-                    <option value="Clothing">Clothing</option>
-                    <option value="Vehicle">Vehicles</option>
+                    <option value="Electronic" selected="@(Context.Request.Query["categoryFilter"] == "Electronic")">Electronics</option>
+                    <option value="Clothing" selected="@(Context.Request.Query["categoryFilter"] == "Clothing")">Clothing</option>
+                    <option value="Vehicle" selected="@(Context.Request.Query["categoryFilter"] == "Vehicle")">Vehicles</option>
+                </select>
+
+                <select name="sortStrategy" id="navSortSelect" class="nav-select">
+                    <option value="">Sort By</option>
+                    <option value="PriceAsc" selected="@(Context.Request.Query["sortStrategy"] == "PriceAsc")">Price (Low to High)</option>
+                    <option value="PriceDesc" selected="@(Context.Request.Query["sortStrategy"] == "PriceDesc")">Price (High to Low)</option>
+                    <option value="Name" selected="@(Context.Request.Query["sortStrategy"] == "Name")">Alphabetical</option>
+                    <option value="Stock" selected="@(Context.Request.Query["sortStrategy"] == "Stock")">Availability</option>
                 </select>
                 @* Preserve other filters if they exist in query *@
                 @if (Context.Request.Query.ContainsKey("minPrice"))
@@ -609,6 +617,7 @@
         const filterForm = document.getElementById('liveFilterForm');
         const searchInput = document.getElementById('navSearchInput');
         const categorySelect = document.getElementById('navCategorySelect');
+        const sortSelect = document.getElementById('navSortSelect');
 
         let debounceTimer;
         const debounceSubmit = () => {
@@ -629,6 +638,10 @@
 
         if (categorySelect) {
             categorySelect.addEventListener('change', () => filterForm.submit());
+        }
+
+        if (sortSelect) {
+            sortSelect.addEventListener('change', () => filterForm.submit());
         }
 
         // Alert auto-dismiss

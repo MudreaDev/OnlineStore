@@ -9,6 +9,8 @@ using OnlineStore.WebUI.Extensions;
 using OnlineStore.WebUI.Models;
 using OnlineStore.Domain.DesignPatterns.Structural.Facade;
 using OnlineStore.Domain.DesignPatterns.Structural.Adapter;
+using OnlineStore.Domain.DesignPatterns.Behavioral.Command;
+using OnlineStore.Domain.DesignPatterns.Behavioral.Memento;
 using OnlineStore.Domain.Interfaces;
 
 namespace OnlineStore.WebUI.Controllers
@@ -64,8 +66,15 @@ namespace OnlineStore.WebUI.Controllers
                 }
 
                 var cart = GetCart();
-                cart.AddProduct(id, size, color);
+                var caretaker = GetCaretaker();
+                var invoker = new CartActionInvoker(caretaker);
+                
+                var command = new AddProductCommand(cart, id, size, color);
+                invoker.ExecuteCommand(command, cart);
+                
                 SaveCart(cart);
+                SaveCaretaker(caretaker);
+                
                 TempData["Success"] = $"Produsul {product.Name} a fost adăugat în coș.";
             }
             return RedirectToAction("Index", "Home");
@@ -78,15 +87,14 @@ namespace OnlineStore.WebUI.Controllers
             var item = cart.Items.FirstOrDefault(i => i.ProductId == id && i.Size == size && i.Color == color);
             if (item != null)
             {
-                if (quantity > 0)
-                {
-                    item.Quantity = quantity;
-                }
-                else
-                {
-                    cart.Items.Remove(item);
-                }
+                var caretaker = GetCaretaker();
+                var invoker = new CartActionInvoker(caretaker);
+                
+                var command = new UpdateQuantityCommand(cart, id, quantity, size, color);
+                invoker.ExecuteCommand(command, cart);
+                
                 SaveCart(cart);
+                SaveCaretaker(caretaker);
             }
             return RedirectToAction("Index");
         }
@@ -95,8 +103,59 @@ namespace OnlineStore.WebUI.Controllers
         public IActionResult Remove(Guid id, string? size, string? color)
         {
             var cart = GetCart();
-            cart.RemoveProduct(id, size, color);
+            var caretaker = GetCaretaker();
+            var invoker = new CartActionInvoker(caretaker);
+            
+            var command = new RemoveProductCommand(cart, id, size, color);
+            invoker.ExecuteCommand(command, cart);
+            
             SaveCart(cart);
+            SaveCaretaker(caretaker);
+            
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult Undo()
+        {
+            var cart = GetCart();
+            var caretaker = GetCaretaker();
+            var invoker = new CartActionInvoker(caretaker);
+
+            if (caretaker.UndoStack.Count > 0)
+            {
+                invoker.Undo(cart);
+                SaveCart(cart);
+                SaveCaretaker(caretaker);
+                TempData["Success"] = "Acțiunea a fost anulată.";
+            }
+            else
+            {
+                TempData["Error"] = "Nu mai există acțiuni de anulat.";
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult Redo()
+        {
+            var cart = GetCart();
+            var caretaker = GetCaretaker();
+            var invoker = new CartActionInvoker(caretaker);
+
+            if (caretaker.RedoStack.Count > 0)
+            {
+                invoker.Redo(cart);
+                SaveCart(cart);
+                SaveCaretaker(caretaker);
+                TempData["Success"] = "Acțiunea a fost refăcută.";
+            }
+            else
+            {
+                TempData["Error"] = "Nu mai există acțiuni de refăcut.";
+            }
+
             return RedirectToAction("Index");
         }
 
@@ -166,6 +225,16 @@ namespace OnlineStore.WebUI.Controllers
         private void SaveCart(ShoppingCart cart)
         {
             HttpContext.Session.Set("Cart", cart);
+        }
+
+        private CartCaretaker GetCaretaker()
+        {
+            return HttpContext.Session.Get<CartCaretaker>("CartCaretaker") ?? new CartCaretaker();
+        }
+
+        private void SaveCaretaker(CartCaretaker caretaker)
+        {
+            HttpContext.Session.Set("CartCaretaker", caretaker);
         }
     }
 }

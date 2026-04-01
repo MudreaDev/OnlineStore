@@ -224,7 +224,22 @@
 
 <div class="container cart-page fade-in">
     <div class="cart-layout">
-        <h1 class="cart-title">Shopping Cart</h1>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; grid-column: span 2;">
+            <h1 class="cart-title" style="margin-bottom: 1rem;">Shopping Cart</h1>
+            <div style="display: flex; gap: 1rem;">
+                <!-- Undo / Redo Actions -->
+                <form asp-action="Undo" method="post">
+                    <button type="submit" class="btn-checkout" style="padding: 0.5rem 1.5rem; margin-top: 0; background: var(--text-muted); width: auto;" title="Undo Last Cart Action">
+                        ↩ Undo
+                    </button>
+                </form>
+                <form asp-action="Redo" method="post">
+                    <button type="submit" class="btn-checkout" style="padding: 0.5rem 1.5rem; margin-top: 0; background: var(--text-muted); width: auto;" title="Redo Last Cart Action">
+                        Redo ↪
+                    </button>
+                </form>
+            </div>
+        </div>
 
         @if (cartItems == null || !cartItems.Any())
         {

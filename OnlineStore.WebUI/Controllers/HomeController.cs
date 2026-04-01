@@ -5,6 +5,8 @@ using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Singleton;
 using OnlineStore.WebUI.Models;
 using OnlineStore.Domain.DesignPatterns.Structural.Composite;
+using OnlineStore.Domain.DesignPatterns.Behavioral.Iterator;
+using OnlineStore.Domain.Strategies;
 
 namespace OnlineStore.WebUI.Controllers
 {
@@ -19,28 +21,52 @@ namespace OnlineStore.WebUI.Controllers
             _productRepo = productRepo;
         }
 
-        public IActionResult Index(string? searchQuery, string? categoryFilter, decimal? minPrice, decimal? maxPrice)
+        public IActionResult Index(string? searchQuery, string? categoryFilter, decimal? minPrice, decimal? maxPrice, string? sortStrategy)
         {
-            var products = _productRepo.GetAll();
+            var allProducts = _productRepo.GetAll().ToList();
+            var filteredProducts = new List<Product>();
+
+            // Pattern: Iterator - utilizăm Iterator pentru a parcurge și filtra produsele după categorie
+            IProductCollection productCollection = new ProductCollection(allProducts);
+            IProductIterator iterator = productCollection.CreateIterator(categoryFilter);
+
+            while (iterator.HasNext())
+            {
+                filteredProducts.Add(iterator.Next());
+            }
+
+            var productsQuery = filteredProducts.AsQueryable();
 
             if (!string.IsNullOrEmpty(searchQuery))
             {
-                products = products.Where(p => p.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (!string.IsNullOrEmpty(categoryFilter) && categoryFilter != "All")
-            {
-                products = products.Where(p => p.GetType().Name.StartsWith(categoryFilter));
+                productsQuery = productsQuery.Where(p => p.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase));
             }
 
             if (minPrice.HasValue)
             {
-                products = products.Where(p => p.Price >= minPrice.Value);
+                productsQuery = productsQuery.Where(p => p.Price >= minPrice.Value);
             }
 
             if (maxPrice.HasValue)
             {
-                products = products.Where(p => p.Price <= maxPrice.Value);
+                productsQuery = productsQuery.Where(p => p.Price <= maxPrice.Value);
+            }
+
+            IEnumerable<Product> finalProducts = productsQuery;
+
+            // Pattern: Strategy extins pentru sortare
+            ISortingStrategy strategy = sortStrategy switch
+            {
+                "PriceAsc" => new PriceAscendingStrategy(),
+                "PriceDesc" => new PriceDescendingStrategy(),
+                "Name" => new NameSortingStrategy(),
+                "Stock" => new StockSortingStrategy(),
+                _ => null!
+            };
+
+            if (strategy != null)
+            {
+                finalProducts = strategy.Sort(finalProducts);
             }
 
             // Persistence for UI
@@ -49,11 +75,13 @@ namespace OnlineStore.WebUI.Controllers
             ViewBag.MinPrice = minPrice;
             ViewBag.MaxPrice = maxPrice;
 
+            ViewBag.SortStrategy = sortStrategy;
+
             // Pattern 3: Singleton - Transmitem setările globale către View
             ViewBag.FreeShippingThreshold = ApplicationConfigurationManager.Instance.FreeShippingThreshold;
             ViewBag.CurrencySymbol = ApplicationConfigurationManager.Instance.CurrencySymbol;
 
-            return View(products.ToList());
+            return View(finalProducts.ToList());
         }
 
         public IActionResult Catalog()

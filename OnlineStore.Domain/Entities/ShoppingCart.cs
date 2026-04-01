@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq;
 using OnlineStore.Domain.Common;
+using OnlineStore.Domain.DesignPatterns.Behavioral.Memento;
 
 namespace OnlineStore.Domain.Entities
 {
@@ -53,6 +55,17 @@ namespace OnlineStore.Domain.Entities
         public void Clear()
         {
             Items.Clear();
+        }
+
+        public CartMemento SaveState()
+        {
+            return new CartMemento(Items);
+        }
+
+        public void RestoreState(CartMemento memento)
+        {
+            // Restore from deep copy
+            Items = memento.ItemsSnapshot.Select(i => new CartItem(i.ProductId, i.Quantity, i.Size, i.Color)).ToList();
         }
     }
 }

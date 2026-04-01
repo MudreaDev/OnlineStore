@@ -24,6 +24,7 @@ builder.Services.AddScoped<DbUserRepository>();
 builder.Services.AddScoped<DbOrderRepository>();
 builder.Services.AddScoped<CloudinaryService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<OrderNotificationService>();
 
 var app = builder.Build();
 

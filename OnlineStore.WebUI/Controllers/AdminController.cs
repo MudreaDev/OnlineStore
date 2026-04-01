@@ -20,19 +20,22 @@ namespace OnlineStore.WebUI.Controllers
         private readonly DbUserRepository _userRepo;
         private readonly CloudinaryService _cloudinaryService;
         private readonly OnlineStoreDbContext _context;
+        private readonly OrderNotificationService _notificationService;
 
         public AdminController(
             DbProductRepository productRepo, 
             DbOrderRepository orderRepo, 
             DbUserRepository userRepo,
             CloudinaryService cloudinaryService,
-            OnlineStoreDbContext context)
+            OnlineStoreDbContext context,
+            OrderNotificationService notificationService)
         {
             _productRepo = productRepo;
             _orderRepo = orderRepo;
             _userRepo = userRepo;
             _cloudinaryService = cloudinaryService;
             _context = context;
+            _notificationService = notificationService;
         }
 
         private bool IsAdmin()
@@ -346,6 +349,7 @@ namespace OnlineStore.WebUI.Controllers
             {
                 order.Status = status;
                 _orderRepo.Update(order);
+                _notificationService.Notify(order);
                 TempData["Success"] = $"Statusul comenzii {orderId} a fost actualizat la {status}.";
             }
             else
