@@ -6,6 +6,9 @@ using OnlineStore.Application.Services;
 using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Factories;
 using OnlineStore.Domain.Singleton;
+using OnlineStore.Domain.DesignPatterns.Structural.Proxy;
+using OnlineStore.Domain.DesignPatterns.Structural.Decorator;
+using OnlineStore.Domain.Enums;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -38,25 +41,27 @@ namespace OnlineStore.WebUI.Controllers
             _notificationService = notificationService;
         }
 
-        private bool IsAdmin()
-        {
-            var userIdStr = HttpContext.Session.GetString("UserId");
-            if (string.IsNullOrEmpty(userIdStr)) return false;
-
-            if (Guid.TryParse(userIdStr, out Guid userId))
-            {
-                var user = _userRepo.GetById(userId);
-                return user is Admin;
-            }
-            return false;
-        }
-
         private IActionResult CheckAccess()
         {
-            if (!IsAdmin())
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userIdStr))
+                return RedirectToAction("Login", "Account");
+
+            var user = Guid.TryParse(userIdStr, out Guid userId)
+                ? _userRepo.GetById(userId) : null;
+
+            var role = user is Admin ? "Admin" : "Customer";
+
+            // Proxy Pattern — ProtectionProxy controlează accesul în loc de IsAdmin() manual
+            IResource proxy = new ProtectionProxy();
+            var accessResult = proxy.Access(role);
+
+            if (accessResult.Contains("interzis"))
             {
+                TempData["Error"] = accessResult;
                 return RedirectToAction("Login", "Account");
             }
+
             return null;
         }
 
@@ -347,9 +352,21 @@ namespace OnlineStore.WebUI.Controllers
             var order = _orderRepo.GetById(orderId);
             if (order != null)
             {
-                order.Status = status;
+                // Observer Pattern — subiectul actualizează starea și notifică automat observatorii
+                _notificationService.UpdateStatusAndNotify(order, status);
                 _orderRepo.Update(order);
-                _notificationService.Notify(order);
+
+                // Decorator Pattern — construiește lanțul de notificări compuse
+                INotification notifier = new EmailNotification();
+                if (status == OrderStatus.Shipped || status == OrderStatus.Delivered)
+                    notifier = new SmsDecorator(notifier);
+                if (status == OrderStatus.Delivered)
+                    notifier = new PushDecorator(notifier);
+
+                var decoratorResult = notifier.Send(
+                    $"Comanda {orderId.ToString()[..8]} este acum {status}");
+                TempData["NotificationChain"] = decoratorResult;
+
                 TempData["Success"] = $"Statusul comenzii {orderId} a fost actualizat la {status}.";
             }
             else

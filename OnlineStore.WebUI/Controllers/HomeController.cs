@@ -5,6 +5,7 @@ using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Singleton;
 using OnlineStore.WebUI.Models;
 using OnlineStore.Domain.DesignPatterns.Structural.Composite;
+using OnlineStore.Domain.DesignPatterns.Structural.Flyweight;
 using OnlineStore.Domain.DesignPatterns.Behavioral.Iterator;
 using OnlineStore.Domain.Strategies;
 
@@ -69,6 +70,20 @@ namespace OnlineStore.WebUI.Controllers
                 finalProducts = strategy.Sort(finalProducts);
             }
 
+            var finalList = finalProducts.ToList();
+
+            // Pattern: Flyweight — refolosim instanțe partajate pentru metadatele de tip
+            foreach (var p in finalList)
+            {
+                var typeName = p.GetType().Name.Replace("Product", "");
+                var fw = ProductTypeFlyweightFactory.GetFlyweight(typeName);
+                // flyweight-ul e folosit: starea extrinsecă e p.Name
+                var _ = fw.RenderBadge(p.Name);
+            }
+            ViewBag.FlyweightTotalProducts = finalList.Count;
+            ViewBag.FlyweightCacheSize = ProductTypeFlyweightFactory.CacheSize;
+            ViewBag.FlyweightTotalRequests = ProductTypeFlyweightFactory.TotalRequests;
+
             // Persistence for UI
             ViewBag.SearchQuery = searchQuery;
             ViewBag.CategoryFilter = categoryFilter;
@@ -81,7 +96,7 @@ namespace OnlineStore.WebUI.Controllers
             ViewBag.FreeShippingThreshold = ApplicationConfigurationManager.Instance.FreeShippingThreshold;
             ViewBag.CurrencySymbol = ApplicationConfigurationManager.Instance.CurrencySymbol;
 
-            return View(finalProducts.ToList());
+            return View(finalList);
         }
 
         public IActionResult Catalog()

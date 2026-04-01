@@ -1,4 +1,4 @@
-﻿@model IEnumerable<OnlineStore.Domain.Entities.Product>
+@model IEnumerable<OnlineStore.Domain.Entities.Product>
 @{
     ViewData["Title"] = "The Collection";
 }
@@ -218,6 +218,14 @@
         <p class="hero-subtitle">Curated essentials designed for the modern home. Quality craftsmanship meeting timeless
             aesthetic.</p>
     </div>
+
+    @if (ViewBag.FlyweightCacheSize != null)
+    {
+        <div style="background: rgba(5, 150, 105, 0.05); border: 1px solid rgba(5, 150, 105, 0.15); border-radius: 14px; padding: 0.75rem 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem; font-size: 0.8rem; color: var(--accent-secondary);">
+            <span style="font-size: 1.25rem;">🪶</span>
+            <span><strong>Flyweight Pattern:</strong> @ViewBag.FlyweightTotalProducts produse afișate, doar <strong>@ViewBag.FlyweightCacheSize</strong> instanțe de tip create în memorie</span>
+        </div>
+    }
 
     @if (!Model.Any())
     {

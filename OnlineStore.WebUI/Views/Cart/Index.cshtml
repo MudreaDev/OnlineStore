@@ -367,6 +367,27 @@
                                 <option value="Stripe">Stripe</option>
                             </select>
                         </div>
+                        <div style="margin-bottom: 1rem; text-align: left;">
+                            <label style="font-size: 0.8rem; font-weight: bold; color: var(--midnight);">Tip Magazin (Abstract Factory)</label>
+                            <select name="storeType" style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid var(--border-subtle); margin-top: 0.5rem; font-family: var(--font-main);">
+                                <option value="Local">Local Store (cash / curier local)</option>
+                                <option value="Global">Global Store (PayPal / DHL)</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 1rem; text-align: left;">
+                            <label style="font-size: 0.8rem; font-weight: bold; color: var(--midnight);">Tip Livrare (Bridge Pattern)</label>
+                            <select name="deliveryType" style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid var(--border-subtle); margin-top: 0.5rem; font-family: var(--font-main);">
+                                <option value="Home">Livrare Acasă</option>
+                                <option value="Pickup">Punct de Ridicare</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 1rem; text-align: left;">
+                            <label style="font-size: 0.8rem; font-weight: bold; color: var(--midnight);">Furnizor Transport (Bridge Pattern)</label>
+                            <select name="shippingProvider" style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid var(--border-subtle); margin-top: 0.5rem; font-family: var(--font-main);">
+                                <option value="Courier">Curier Rapid</option>
+                                <option value="Postal">Poșta Română</option>
+                            </select>
+                        </div>
                         <button type="submit" class="btn-checkout" style="border: none; cursor: pointer; width: 100%;">Finalizare Comandă (Façade)</button>
                     </form>
 

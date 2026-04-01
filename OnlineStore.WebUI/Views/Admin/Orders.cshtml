@@ -162,6 +162,13 @@
         <div class="stat-pill">@Model.Count() Orders Tracked</div>
     </div>
 
+    @if (TempData["NotificationChain"] != null)
+    {
+        <div style="background: rgba(5, 150, 105, 0.05); border: 1px solid rgba(5, 150, 105, 0.15); border-radius: 14px; padding: 1rem 1.5rem; margin-bottom: 2rem; font-size: 0.8rem; color: var(--accent-secondary);">
+            <strong>🔔 Decorator Chain:</strong> @TempData["NotificationChain"]
+        </div>
+    }
+
     <div class="inventory-card">
         @if (!Model.Any())
         {

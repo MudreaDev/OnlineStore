@@ -9,6 +9,7 @@ using OnlineStore.WebUI.Extensions;
 using OnlineStore.WebUI.Models;
 using OnlineStore.Domain.DesignPatterns.Structural.Facade;
 using OnlineStore.Domain.DesignPatterns.Structural.Adapter;
+using OnlineStore.Domain.DesignPatterns.Structural.Bridge;
 using OnlineStore.Domain.DesignPatterns.Behavioral.Command;
 using OnlineStore.Domain.DesignPatterns.Behavioral.Memento;
 using OnlineStore.Domain.Interfaces;
@@ -160,7 +161,7 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Checkout(string paymentMethod)
+        public IActionResult Checkout(string paymentMethod, string storeType, string deliveryType, string shippingProvider)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
             if (string.IsNullOrEmpty(userIdStr))
@@ -203,6 +204,36 @@ namespace OnlineStore.WebUI.Controllers
             // Execute Checkout via Facade
             if (orderFacade.Checkout(user, cart, out string message, out Order placedOrder))
             {
+                // Abstract Factory Pattern — alege familia de servicii (Local vs Global)
+                IStoreServicesFactory storeFactory = storeType == "Local"
+                    ? new LocalStoreServicesFactory()
+                    : new GlobalStoreServicesFactory();
+
+                var factoryPayment = storeFactory.CreatePaymentProcessor();
+                var factoryShipping = storeFactory.CreateShippingProvider();
+
+                var shippingAddress = (user as Customer)?.ShippingAddress ?? "N/A";
+                factoryPayment.ProcessPayment(placedOrder.Total);
+                factoryShipping.ScheduleShipping(shippingAddress);
+
+                TempData["StoreType"] = storeType == "Local"
+                    ? "Local Store (cash / curier local)"
+                    : "Global Store (PayPal / DHL)";
+
+                // Bridge Pattern — separă tipul de livrare de furnizor
+                IShippingImplementation bridgeImpl = shippingProvider == "Courier"
+                    ? new CourierProvider()
+                    : new PostalProvider();
+
+                ShippingMethod shippingMethod = deliveryType == "Home"
+                    ? new HomeDelivery(bridgeImpl)
+                    : new PickupPointDelivery(bridgeImpl);
+
+                var deliveryResult = shippingMethod.Deliver(
+                    placedOrder.Id.ToString()[..8], shippingAddress);
+
+                TempData["DeliveryInfo"] = deliveryResult;
+
                 // Clear Cart
                 cart.Clear();
                 SaveCart(cart);

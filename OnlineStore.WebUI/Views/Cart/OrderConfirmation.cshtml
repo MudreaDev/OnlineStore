@@ -141,6 +141,20 @@
             <span class="detail-label">Current Phase</span>
             <span class="detail-value" style="color: var(--accent-green)">@Model.Status</span>
         </div>
+        @if (TempData["StoreType"] != null)
+        {
+            <div class="detail-row">
+                <span class="detail-label">Store Type (Abstract Factory)</span>
+                <span class="detail-value">@TempData["StoreType"]</span>
+            </div>
+        }
+        @if (TempData["DeliveryInfo"] != null)
+        {
+            <div class="detail-row">
+                <span class="detail-label">Delivery Method (Bridge Pattern)</span>
+                <span class="detail-value">@TempData["DeliveryInfo"]</span>
+            </div>
+        }
     </div>
 
     <div class="btn-row">

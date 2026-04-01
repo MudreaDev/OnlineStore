@@ -6,36 +6,56 @@ namespace OnlineStore.Tests
     public class FlyweightTests
     {
         [Fact]
-        public void Flyweight_ShouldReuseInstances()
+        public void ProductTypeFlyweight_ShouldReuseInstances()
         {
             // Arrange
-            var factory = new CharacterFactory();
-            string document = "AAAAABBBCC";
+            ProductTypeFlyweightFactory.Reset();
 
-            // Act
-            foreach (char c in document)
-            {
-                var character = factory.GetCharacter(c);
-                character.Display(10);
-            }
+            // Act — cerem flyweight-uri pentru 10 produse din 3 tipuri
+            ProductTypeFlyweightFactory.GetFlyweight("Electronic");
+            ProductTypeFlyweightFactory.GetFlyweight("Electronic");
+            ProductTypeFlyweightFactory.GetFlyweight("Clothing");
+            ProductTypeFlyweightFactory.GetFlyweight("Clothing");
+            ProductTypeFlyweightFactory.GetFlyweight("Clothing");
+            ProductTypeFlyweightFactory.GetFlyweight("Vehicle");
+            ProductTypeFlyweightFactory.GetFlyweight("Electronic");
+            ProductTypeFlyweightFactory.GetFlyweight("Vehicle");
+            ProductTypeFlyweightFactory.GetFlyweight("Electronic");
+            ProductTypeFlyweightFactory.GetFlyweight("Clothing");
 
-            // Assert
-            // Even though we "created" 10 characters, only 3 unique ones should exist in memory
-            Assert.Equal(3, factory.GetTotalObjectsCreated());
+            // Assert — 10 request-uri, dar doar 3 instanțe create
+            Assert.Equal(3, ProductTypeFlyweightFactory.CacheSize);
+            Assert.Equal(10, ProductTypeFlyweightFactory.TotalRequests);
+            Assert.Equal(3, ProductTypeFlyweightFactory.TotalCreated);
         }
 
         [Fact]
-        public void Flyweight_ShouldReturnSameInstanceForSameKey()
+        public void ProductTypeFlyweight_ShouldReturnSameInstanceForSameType()
         {
             // Arrange
-            var factory = new CharacterFactory();
+            ProductTypeFlyweightFactory.Reset();
 
             // Act
-            var char1 = factory.GetCharacter('A');
-            var char2 = factory.GetCharacter('A');
+            var fw1 = ProductTypeFlyweightFactory.GetFlyweight("Electronic");
+            var fw2 = ProductTypeFlyweightFactory.GetFlyweight("Electronic");
 
-            // Assert
-            Assert.Same(char1, char2);
+            // Assert — exact aceeași instanță
+            Assert.Same(fw1, fw2);
+        }
+
+        [Fact]
+        public void ProductTypeFlyweight_RenderBadge_ContainsExtrinsicState()
+        {
+            // Arrange
+            ProductTypeFlyweightFactory.Reset();
+            var fw = ProductTypeFlyweightFactory.GetFlyweight("Electronic");
+
+            // Act
+            var badge = fw.RenderBadge("Samsung Galaxy S25");
+
+            // Assert — badge conține starea extrinsecă (productName)
+            Assert.Contains("Samsung Galaxy S25", badge);
+            Assert.Contains("Electronic", badge);
         }
     }
 }
