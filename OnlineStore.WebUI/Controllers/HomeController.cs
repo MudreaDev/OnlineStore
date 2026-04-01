@@ -72,6 +72,9 @@ namespace OnlineStore.WebUI.Controllers
 
             var finalList = finalProducts.ToList();
 
+            // Pattern: Flyweight — resetăm statisticile la fiecare request pentru o demonstrație corectă în banner
+            ProductTypeFlyweightFactory.Reset();
+
             // Pattern: Flyweight — refolosim instanțe partajate pentru metadatele de tip
             foreach (var p in finalList)
             {

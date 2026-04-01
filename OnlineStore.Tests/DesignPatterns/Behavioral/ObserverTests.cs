@@ -26,7 +26,7 @@ namespace OnlineStore.Tests.DesignPatterns.Behavioral
             notificationService.Attach(mockObserver.Object);
 
             // Act
-            notificationService.Notify(order);
+            notificationService.UpdateStatusAndNotify(order, OrderStatus.Shipped);
 
             // Assert
             mockObserver.Verify(o => o.Update(order), Times.Once);

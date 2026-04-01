@@ -41,7 +41,7 @@ namespace OnlineStore.Application.Services
             Notify(order);
         }
 
-        public void Notify(Order order)
+        private void Notify(Order order)
         {
             foreach (var observer in _observers)
             {
