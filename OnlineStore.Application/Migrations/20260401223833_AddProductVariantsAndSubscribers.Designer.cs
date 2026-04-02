@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineStore.Application.Data;
 
@@ -11,9 +12,11 @@ using OnlineStore.Application.Data;
 namespace OnlineStore.Application.Migrations
 {
     [DbContext(typeof(OnlineStoreDbContext))]
-    partial class OnlineStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260401223833_AddProductVariantsAndSubscribers")]
+    partial class AddProductVariantsAndSubscribers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,6 +97,9 @@ namespace OnlineStore.Application.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AvailableColors")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AvailableSizes")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -196,13 +202,12 @@ namespace OnlineStore.Application.Migrations
                 {
                     b.HasBaseType("OnlineStore.Domain.Entities.Product");
 
-                    b.Property<string>("AvailableSizes")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Material")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Size")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("Clothing");

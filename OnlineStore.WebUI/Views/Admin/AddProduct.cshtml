@@ -153,26 +153,36 @@
     .btn-submit-form:hover {
         background: var(--accent-primary);
         transform: translateY(-2px);
-
         box-shadow: 0 10px 30px rgba(5, 150, 105, 0.2);
     }
 
-    .remove-thumb {
-        position: absolute;
-        top: 4px;
-        right: 4px;
-        background: rgba(255, 255, 255, 0.9);
-        border: none;
-        width: 22px;
-        height: 22px;
-        border-radius: 6px;
+    /* Color Palette Helper */
+    .palette-helper {
         display: flex;
         align-items: center;
-        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    .color-picker-trigger {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
         cursor: pointer;
-        color: #dc2626;
-        font-size: 14px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .btn-add-variant {
+        background: var(--border-subtle);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+    }
+    .btn-add-variant:hover {
+        background: var(--border-bold);
     }
 </style>
 
@@ -197,19 +207,28 @@
 
             <div class="field-group">
                 <label for="Name" class="field-label">Product Naming</label>
-                <input type="text" name="Name" id="Name" class="premium-input" placeholder="Enter an elegant name..."
-                    required />
+                <input type="text" name="Name" id="Name" class="premium-input" placeholder="Enter an elegant name..." required />
             </div>
 
             <div class="field-group">
-                <label for="Price" class="field-label">Retail Value (€)</label>
-                <input type="number" name="Price" id="Price" step="0.01" class="premium-input" placeholder="0.00"
-                    required />
+                <label for="Price" class="field-label">Retail Value ($)</label>
+                <input type="number" name="Price" id="Price" step="0.01" class="premium-input" placeholder="0.00" required />
             </div>
 
             <div class="field-group">
                 <label for="Stock" class="field-label">Initial Stock</label>
                 <input type="number" name="stock" id="Stock" class="premium-input" value="10" required />
+            </div>
+
+            <span class="form-section-title">Variants & Options</span>
+            
+            <div class="field-group">
+                <label for="AvailableColors" class="field-label">Color Palette (Comma separated Hex codes)</label>
+                <input type="text" name="availableColors" id="AvailableColors" class="premium-input" placeholder="#000000, #FFFFFF, #FF0000..." />
+                <div class="palette-helper">
+                    <input type="color" id="colorPicker" class="color-picker-trigger" value="#059669">
+                    <button type="button" class="btn-add-variant" onclick="addColorFromPicker()">Add to Palette</button>
+                </div>
             </div>
 
             <div id="ElectronicFields" class="type-container">
@@ -221,28 +240,27 @@
             </div>
 
             <div id="ClothingFields" class="type-container" style="display:none;">
-                <span class="form-section-title" style="color: var(--midnight); font-size: 0.65rem;">Clothing
-                    Specs</span>
+                <span class="form-section-title" style="color: var(--midnight); font-size: 0.65rem;">Clothing Specs</span>
+                
                 <div class="field-group">
-                    <label for="Material" class="field-label">Material Composition</label>
-                    <input type="text" name="material" id="Material" class="premium-input"
-                        placeholder="Organic Cotton, Silk..." />
+                    <label for="AvailableSizes" class="field-label">Available Sizes (Comma separated)</label>
+                    <input type="text" name="availableSizes" id="AvailableSizes" class="premium-input" placeholder="S, M, L, XL, 42, 44..." />
+                    <div class="palette-helper">
+                        <button type="button" class="btn-add-variant" onclick="addSize('S')">+ S</button>
+                        <button type="button" class="btn-add-variant" onclick="addSize('M')">+ M</button>
+                        <button type="button" class="btn-add-variant" onclick="addSize('L')">+ L</button>
+                        <button type="button" class="btn-add-variant" onclick="addSize('XL')">+ XL</button>
+                    </div>
                 </div>
-                <div class="field-group">
-                    <label for="AvailableSizes" class="field-label">Size Options (Comma separated)</label>
-                    <input type="text" name="availableSizes" id="AvailableSizes" class="premium-input"
-                        placeholder="S, M, L, XL..." />
-                </div>
+
                 <div class="field-group" style="margin-bottom: 0;">
-                    <label for="AvailableColors" class="field-label">Color Options (Comma separated)</label>
-                    <input type="text" name="availableColors" id="AvailableColors" class="premium-input"
-                        placeholder="Black, White, Navy..." />
+                    <label for="Material" class="field-label">Material Composition</label>
+                    <input type="text" name="material" id="Material" class="premium-input" placeholder="Organic Cotton, Silk..." />
                 </div>
             </div>
 
             <div id="VehicleFields" class="type-container" style="display:none;">
-                <span class="form-section-title" style="color: var(--midnight); font-size: 0.65rem;">Vehicle
-                    Origins</span>
+                <span class="form-section-title" style="color: var(--midnight); font-size: 0.65rem;">Vehicle Origins</span>
                 <div class="field-group">
                     <label for="Brand" class="field-label">Brand / Manufacturer</label>
                     <input type="text" name="Brand" id="Brand" class="premium-input" />
@@ -259,26 +277,18 @@
 
             <div style="margin-top: 4rem;">
                 <span class="form-section-title">Visual Assets</span>
-                <p style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1.5rem;">Upload up to 5
-                    high-resolution images. First image serves as the Main cover.</p>
-
                 <div class="upload-box" onclick="document.getElementById('imageInput').click()">
                     <div class="upload-icon-wrap">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="17 8 12 3 7 8"></polyline>
                             <line x1="12" y1="3" x2="12" y2="15"></line>
                         </svg>
                     </div>
                     <p style="font-weight: 700; font-size: 0.9375rem; color: var(--midnight);">Select Media Files</p>
-                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">PNG, JPEG, WEBP up to
-                        8MB each</p>
                 </div>
 
-                <input type="file" name="images" id="imageInput" multiple accept=".jpg,.jpeg,.png,.webp"
-                    style="display: none;" onchange="handleFileSelect(this)" />
-
+                <input type="file" name="images" id="imageInput" multiple accept=".jpg,.jpeg,.png,.webp" style="display: none;" onchange="handleFileSelect(this)" />
                 <div class="preview-list" id="previewGrid"></div>
             </div>
 
@@ -296,44 +306,35 @@
         });
     }
 
-    let selectedFiles = [];
+    function addSize(s) {
+        const input = document.getElementById('AvailableSizes');
+        if (input.value) input.value += ', ' + s;
+        else input.value = s;
+    }
 
+    function addColorFromPicker() {
+        const picker = document.getElementById('colorPicker');
+        const input = document.getElementById('AvailableColors');
+        const color = picker.value.toUpperCase();
+        if (input.value) input.value += ', ' + color;
+        else input.value = color;
+    }
+
+    let selectedFiles = [];
     function handleFileSelect(input) {
         const files = Array.from(input.files);
-        const total = selectedFiles.length + files.length;
-
-        if (total > 5) {
-            alert('Selection limited to 5 high-res assets.');
-            input.value = '';
-            return;
-        }
-
         files.forEach(file => {
             selectedFiles.push(file);
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const idx = selectedFiles.indexOf(file);
-                addPreview(e.target.result, file.name, idx);
-            };
+            reader.onload = (e) => addPreview(e.target.result, file.name);
             reader.readAsDataURL(file);
         });
     }
 
-    function addPreview(src, name, index) {
-        const grid = document.getElementById('previewGrid');
+    function addPreview(src, name) {
         const item = document.createElement('div');
         item.className = 'preview-thumb';
-        item.innerHTML = `
-            <img src="${src}" alt="${name}">
-            <button type="button" class="remove-thumb" onclick="removeFile(this)">×</button>
-        `;
-        grid.appendChild(item);
-    }
-
-    function removeFile(btn) {
-        alert('File selection cleared for safety. Please re-select your preferred assets.');
-        document.getElementById('imageInput').value = '';
-        document.getElementById('previewGrid').innerHTML = '';
-        selectedFiles = [];
+        item.innerHTML = `<img src="${src}" alt="${name}">`;
+        document.getElementById('previewGrid').appendChild(item);
     }
 </script>

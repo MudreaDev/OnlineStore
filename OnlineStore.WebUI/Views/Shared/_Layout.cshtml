@@ -68,6 +68,11 @@
 
         body {
             background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(5, 150, 105, 0.03) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, rgba(6, 78, 59, 0.02) 0, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(5, 150, 105, 0.03) 0, transparent 50%);
+            background-attachment: fixed;
             color: var(--text-main);
             font-family: var(--font-body);
             line-height: 1.6;
@@ -452,7 +457,9 @@
 
             <div class="nav-right">
                 <nav class="nav-links-desktop" style="display: flex; gap: 1.5rem; align-items: center;">
+                <nav class="nav-links-desktop" style="display: flex; gap: 1.5rem; align-items: center;">
                     <a class="nav-link" asp-controller="Home" asp-action="Index">Shop</a>
+                    <a class="nav-link" asp-controller="Home" asp-action="OutOfStock" style="color: #ef4444; font-weight: 800;">Archive</a>
 
                     @{
                         var session = HttpContextAccessor.HttpContext.Session;
@@ -506,7 +513,7 @@
                     }
                     else
                     {
-                        <a class="nav-link" asp-controller="Account" asp-action="Login">Sign In</a>
+                        <a class="cart-pill" asp-controller="Account" asp-action="Login" style="background: transparent; border: 1.5px solid var(--midnight); color: var(--midnight);">Sign In</a>
                     }
                 </nav>
 

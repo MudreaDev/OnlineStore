@@ -267,5 +267,24 @@ namespace OnlineStore.WebUI.Controllers
         {
             HttpContext.Session.Set("CartCaretaker", caretaker);
         }
+        [HttpPost]
+        public IActionResult NotifyMe(Guid productId, string email)
+        {
+            var product = _productRepo.GetById(productId);
+            if (product != null && !string.IsNullOrWhiteSpace(email))
+            {
+                if (!product.SubscriberEmails.Contains(email))
+                {
+                    product.SubscriberEmails.Add(email);
+                    _productRepo.Update(product);
+                    TempData["Success"] = "Te vom anunţa când produsul revine în stoc!";
+                }
+                else
+                {
+                    TempData["Info"] = "Eşti deja abonat la acest produs.";
+                }
+            }
+            return RedirectToAction("Details", "Home", new { id = productId });
+        }
     }
 }

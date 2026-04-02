@@ -69,10 +69,21 @@ namespace OnlineStore.Application.Data
 
 
 
-            // Configure decimal precision for Price/Total
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price)
                 .HasColumnType("decimal(18,2)");
+
+            // Configure SubscriberEmails to be stored as a comma-separated string
+            modelBuilder.Entity<Product>()
+                .Property(p => p.SubscriberEmails)
+                .HasConversion(
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+                )
+                .Metadata.SetValueComparer(new Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<List<string>>(
+                    (c1, c2) => c1!.SequenceEqual(c2!),
+                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c.ToList()));
 
             modelBuilder.Entity<Order>()
                 .Property(o => o.Total)

@@ -22,6 +22,7 @@ builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
 builder.Services.AddScoped<DbProductRepository>();
 builder.Services.AddScoped<DbUserRepository>();
 builder.Services.AddScoped<DbOrderRepository>();
+builder.Services.AddScoped<ProductAvailabilityService>();
 builder.Services.AddScoped<CloudinaryService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<OrderNotificationService>();

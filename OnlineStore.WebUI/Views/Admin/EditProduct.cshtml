@@ -1,6 +1,5 @@
 @model OnlineStore.Domain.Entities.Product
 @using OnlineStore.Domain.Entities
-
 @{
     ViewData["Title"] = "Refine Inventory Piece";
 }
@@ -82,7 +81,6 @@
         box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.08);
     }
 
-    /* Existing Media Management */
     .media-management {
         margin-top: 4rem;
         padding-top: 3rem;
@@ -173,21 +171,6 @@
         z-index: 10;
     }
 
-    .upload-trigger {
-        border: 2px dashed var(--border-bold);
-        border-radius: 16px;
-        padding: 2rem;
-        text-align: center;
-        cursor: pointer;
-        background: var(--bg-base);
-        transition: var(--transition-smooth);
-    }
-
-    .upload-trigger:hover {
-        border-color: var(--accent-primary);
-        background: #fff;
-    }
-
     .btn-sync-action {
         background: var(--midnight);
         color: #fff;
@@ -209,6 +192,35 @@
         transform: translateY(-2px);
         box-shadow: 0 10px 30px rgba(5, 150, 105, 0.2);
     }
+
+    /* Color Palette Helper */
+    .palette-helper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    .color-picker-trigger {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .btn-add-variant {
+        background: var(--border-subtle);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+    }
+    .btn-add-variant:hover {
+        background: var(--border-bold);
+    }
 </style>
 
 <div class="admin-form-container fade-in">
@@ -229,9 +241,8 @@
                     <input type="text" name="Name" id="Name" value="@Model.Name" class="premium-input" required />
                 </div>
                 <div class="field-group">
-                    <label for="Price" class="field-label">Market Value (€)</label>
-                    <input type="number" name="Price" id="Price" value="@Model.Price" step="0.01" class="premium-input"
-                        required />
+                    <label for="Price" class="field-label">Market Value ($)</label>
+                    <input type="number" name="Price" id="Price" value="@Model.Price" step="0.01" class="premium-input" required />
                 </div>
             </div>
 
@@ -240,31 +251,40 @@
                 <input type="number" name="stock" id="Stock" value="@Model.Stock" class="premium-input" required />
             </div>
 
+            <span class="form-section-title">Variants & Options</span>
+            
+            <div class="field-group">
+                <label for="AvailableColors" class="field-label">Color Palette (Comma separated Hex codes)</label>
+                <input type="text" name="availableColors" id="AvailableColors" value="@Model.AvailableColors" class="premium-input" />
+                <div class="palette-helper">
+                    <input type="color" id="colorPicker" class="color-picker-trigger" value="#059669">
+                    <button type="button" class="btn-add-variant" onclick="addColorFromPicker()">Add to Palette</button>
+                </div>
+            </div>
+
             @if (Model is ElectronicProduct electronic)
             {
                 <div class="field-group">
                     <label for="WarrantyMonths" class="field-label">Warranty Extension (Months)</label>
-                    <input type="number" name="WarrantyMonths" id="WarrantyMonths" value="@electronic.WarrantyMonths"
-                        class="premium-input" />
+                    <input type="number" name="WarrantyMonths" id="WarrantyMonths" value="@electronic.WarrantyMonths" class="premium-input" />
                 </div>
             }
             else if (Model is ClothingProduct clothing)
             {
-                <div class="field-grid">
-                    <div class="field-group">
-                        <label for="Material" class="field-label">Material Composition</label>
-                        <input type="text" name="Material" id="Material" value="@clothing.Material" class="premium-input" />
-                    </div>
-                    <div class="field-group">
-                        <label for="AvailableSizes" class="field-label">Size Options (Comma separated)</label>
-                        <input type="text" name="availableSizes" id="AvailableSizes" value="@clothing.AvailableSizes"
-                            class="premium-input" />
+                <div class="field-group">
+                    <label for="AvailableSizes" class="field-label">Available Sizes (Comma separated)</label>
+                    <input type="text" name="availableSizes" id="AvailableSizes" value="@clothing.AvailableSizes" class="premium-input" />
+                    <div class="palette-helper">
+                        <button type="button" class="btn-add-variant" onclick="addSize('S')">+ S</button>
+                        <button type="button" class="btn-add-variant" onclick="addSize('M')">+ M</button>
+                        <button type="button" class="btn-add-variant" onclick="addSize('L')">+ L</button>
+                        <button type="button" class="btn-add-variant" onclick="addSize('XL')">+ XL</button>
                     </div>
                 </div>
+
                 <div class="field-group">
-                    <label for="AvailableColors" class="field-label">Color Options (Comma separated)</label>
-                    <input type="text" name="availableColors" id="AvailableColors" value="@clothing.AvailableColors"
-                        class="premium-input" />
+                    <label for="Material" class="field-label">Material Composition</label>
+                    <input type="text" name="Material" id="Material" value="@clothing.Material" class="premium-input" />
                 </div>
             }
             else if (Model is VehicleProduct vehicle)
@@ -301,10 +321,9 @@
                                 }
                                 <div class="asset-overlay">
                                     <button type="button" class="btn-asset-remove" onclick="stageDeletion('@img.PublicId')">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2.5">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                             <polyline points="3 6 5 6 21 6"></polyline>
-                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7"></path>
                                         </svg>
                                     </button>
                                 </div>
@@ -316,19 +335,14 @@
                 @if (Model.Images.Count < 5)
                 {
                     <div class="upload-trigger" onclick="document.getElementById('newImagesInp').click()">
-                        <span style="font-weight: 700; font-size: 0.875rem; color: var(--midnight);">+ Supplement
-                            Visuals</span>
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">Space for @(5 -
-                        Model.Images.Count) additional assets</p>
+                        <span style="font-weight: 700; font-size: 0.875rem; color: var(--midnight);">+ Supplement Visuals</span>
                     </div>
-                    <input type="file" name="newImages" id="newImagesInp" multiple accept=".jpg,.jpeg,.png,.webp"
-                        style="display:none" onchange="previewSupplement(this)" />
+                    <input type="file" name="newImages" id="newImagesInp" multiple accept=".jpg,.jpeg,.png,.webp" style="display:none" onchange="previewSupplement(this)" />
                     <div id="supplementPreview" class="inventory-images" style="margin-top: 2rem;"></div>
                 }
             </div>
 
             <div id="deletionInputs"></div>
-
             <button type="submit" class="btn-sync-action">Commit Changes to Collection</button>
         </form>
     </div>
@@ -336,11 +350,9 @@
 
 <script>
     const deletions = new Set();
-
     function stageDeletion(pid) {
         const safeId = 'asset-' + pid.replace(/\//g, '-').replace(/\./g, '-');
         const el = document.getElementById(safeId);
-
         if (deletions.has(pid)) {
             deletions.delete(pid);
             el.classList.remove('deletion-target');
@@ -362,28 +374,29 @@
         wrap.innerHTML = '';
         deletions.forEach(id => {
             const hid = document.createElement('input');
-            hid.type = 'hidden';
-            hid.name = 'deletePublicIds';
-            hid.value = id;
+            hid.type = 'hidden'; hid.name = 'deletePublicIds'; hid.value = id;
             wrap.appendChild(hid);
         });
+    }
+
+    function addSize(s) {
+        const input = document.getElementById('AvailableSizes');
+        if (input.value) input.value += ', ' + s;
+        else input.value = s;
+    }
+
+    function addColorFromPicker() {
+        const picker = document.getElementById('colorPicker');
+        const input = document.getElementById('AvailableColors');
+        const color = picker.value.toUpperCase();
+        if (input.value) input.value += ', ' + color;
+        else input.value = color;
     }
 
     function previewSupplement(input) {
         const grid = document.getElementById('supplementPreview');
         grid.innerHTML = '';
-        const files = Array.from(input.files);
-
-        const existing = @Model.Images.Count;
-        const total = (existing - deletions.size) + files.length;
-
-        if (total > 5) {
-            alert('Selection limit reached (5 assets).');
-            input.value = '';
-            return;
-        }
-
-        files.forEach(file => {
+        Array.from(input.files).forEach(file => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const item = document.createElement('div');
@@ -395,4 +408,4 @@
             reader.readAsDataURL(file);
         });
     }
-</script>
+</script> 

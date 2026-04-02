@@ -15,7 +15,7 @@ namespace OnlineStore.Domain.Singleton
         public static ApplicationConfigurationManager Instance => _instance.Value;
 
         public string StoreName { get; private set; } = "Minimal Store";
-        public string CurrencySymbol { get; private set; } = "€";
+        public string CurrencySymbol { get; private set; } = "$";
         public decimal VatPercentage { get; private set; } = 19;
         public decimal FreeShippingThreshold { get; private set; } = 500;
         public int MaxItemsPerOrder { get; private set; } = 50;

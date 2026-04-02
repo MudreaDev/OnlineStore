@@ -1,4 +1,4 @@
-﻿using OnlineStore.Domain.Common;
+using OnlineStore.Domain.Common;
 //Product este o clasă abstractă ce definește comportamentul comun tuturor produselor. \
 //Folosesc încapsulare pentru validarea proprietăților și o metodă abstractă pentru polimorfism.”
 //Demonstrează: încapsulare  moștenire  polimorfism  SRP
@@ -31,6 +31,8 @@ namespace OnlineStore.Domain.Entities
         }
         public int Stock { get; set; }
         public List<ProductImage> Images { get; set; } = new List<ProductImage>();
+        public List<string> SubscriberEmails { get; set; } = new List<string>();
+        public string? AvailableColors { get; set; } // e.g. "#000000,#FFFFFF,Navy"
 
         protected Product()
         {

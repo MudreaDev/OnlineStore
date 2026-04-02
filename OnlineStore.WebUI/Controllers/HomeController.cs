@@ -22,8 +22,9 @@ namespace OnlineStore.WebUI.Controllers
             _productRepo = productRepo;
         }
 
-        public IActionResult Index(string? searchQuery, string? categoryFilter, decimal? minPrice, decimal? maxPrice, string? sortStrategy)
+        public IActionResult Index(string? searchQuery, string? categoryFilter, decimal? minPrice, decimal? maxPrice, string? sortStrategy, int page = 1)
         {
+            int pageSize = 25; // 5x5 grid
             var allProducts = _productRepo.GetAll().ToList();
             var filteredProducts = new List<Product>();
 
@@ -70,7 +71,20 @@ namespace OnlineStore.WebUI.Controllers
                 finalProducts = strategy.Sort(finalProducts);
             }
 
-            var finalList = finalProducts.ToList();
+            // Filtrare: doar produse în stoc pe pagina principală
+            finalProducts = finalProducts.Where(p => p.Stock > 0);
+
+            var totalItems = finalProducts.Count();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            page = Math.Max(1, Math.Min(page, totalPages > 0 ? totalPages : 1));
+
+            var finalList = finalProducts
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
 
             // Pattern: Flyweight — resetăm statisticile la fiecare request pentru o demonstrație corectă în banner
             ProductTypeFlyweightFactory.Reset();
@@ -122,6 +136,22 @@ namespace OnlineStore.WebUI.Controllers
             }
 
             return View(mainCatalog);
+        }
+
+        public IActionResult OutOfStock()
+        {
+            var outOfStockProducts = _productRepo.GetAll().Where(p => p.Stock <= 0).ToList();
+            return View(outOfStockProducts);
+        }
+
+        public IActionResult ProductDetails(Guid id)
+        {
+            var product = _productRepo.GetById(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return View(product);
         }
 
         public IActionResult Details(Guid id)

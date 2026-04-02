@@ -24,6 +24,7 @@ namespace OnlineStore.WebUI.Controllers
         private readonly CloudinaryService _cloudinaryService;
         private readonly OnlineStoreDbContext _context;
         private readonly OrderNotificationService _notificationService;
+        private readonly ProductAvailabilityService _availabilityService;
 
         public AdminController(
             DbProductRepository productRepo, 
@@ -31,7 +32,8 @@ namespace OnlineStore.WebUI.Controllers
             DbUserRepository userRepo,
             CloudinaryService cloudinaryService,
             OnlineStoreDbContext context,
-            OrderNotificationService notificationService)
+            OrderNotificationService notificationService,
+            ProductAvailabilityService availabilityService)
         {
             _productRepo = productRepo;
             _orderRepo = orderRepo;
@@ -39,6 +41,7 @@ namespace OnlineStore.WebUI.Controllers
             _cloudinaryService = cloudinaryService;
             _context = context;
             _notificationService = notificationService;
+            _availabilityService = availabilityService;
         }
 
         private IActionResult CheckAccess()
@@ -137,6 +140,8 @@ namespace OnlineStore.WebUI.Controllers
                 var newProduct = factory.CreateProduct(name, price);
                 newProduct.Stock = stock ?? 10;
 
+                newProduct.AvailableColors = availableColors;
+
                 if (newProduct is ElectronicProduct electronic)
                 {
                     if (warrantyMonths.HasValue) electronic.WarrantyMonths = warrantyMonths.Value;
@@ -146,7 +151,6 @@ namespace OnlineStore.WebUI.Controllers
                     if (!string.IsNullOrEmpty(size)) clothing.Size = size;
                     if (!string.IsNullOrEmpty(material)) clothing.Material = material;
                     clothing.AvailableSizes = availableSizes;
-                    clothing.AvailableColors = availableColors;
                 }
                 else if (newProduct is VehicleProduct vehicle)
                 {
@@ -212,9 +216,11 @@ namespace OnlineStore.WebUI.Controllers
             var product = _productRepo.GetById(id);
             if (product == null) return NotFound();
 
+            var oldStock = product.Stock;
             product.Name = name;
             product.Price = price;
             product.Stock = stock ?? product.Stock;
+            product.AvailableColors = availableColors;
 
             if (product is ElectronicProduct electroUpdate)
             {
@@ -225,13 +231,18 @@ namespace OnlineStore.WebUI.Controllers
                 clothingUpdate.Size = size;
                 clothingUpdate.Material = material;
                 clothingUpdate.AvailableSizes = availableSizes;
-                clothingUpdate.AvailableColors = availableColors;
             }
             else if (product is VehicleProduct vehicleUpdate)
             {
                 vehicleUpdate.Brand = brand;
                 vehicleUpdate.Model = model;
                 if (year.HasValue) vehicleUpdate.Year = year.Value;
+            }
+
+            // Notification: Back in stock logic
+            if (oldStock == 0 && product.Stock > 0)
+            {
+                _availabilityService.NotifyBackInStock(product);
             }
 
             // Handle deletions

@@ -1,9 +1,10 @@
 @model OnlineStore.Domain.Entities.Product
 @using OnlineStore.Domain.Entities
+@using OnlineStore.Domain.Singleton
 
 @{
     ViewData["Title"] = Model.Name;
-    var images = Model.Images.OrderBy(i => i.DisplayOrder).ToList();
+    var images = Model.Images?.OrderBy(i => i.DisplayOrder).ToList() ?? new List<ProductImage>();
     var mainImage = images.FirstOrDefault(i => i.IsMain) ?? images.FirstOrDefault();
 
     var typeName = Model.GetType().Name.Replace("Product", "");
@@ -14,68 +15,116 @@
         "Vehicle" => "🚗",
         _ => "📦"
     };
+
+    var priceSymbol = ApplicationConfigurationManager.Instance.CurrencySymbol;
+    
+    // Safety check for Clothing variants
+    var clothingModel = Model as ClothingProduct;
+    var availableSizes = clothingModel?.AvailableSizes;
 }
 
 <style>
     .details-page {
         padding-top: 1.5rem;
-        padding-bottom: 3rem;
+        padding-bottom: 5rem;
     }
 
     .details-grid {
         display: grid;
         grid-template-columns: 0.85fr 1.15fr;
-        gap: 2.5rem;
+        gap: 4rem;
         align-items: start;
     }
 
-    /* --- Editorial Gallery --- */
+    /* --- Back Nav styling --- */
+    .back-nav {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: var(--transition-smooth);
+        margin-bottom: 2.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .back-nav:hover {
+        color: var(--accent-primary);
+        transform: translateX(-5px);
+    }
+
+    /* --- Editorial Gallery Slider --- */
     .gallery-stack {
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 1.25rem;
         position: sticky;
-        top: 80px;
+        top: 100px;
     }
 
-    .main-visual-wrap {
+    .main-visual-container {
+        position: relative;
         width: 100%;
-        max-height: 420px;
         aspect-ratio: 1/1;
         background: #fff;
         border: 1px solid var(--border-subtle);
-        border-radius: 20px;
+        border-radius: 24px;
         overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
         box-shadow: var(--shadow-lg);
+        cursor: zoom-in;
     }
 
     .main-img-show {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: transform 0.8s var(--transition-smooth);
+        transition: opacity 0.4s ease;
     }
 
-    .main-emoji-hero {
-        font-size: 5rem;
-        opacity: 0.8;
+    .slider-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: var(--shadow-md);
+        transition: var(--transition-smooth);
+        color: var(--midnight);
     }
+
+    .slider-nav:hover {
+        background: #fff;
+        color: var(--accent-primary);
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .nav-prev { left: 1rem; }
+    .nav-next { right: 1rem; }
 
     .thumb-pills {
         display: flex;
         gap: 1rem;
         overflow-x: auto;
-        padding: 0.5rem;
+        padding: 0.5rem 0;
+        scrollbar-width: none;
     }
 
     .thumb-pill {
-        width: 52px;
-        height: 52px;
-        border-radius: 10px;
+        width: 64px;
+        height: 64px;
+        border-radius: 14px;
         cursor: pointer;
         border: 2px solid transparent;
         overflow: hidden;
@@ -87,7 +136,7 @@
 
     .thumb-pill.active {
         border-color: var(--accent-primary);
-        transform: scale(1.1);
+        transform: translateY(-3px);
         box-shadow: var(--shadow-md);
     }
 
@@ -97,171 +146,259 @@
         object-fit: cover;
     }
 
-    /* --- Right Editorial Content --- */
-    .product-manifesto {
-        margin-bottom: 1rem;
-    }
-
-    .manif-cat {
-        display: inline-block;
-        font-family: var(--font-display);
-        font-size: 0.65rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        color: var(--accent-primary);
-        margin-bottom: 0.5rem;
-    }
-
-    .manif-title {
-        font-family: var(--font-display);
-        font-size: 1.875rem;
-        font-weight: 800;
-        line-height: 1.1;
-        letter-spacing: -0.03em;
-        color: var(--midnight);
-        margin-bottom: 0.75rem;
-    }
-
-    .manif-price {
-        font-family: var(--font-display);
-        font-size: 1.5rem;
-        font-weight: 300;
-        color: var(--text-main);
-        letter-spacing: -0.02em;
-    }
-
-    .manif-section {
-        margin-top: 1.25rem;
-        padding-top: 1.25rem;
+    /* --- Variants: Colors & Sizes --- */
+    .variant-section {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
         border-top: 1px solid var(--border-subtle);
     }
 
-    .manif-section-title {
-        font-family: var(--font-display);
-        font-size: 0.875rem;
-        font-weight: 700;
-        margin-bottom: 0.75rem;
-        color: var(--midnight);
-    }
-
-    .manif-text {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        line-height: 1.6;
-        font-weight: 400;
-    }
-
-    /* Technical Specs as Glassy Badges */
-    .spec-cloud {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
-    }
-
-    .spec-card {
-        background: #fff;
-        border: 1px solid var(--border-subtle);
-        padding: 0.75rem;
-        border-radius: 10px;
-        transition: var(--transition-smooth);
-    }
-
-    .spec-card:hover {
-        border-color: var(--accent-primary);
-        background: var(--bg-base);
-    }
-
-    .spec-key {
-        display: block;
-        font-size: 0.65rem;
+    .variant-label {
+        font-size: 0.8125rem;
         font-weight: 800;
         text-transform: uppercase;
-        color: var(--text-muted);
-        letter-spacing: 0.1em;
-        margin-bottom: 0.25rem;
+        letter-spacing: 0.12em;
+        color: var(--midnight);
+        margin-bottom: 1rem;
+        display: block;
     }
 
-    .spec-val {
-        font-family: var(--font-display);
+    .color-grid {
+        display: flex;
+        gap: 0.875rem;
+        flex-wrap: wrap;
+    }
+
+    .color-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid #fff;
+        box-shadow: 0 0 0 1px var(--border-bold);
+        transition: var(--transition-smooth);
+        position: relative;
+    }
+
+    .color-circle:hover {
+        transform: scale(1.15);
+        box-shadow: 0 0 0 1px var(--accent-primary);
+    }
+
+    .color-circle.active {
+        box-shadow: 0 0 0 2px var(--accent-primary);
+        transform: scale(1.2);
+    }
+
+    .size-grid {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .size-box {
+        min-width: 54px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1.5px solid var(--border-bold);
+        border-radius: 14px;
+        font-size: 0.875rem;
         font-weight: 700;
-        font-size: 1rem;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        background: #fff;
         color: var(--midnight);
     }
 
-    /* Actions Bar */
-    .bag-action-bar {
-        margin-top: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
+    .size-box.active {
+        background: var(--midnight);
+        color: #fff;
+        border-color: var(--midnight);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
     }
 
-    .btn-bag-add {
+    .size-box:hover:not(.active) {
+        border-color: var(--accent-primary);
+        color: var(--accent-primary);
+        background: rgba(5, 150, 105, 0.03);
+    }
+
+    /* --- Bag Action Bar --- */
+    .bag-action-bar {
+        margin-top: 2.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .btn-bag-primary {
         background: var(--midnight);
         color: #fff;
         border: none;
-        border-radius: 12px;
-        padding: 1rem;
-        font-size: 0.9375rem;
+        border-radius: 16px;
+        padding: 1.4rem;
+        font-size: 1rem;
         font-family: var(--font-display);
-        font-weight: 700;
+        font-weight: 800;
         cursor: pointer;
         transition: var(--transition-smooth);
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.75rem;
-        box-shadow: var(--shadow-sm);
+        gap: 0.875rem;
+        box-shadow: var(--shadow-md);
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
     }
 
-    .btn-bag-add:hover {
-        background: var(--accent-primary);
+    .btn-bag-primary:hover {
+        background: #064e3b; /* Darker Emerald */
         transform: translateY(-4px);
-        box-shadow: 0 15px 40px rgba(5, 150, 105, 0.2);
+        box-shadow: 0 15px 35px rgba(5, 150, 105, 0.25);
     }
 
-    .btn-bag-add:active {
-        transform: translateY(0);
+    /* --- Notify Form Stylized --- */
+    .notify-card {
+        background: #fff;
+        border: 1px solid var(--border-bold);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--shadow-sm);
+        margin-top: 1rem;
     }
 
-    .back-nav {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--text-muted);
-        text-decoration: none;
+    .notify-badge {
+        display: inline-block;
+        background: #fef2f2;
+        color: #dc2626;
+        padding: 0.25rem 0.75rem;
+        border-radius: 99px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 0.75rem;
+    }
+
+    .notify-input-group {
+        display: flex;
+        background: var(--bg-base);
+        border: 1.5px solid var(--border-bold);
+        border-radius: 14px;
+        overflow: hidden;
+        margin-top: 1.25rem;
         transition: var(--transition-smooth);
-        margin-bottom: 1rem;
     }
 
-    .back-nav:hover {
-        color: var(--accent-primary);
-        transform: translateX(-5px);
+    .notify-input-group:focus-within {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
     }
 
-    @@media (max-width: 1024px) {
-        .details-grid {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
+    .notify-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 1rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-main);
+    }
 
-        .gallery-stack {
-            position: relative;
-            top: 0;
-        }
+    .notify-input:focus { outline: none; }
 
-        .manif-title {
-            font-size: 1.5rem;
-        }
+    .btn-notify-submit {
+        background: var(--midnight);
+        color: #fff;
+        border: none;
+        padding: 0 1.5rem;
+        font-weight: 700;
+        font-size: 0.8125rem;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+    }
+
+    .btn-notify-submit:hover {
+        background: var(--accent-primary);
+    }
+
+    /* --- Modal Zoom --- */
+    .zoom-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(14, 18, 27, 0.98);
+        backdrop-filter: blur(15px);
+        z-index: 2500;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .zoom-inner {
+        position: relative;
+        max-width: 90vw;
+        max-height: 90vh;
+    }
+
+    .zoom-content {
+        max-width: 100%;
+        max-height: 85vh;
+        border-radius: 20px;
+        object-fit: contain;
+        box-shadow: 0 50px 100px rgba(0,0,0,0.8);
+    }
+
+    .zoom-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255,255,255,0.1);
+        border: none;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        color: #fff;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .zoom-nav:hover { background: var(--accent-primary); transform: translateY(-50%) scale(1.1); }
+    .zoom-prev { left: -80px; }
+    .zoom-next { right: -80px; }
+
+    .zoom-close {
+        position: absolute;
+        top: -60px;
+        right: 0;
+        background: none;
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #fff;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+    }
+
+    .zoom-close:hover { background: #fff; color: #000; }
+
+    @@media (max-width: 1100px) {
+        .zoom-nav { width: 44px; height: 44px; }
+        .zoom-prev { left: 10px; }
+        .zoom-next { right: 10px; }
     }
 </style>
 
 <div class="container details-page fade-in">
     <a asp-action="Index" class="back-nav">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
@@ -270,24 +407,34 @@
 
     <div class="details-grid">
         <div class="gallery-stack">
-            <div class="main-visual-wrap">
-                @if (mainImage != null)
+            <div class="main-visual-container" onclick="openZoom()">
+                @if (images.Any())
                 {
                     <img src="@mainImage.ImageUrl" id="heroImage" class="main-img-show" alt="@Model.Name">
+                    @if (images.Count > 1)
+                    {
+                        <button class="slider-nav nav-prev" onclick="event.stopPropagation(); moveSlider(-1)">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </button>
+                        <button class="slider-nav nav-next" onclick="event.stopPropagation(); moveSlider(1)">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
+                    }
                 }
                 else
                 {
-                    <div class="main-emoji-hero">@emoji</div>
+                    <div style="font-size: 6rem; opacity: 0.2; padding: 4rem;">@emoji</div>
                 }
             </div>
 
             @if (images.Count > 1)
             {
                 <div class="thumb-pills">
-                    @foreach (var img in images)
+                    @for (int i = 0; i < images.Count; i++)
                     {
-                        <div class="thumb-pill @(img == mainImage ? "active" : "")" onclick="updateHero('@img.ImageUrl', this)">
-                            <img src="@img.ImageUrl" alt="Detail View">
+                        <div class="thumb-pill @(images[i] == mainImage ? "active" : "")" 
+                             onclick="updateHero('@images[i].ImageUrl', this, @i)">
+                            <img src="@images[i].ImageUrl" alt="Detail View">
                         </div>
                     }
                 </div>
@@ -295,66 +442,64 @@
         </div>
 
         <div class="editorial-side">
-            <div class="product-manifesto">
-                <span class="manif-cat">Handpicked @typeName Selection</span>
-                <h1 class="manif-title">@Model.Name</h1>
-                <div class="manif-price">@Model.Price.ToString("C0")</div>
-            </div>
-
-            <div class="manif-section">
-                <h3 class="manif-section-title">The Concept</h3>
-                <p class="manif-text">@Model.GetDescription()</p>
-            </div>
-
-            <div class="manif-section">
-                <h3 class="manif-section-title">Specifications</h3>
-                <div class="spec-cloud">
-                    @if (Model is ElectronicProduct electro)
-                    {
-                        <div class="spec-card">
-                            <span class="spec-key">Protection</span>
-                            <span class="spec-val">@electro.WarrantyMonths Months Warranty</span>
-                        </div>
-                    }
-                    else if (Model is ClothingProduct clothing)
-                    {
-                        <div class="spec-card">
-                            <span class="spec-key">Size & Fit</span>
-                            <span class="spec-val">@clothing.Size</span>
-                        </div>
-                        <div class="spec-card">
-                            <span class="spec-key">Material</span>
-                            <span class="spec-val">@clothing.Material</span>
-                        </div>
-                    }
-                    else if (Model is VehicleProduct vehicle)
-                    {
-                        <div class="spec-card">
-                            <span class="spec-key">Maker</span>
-                            <span class="spec-val">@vehicle.Brand</span>
-                        </div>
-                        <div class="spec-card">
-                            <span class="spec-key">Definition</span>
-                            <span class="spec-val">@vehicle.Model (@vehicle.Year)</span>
-                        </div>
-                    }
-                    <div class="spec-card">
-                        <span class="spec-key">Status</span>
-                        <span class="spec-val" style="color: @(Model.Stock > 0 ? "var(--accent-primary)" : "#dc2626")">
-                            @(Model.Stock > 0 ? "In Stock & Ready" : "Currently Unavailable")
-                        </span>
-                    </div>
+            <div class="product-header">
+                <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--accent-primary); letter-spacing: 0.1em; display: block; margin-bottom: 0.5rem;">
+                    Handpicked @typeName Selection
+                </span>
+                <h1 style="font-family: var(--font-display); font-size: 3.5rem; font-weight: 800; color: var(--midnight); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0.75rem;">
+                    @Model.Name
+                </h1>
+                <div style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 800; color: var(--midnight);">
+                    @priceSymbol@Model.Price.ToString("N0")
                 </div>
             </div>
+
+            <div style="margin-top: 2rem;">
+                <h3 style="font-size: 0.875rem; font-weight: 800; text-transform: uppercase; color: var(--midnight); margin-bottom: 0.75rem;">The Concept</h3>
+                <p style="font-size: 1rem; color: var(--text-muted); line-height: 1.7; max-width: 520px;">
+                    Experience exceptional quality with our curated @Model.Name. Designed for those who value craftsmanship and timeless aesthetics.
+                    @if(Model is ElectronicProduct electro) {
+                        <span> Guaranteed performance with @electro.WarrantyMonths months warranty.</span>
+                    }
+                </p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.AvailableColors))
+            {
+                <div class="variant-section">
+                    <span class="variant-label">Select Color</span>
+                    <div class="color-grid">
+                        @foreach (var color in Model.AvailableColors.Split(','))
+                        {
+                            <div class="color-circle" style="background-color: @color.Trim()" 
+                                 title="@color.Trim()" onclick="selectColor('@color.Trim()', this)"></div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (clothingModel != null && !string.IsNullOrEmpty(clothingModel.AvailableSizes))
+            {
+                <div class="variant-section">
+                    <span class="variant-label">Select Size</span>
+                    <div class="size-grid">
+                        @foreach (var size in clothingModel.AvailableSizes.Split(','))
+                        {
+                            <div class="size-box" onclick="selectSize('@size.Trim()', this)">@size.Trim()</div>
+                        }
+                    </div>
+                </div>
+            }
 
             <div class="bag-action-bar">
                 @if (Model.Stock > 0)
                 {
-                    <form asp-controller="Cart" asp-action="Add" asp-route-id="@Model.Id" method="post" style="width: 100%">
-                        <button type="submit" class="btn-bag-add">
+                    <form asp-controller="Cart" asp-action="Add" asp-route-id="@Model.Id" method="post" id="addToCartForm">
+                        <input type="hidden" name="size" id="selectedSize">
+                        <input type="hidden" name="color" id="selectedColor">
+                        <button type="submit" class="btn-bag-primary">
                             <span>Add to Shopping Bag</span>
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2.5">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                 <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path>
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
                                 <path d="M16 10a4 4 0 0 1-8 0"></path>
@@ -364,31 +509,120 @@
                 }
                 else
                 {
-                    <button class="btn-bag-add" disabled
-                        style="opacity: 0.5; background: var(--text-muted); cursor: not-allowed;">
-                        Out of Stock
-                    </button>
+                    <div class="notify-card">
+                        <span class="notify-badge">Out of Stock</span>
+                        <h4 style="font-size: 1.125rem; font-weight: 800; color: var(--midnight); margin-bottom: 0.5rem;">Join the Waitlist</h4>
+                        <p style="font-size: 0.8125rem; color: var(--text-muted); line-height: 1.5;">We strictly curate our inventory. Provide your email to be notified the moment this item returns to our collection.</p>
+                        
+                        <form asp-controller="Cart" asp-action="NotifyMe" method="post">
+                            <input type="hidden" name="productId" value="@Model.Id">
+                            <div class="notify-input-group">
+                                <input type="email" name="email" class="notify-input" placeholder="Enter your email address" required>
+                                <button type="submit" class="btn-notify-submit">Notify Me</button>
+                            </div>
+                        </form>
+                    </div>
                 }
 
-                <p style="text-align: center; font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.025em;">
-                    Free shipping on orders over €200. Secure checkout.
-                </p>
+                <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(5, 150, 105, 0.03); border-radius: 16px; border: 1px solid rgba(5, 150, 105, 0.1);">
+                    <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2.5" style="margin-top: 2px;">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        <div>
+                            <span style="font-weight: 700; color: var(--midnight); font-size: 0.8125rem; display: block; margin-bottom: 0.25rem;">Complimentary Logistics</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">Free worldwide shipping on orders above @priceSymbol@ApplicationConfigurationManager.Instance.FreeShippingThreshold. Standard delivery: 3-5 business days.</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Modal Zoom -->
+<div id="zoomModal" class="zoom-modal" onclick="closeZoom()">
+    <button class="zoom-close" onclick="closeZoom()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    <div class="zoom-inner">
+        <img id="zoomImg" class="zoom-content" src="" onclick="event.stopPropagation()">
+        @if (images.Count > 1)
+        {
+            <button class="zoom-nav zoom-prev" onclick="event.stopPropagation(); moveSlider(-1)">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <button class="zoom-nav zoom-next" onclick="event.stopPropagation(); moveSlider(1)">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+        }
+    </div>
+</div>
+
 <script>
-    function updateHero(src, el) {
+    const imagesArray = @Html.Raw(Json.Serialize(images.Select(i => i.ImageUrl)));
+    let currentIdx = 0;
+
+    function updateHero(src, el, idx) {
+        currentIdx = idx;
         const hero = document.getElementById('heroImage');
+        const zoom = document.getElementById('zoomImg');
+        
         if (hero) {
-            hero.style.opacity = '0';
+            hero.style.opacity = '0.4';
             setTimeout(() => {
                 hero.src = src;
                 hero.style.opacity = '1';
-            }, 200);
+                if (zoom) zoom.src = src;
+            }, 100);
         }
         document.querySelectorAll('.thumb-pill').forEach(tp => tp.classList.remove('active'));
+        if(el) el.classList.add('active');
+        else {
+             const thumbs = document.querySelectorAll('.thumb-pill');
+             if(thumbs[idx]) thumbs[idx].classList.add('active');
+        }
+    }
+
+    function moveSlider(dir) {
+        if (!imagesArray.length) return;
+        currentIdx = (currentIdx + dir + imagesArray.length) % imagesArray.length;
+        updateHero(imagesArray[currentIdx], null, currentIdx);
+    }
+
+    function openZoom() {
+        const modal = document.getElementById('zoomModal');
+        const zoomImg = document.getElementById('zoomImg');
+        const heroImg = document.getElementById('heroImage');
+        if(heroImg) {
+            zoomImg.src = heroImg.src;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeZoom() {
+        document.getElementById('zoomModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function selectSize(size, el) {
+        document.getElementById('selectedSize').value = size;
+        document.querySelectorAll('.size-box').forEach(b => b.classList.remove('active'));
         el.classList.add('active');
     }
+
+    function selectColor(color, el) {
+        document.getElementById('selectedColor').value = color;
+        document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (document.getElementById('zoomModal').style.display === 'flex') {
+            if (e.key === 'ArrowLeft') moveSlider(-1);
+            if (e.key === 'ArrowRight') moveSlider(1);
+            if (e.key === 'Escape') closeZoom();
+        }
+    });
 </script>
