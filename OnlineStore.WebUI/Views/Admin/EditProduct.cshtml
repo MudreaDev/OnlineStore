@@ -6,42 +6,42 @@
 
 <style>
     .admin-form-container {
-        max-width: 750px;
-        margin: 3rem auto 6rem;
+        max-width: 650px;
+        margin: 1.5rem auto 3rem;
     }
 
     .form-card {
         background: #fff;
         border: 1px solid var(--border-subtle);
-        border-radius: 32px;
-        padding: 4rem;
+        border-radius: 24px;
+        padding: 2.5rem;
         box-shadow: var(--shadow-lg);
     }
 
     .form-title {
         font-family: var(--font-display);
-        font-size: 2.5rem;
+        font-size: 1.75rem;
         font-weight: 800;
         color: var(--midnight);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
         letter-spacing: -0.02em;
     }
 
     .form-subtitle {
         font-family: var(--font-body);
-        font-size: 0.9375rem;
+        font-size: 0.8125rem;
         color: var(--text-muted);
-        margin-bottom: 3rem;
+        margin-bottom: 2rem;
     }
 
     .form-section-title {
         font-family: var(--font-display);
-        font-size: 0.75rem;
+        font-size: 0.65rem;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         color: var(--accent-primary);
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
         display: block;
     }
 
@@ -52,7 +52,7 @@
     }
 
     .field-group {
-        margin-bottom: 2rem;
+        margin-bottom: 1.25rem;
     }
 
     .field-label {
@@ -67,10 +67,10 @@
         width: 100%;
         background: var(--bg-base);
         border: 1.5px solid var(--border-subtle);
-        border-radius: 12px;
-        padding: 0.875rem 1.25rem;
+        border-radius: 10px;
+        padding: 0.65rem 1rem;
         font-family: var(--font-body);
-        font-size: 0.9375rem;
+        font-size: 0.875rem;
         transition: var(--transition-smooth);
         outline: none;
     }
@@ -82,16 +82,16 @@
     }
 
     .media-management {
-        margin-top: 4rem;
-        padding-top: 3rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
         border-top: 1px solid var(--border-subtle);
     }
 
     .inventory-images {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
     }
 
     .asset-item {
@@ -145,18 +145,43 @@
         box-shadow: var(--shadow-md);
     }
 
+    .btn-asset-master {
+        background: #fff;
+        color: var(--accent-primary);
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--shadow-md);
+    }
+
+    .asset-item.is-master {
+        border-color: var(--accent-primary);
+        border-width: 2px;
+    }
+
     .badge-master {
         position: absolute;
-        top: 8px;
-        left: 8px;
+        bottom: 0;
+        left: 0;
+        right: 0;
         background: var(--accent-primary);
         color: #fff;
         font-size: 0.6rem;
         font-weight: 800;
-        padding: 2px 8px;
-        border-radius: 6px;
+        padding: 4px 0;
+        text-align: center;
         text-transform: uppercase;
         z-index: 5;
+        display: none;
+    }
+
+    .asset-item.is-master .badge-master {
+        display: block;
     }
 
     .staged-delete-label {
@@ -175,14 +200,14 @@
         background: var(--midnight);
         color: #fff;
         border: none;
-        border-radius: 16px;
-        padding: 1.25rem;
+        border-radius: 12px;
+        padding: 1rem;
         font-family: var(--font-display);
         font-weight: 700;
-        font-size: 1rem;
+        font-size: 0.9375rem;
         cursor: pointer;
         width: 100%;
-        margin-top: 3rem;
+        margin-top: 1.5rem;
         transition: var(--transition-smooth);
         box-shadow: var(--shadow-md);
     }
@@ -307,20 +332,19 @@
 
             <div class="media-management">
                 <span class="form-section-title">Visual Library (@Model.Images.Count/5)</span>
+                <input type="hidden" name="mainImagePublicId" id="mainImagePublicId" value="@(Model.Images.FirstOrDefault(i => i.IsMain)?.PublicId)" />
+                <input type="hidden" name="mainNewImageIndex" id="mainNewImageIndex" value="" />
 
                 @if (Model.Images.Any())
                 {
                     <div class="inventory-images">
                         @foreach (var img in Model.Images.OrderBy(i => i.DisplayOrder))
                         {
-                            <div class="asset-item" id="asset-@img.PublicId.Replace("/", "-").Replace(".", "-")">
+                            <div class="asset-item @(img.IsMain ? "is-master" : "")" id="asset-@img.PublicId.Replace("/", "-").Replace(".", "-")" onclick="setExistingMaster('@img.PublicId', this)">
                                 <img src="@img.ImageUrl" alt="Product Insight">
-                                @if (img.IsMain)
-                                {
-                                    <span class="badge-master">Master</span>
-                                }
+                                <span class="badge-master">Master</span>
                                 <div class="asset-overlay">
-                                    <button type="button" class="btn-asset-remove" onclick="stageDeletion('@img.PublicId')">
+                                    <button type="button" class="btn-asset-remove" onclick="event.stopPropagation(); stageDeletion('@img.PublicId')">
                                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                             <polyline points="3 6 5 6 21 6"></polyline>
                                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7"></path>
@@ -393,19 +417,61 @@
         else input.value = color;
     }
 
+    function setExistingMaster(pid, el) {
+        document.getElementById('mainImagePublicId').value = pid;
+        document.getElementById('mainNewImageIndex').value = '';
+        document.querySelectorAll('.asset-item').forEach(i => i.classList.remove('is-master'));
+        el.classList.add('is-master');
+    }
+
+    let selectedFiles = [];
+    let newMasterIndex = null;
+
     function previewSupplement(input) {
+        const files = Array.from(input.files);
+        files.forEach(file => selectedFiles.push(file));
+        updateSupplementPreview();
+    }
+
+    function updateSupplementPreview() {
         const grid = document.getElementById('supplementPreview');
         grid.innerHTML = '';
-        Array.from(input.files).forEach(file => {
+        
+        const dt = new DataTransfer();
+        selectedFiles.forEach(f => dt.items.add(f));
+        document.getElementById('newImagesInp').files = dt.files;
+
+        selectedFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const item = document.createElement('div');
-                item.className = 'asset-item';
+                item.className = `asset-item ${newMasterIndex === index ? 'is-master' : ''}`;
                 item.style.borderColor = 'var(--accent-primary)';
-                item.innerHTML = `<img src="${e.target.result}">`;
+                item.innerHTML = `
+                    <img src="${e.target.result}" onclick="setNewMaster(${index})">
+                    <span class="badge-master">Master</span>
+                    <div class="asset-overlay">
+                        <button type="button" class="btn-asset-remove" onclick="event.stopPropagation(); removeNewImage(${index})">✕</button>
+                    </div>
+                `;
                 grid.appendChild(item);
             }
             reader.readAsDataURL(file);
         });
+        document.getElementById('mainNewImageIndex').value = newMasterIndex !== null ? newMasterIndex : '';
     }
-</script> 
+
+    function removeNewImage(index) {
+        selectedFiles.splice(index, 1);
+        if (newMasterIndex === index) newMasterIndex = null;
+        else if (newMasterIndex > index) newMasterIndex--;
+        updateSupplementPreview();
+    }
+
+    function setNewMaster(index) {
+        newMasterIndex = index;
+        document.getElementById('mainImagePublicId').value = '';
+        document.querySelectorAll('.asset-item').forEach(i => i.classList.remove('is-master'));
+        updateSupplementPreview();
+    }
+</script>

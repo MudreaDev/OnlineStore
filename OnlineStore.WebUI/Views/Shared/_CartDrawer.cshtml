@@ -1,0 +1,201 @@
+@using OnlineStore.Domain.Singleton
+@{
+    var cartItems = ViewBag.CartItems as List<(OnlineStore.Domain.Entities.Product Product, int Quantity, string? Size, string? Color)>;
+    decimal total = ViewBag.Total ?? 0;
+    decimal freeShippingThreshold = ViewBag.FreeShippingThreshold ?? 1000m;
+}
+
+<style>
+    .cart-item-luxury {
+        display: grid;
+        grid-template-columns: 60px 1fr;
+        gap: 1rem;
+        background: var(--surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 14px;
+        padding: 0.75rem;
+        align-items: center;
+        transition: var(--transition-smooth);
+        margin-bottom: 0.75rem;
+    }
+
+    .item-visual {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        background: #fdfdfb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .item-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .item-info h4 {
+        font-family: var(--font-display);
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--midnight);
+        margin-bottom: 0.1rem;
+    }
+
+    .item-info .item-cat {
+        font-size: 0.6rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--accent-primary);
+        letter-spacing: 0.05em;
+    }
+
+    .qty-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--bg-base);
+        padding: 0.2rem 0.5rem;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+
+    .qty-btn {
+        background: none;
+        border: none;
+        color: var(--midnight);
+        font-size: 1rem;
+        cursor: pointer;
+        padding: 0 0.25rem;
+        transition: 0.2s;
+    }
+
+    .qty-btn:hover { color: var(--accent-primary); }
+
+    .item-price {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 0.8125rem;
+        color: var(--midnight);
+    }
+
+    .remove-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 0.4rem;
+        border-radius: 8px;
+        transition: 0.2s;
+    }
+
+    .remove-btn:hover {
+        background: #fee2e2;
+        color: #ef4444;
+    }
+
+    /* Progress bar sync */
+    .progress-bar-container {
+        background: var(--border-subtle);
+        height: 4px;
+        border-radius: 2px;
+        margin-top: 0.5rem;
+        overflow: hidden;
+    }
+</style>
+
+<div class="cart-items-list" style="max-height: calc(100vh - 250px); overflow-y: auto; padding-right: 10px;">
+    @if (cartItems == null || !cartItems.Any())
+    {
+        <div style="text-align: center; padding: 2rem 0; color: var(--text-muted);">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 1rem; opacity: 0.5;">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <p>Your cart is empty.</p>
+            <button onclick="document.body.classList.remove('cart-open')" style="margin-top: 1rem; background: var(--midnight); color: #fff; padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer;">Continue Shopping</button>
+        </div>
+    }
+    else
+    {
+        foreach (var item in cartItems)
+        {
+            var product = item.Product;
+            var typeName = product.GetType().Name.Replace("Product", "");
+            var imageUrl = product.Images.FirstOrDefault()?.ImageUrl;
+            var itemKey = $"{product.Id}_{item.Size}_{item.Color}".Replace("-", "").Replace(" ", "");
+
+            <div class="cart-item-luxury">
+                <div class="item-visual">
+                    @if (!string.IsNullOrEmpty(imageUrl))
+                    {
+                        <img src="@imageUrl" alt="@product.Name" class="item-img" />
+                    }
+                    else
+                    {
+                        <span class="item-emoji">📦</span>
+                    }
+                </div>
+
+                <div class="item-info">
+                    <h4>@product.Name</h4>
+                    <span class="item-cat">@typeName</span>
+                    
+                    @if(!string.IsNullOrEmpty(item.Size) || !string.IsNullOrEmpty(item.Color))
+                    {
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem; font-weight: 500;">
+                            @if(!string.IsNullOrEmpty(item.Size)) { <span>Size: @item.Size</span> }
+                            @if(!string.IsNullOrEmpty(item.Color)) { <span style="margin-left: 8px;">Color: @item.Color</span> }
+                        </div>
+                    }
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                        <div class="qty-wrap" id="item-row-@itemKey">
+                            <button type="button" class="qty-btn" onclick="updateQty(-1, '@product.Id', '@item.Size', '@item.Color')" id="dec-@itemKey" @(item.Quantity <= 1 ? "disabled" : "")>−</button>
+                            <span id="qty-@itemKey">@item.Quantity</span>
+                            <button type="button" class="qty-btn" onclick="updateQty(1, '@product.Id', '@item.Size', '@item.Color')" id="inc-@itemKey" @(item.Quantity >= product.Stock ? "disabled" : "")>+</button>
+                        </div>
+                        <div class="item-price" id="total-@itemKey">@((product.Price * item.Quantity).ToString("C0"))</div>
+                        
+                        <form asp-controller="Cart" asp-action="Remove" method="post" style="margin: 0;">
+                            <input type="hidden" name="id" value="@product.Id" />
+                            <input type="hidden" name="size" value="@item.Size" />
+                            <input type="hidden" name="color" value="@item.Color" />
+                            <button type="submit" class="remove-btn" title="Remove">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@if (cartItems != null && cartItems.Any())
+{
+    <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem; background: var(--surface); border-top: 1px solid var(--border-subtle); box-shadow: 0 -4px 12px rgba(0,0,0,0.05);">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-family: var(--font-display); font-weight: 800; font-size: 1.125rem;">
+            <span>Subtotal</span>
+            <span id="overall-cart-total">@total.ToString("C2")</span>
+        </div>
+        
+        @if(total < freeShippingThreshold && total > 0)
+        {
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; text-align: center;">
+                Adaugă de <b>@((freeShippingThreshold - total).ToString("C2"))</b> pt transport gratuit. 
+                <div class="progress-bar-container">
+                    <div style="background: var(--accent-primary); height: 100%; width: @((total/freeShippingThreshold)*100)%;"></div>
+                </div>
+            </div>
+        }
+
+        <a asp-controller="Cart" asp-action="Index" class="btn-checkout-link" style="display: block; width: 100%; background: var(--midnight); color: #fff; padding: 1rem; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; text-align: center; text-decoration: none;">
+            Mergi la Checkout
+        </a>
+    </div>
+}

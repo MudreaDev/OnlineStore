@@ -81,6 +81,14 @@ namespace OnlineStore.WebUI.Controllers
             ViewBag.TotalRevenue = orders.Sum(o => o.Total);
             ViewBag.LowStock = products.Count(p => p.Stock < 5);
 
+            ViewBag.Categories = _context.Categories.ToList();
+            ViewBag.SubCategories = _context.SubCategories.Select(s => new { 
+                Id = s.Id, 
+                Name = s.Name, 
+                ParentName = s.Category.Name,
+                Attributes = s.ExpectedAttributes 
+            }).ToList();
+
             return View();
         }
 
@@ -122,7 +130,7 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddProduct(string type, string name, decimal price, int? stock, int? warrantyMonths, string size, string material, string availableSizes, string availableColors, string brand, string model, int? year, List<IFormFile>? images)
+        public async Task<IActionResult> AddProduct(string type, string name, decimal price, int? stock, int? warrantyMonths, string size, string material, string availableSizes, string availableColors, string brand, string model, int? year, List<IFormFile>? images, int mainImageIndex = 0)
         {
             var accessCheck = CheckAccess();
             if (accessCheck != null) return accessCheck;
@@ -132,6 +140,7 @@ namespace OnlineStore.WebUI.Controllers
                 "Electronic" => new ElectronicProductFactory(),
                 "Clothing" => new ClothingProductFactory(),
                 "Vehicle" => new VehicleProductFactory(),
+                "Dynamic" => new DynamicProductFactory(),
                 _ => null
             };
 
@@ -158,6 +167,18 @@ namespace OnlineStore.WebUI.Controllers
                     if (!string.IsNullOrEmpty(model)) vehicle.Model = model;
                     if (year.HasValue) vehicle.Year = year.Value;
                 }
+                else if (newProduct is DynamicProduct dynamicProduct)
+                {
+                    if (Guid.TryParse(HttpContext.Request.Form["subcategoryId"], out Guid subcatId))
+                        dynamicProduct.SubCategoryId = subcatId;
+
+                    foreach (var key in HttpContext.Request.Form.Keys.Where(k => k.StartsWith("dyn_")))
+                    {
+                        var attrKey = key.Substring(4);
+                        var value = HttpContext.Request.Form[key].ToString();
+                        if (value != null) dynamicProduct.CustomAttributes[attrKey] = value;
+                    }
+                }
 
                 _productRepo.Add(newProduct);
 
@@ -176,7 +197,7 @@ namespace OnlineStore.WebUI.Controllers
                                 ProductId = newProduct.Id,
                                 ImageUrl = uploadResult.Url,
                                 PublicId = uploadResult.PublicId,
-                                IsMain = (i == 0),
+                                IsMain = (i == mainImageIndex),
                                 DisplayOrder = i
                             };
                             
@@ -196,6 +217,67 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpGet]
+        public IActionResult GetSubcategories()
+        {
+            var subs = _context.SubCategories.Select(s => new {
+                id = s.Id,
+                name = s.Name,
+                expectedAttributes = s.ExpectedAttributes
+            }).ToList();
+            return Json(subs);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCategory(string categoryName, IFormFile? categoryImage, bool isFeatured = true)
+        {
+            var accessCheck = CheckAccess();
+            if (accessCheck != null) return accessCheck;
+
+            if (!string.IsNullOrEmpty(categoryName))
+            {
+                var category = new Category 
+                { 
+                    Name = categoryName,
+                    IsFeatured = isFeatured
+                };
+
+                if (categoryImage != null)
+                {
+                    var uploadResult = await _cloudinaryService.UploadImageAsync(categoryImage);
+                    category.ImageUrl = uploadResult.Url;
+                    category.PublicId = uploadResult.PublicId;
+                }
+
+                _context.Categories.Add(category);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Categoria vizuală '{categoryName}' a fost creată!";
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult CreateTaxonomy(Guid parentCategoryId, string taxonomyName, string attributesCsv)
+        {
+            var accessCheck = CheckAccess();
+            if (accessCheck != null) return accessCheck;
+
+            if (!string.IsNullOrEmpty(taxonomyName))
+            {
+                var sub = new SubCategory
+                {
+                    Name = taxonomyName,
+                    ExpectedAttributes = attributesCsv,
+                    CategoryId = parentCategoryId
+                };
+
+                _context.SubCategories.Add(sub);
+                _context.SaveChanges();
+                TempData["Success"] = $"Sub-categoria '{taxonomyName}' a fost creată cu succes!";
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
         public IActionResult EditProduct(Guid id)
         {
             var accessCheck = CheckAccess();
@@ -208,7 +290,7 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditProduct(Guid id, string name, decimal price, int? stock, int? warrantyMonths, string size, string material, string availableSizes, string availableColors, string brand, string model, int? year, List<IFormFile>? newImages, List<string>? deletePublicIds)
+        public async Task<IActionResult> EditProduct(Guid id, string name, decimal price, int? stock, int? warrantyMonths, string size, string material, string availableSizes, string availableColors, string brand, string model, int? year, List<IFormFile>? newImages, List<string>? deletePublicIds, string? mainImagePublicId, int? mainNewImageIndex)
         {
             var accessCheck = CheckAccess();
             if (accessCheck != null) return accessCheck;
@@ -260,6 +342,17 @@ namespace OnlineStore.WebUI.Controllers
                 await _context.SaveChangesAsync();
             }
 
+            // Handle Master Image selection for existing images
+            if (!string.IsNullOrEmpty(mainImagePublicId))
+            {
+                var allImgs = _context.ProductImages.Where(pi => pi.ProductId == id).ToList();
+                foreach (var img in allImgs)
+                {
+                    img.IsMain = (img.PublicId == mainImagePublicId);
+                }
+                await _context.SaveChangesAsync();
+            }
+
             // Handle new uploads
             if (newImages != null && newImages.Any())
             {
@@ -281,7 +374,7 @@ namespace OnlineStore.WebUI.Controllers
                                 ProductId = id,
                                 ImageUrl = uploadResult.Url,
                                 PublicId = uploadResult.PublicId,
-                                IsMain = (existingCount == 0 && i == 0),
+                                IsMain = (i == mainNewImageIndex && string.IsNullOrEmpty(mainImagePublicId)),
                                 DisplayOrder = existingCount + i
                             };
                             
@@ -352,6 +445,22 @@ namespace OnlineStore.WebUI.Controllers
 
             _productRepo.Add(clone);
             return RedirectToAction("Products");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleCategoryFeatured(Guid id)
+        {
+            var accessCheck = CheckAccess();
+            if (accessCheck != null) return accessCheck;
+
+            var category = await _context.Categories.FindAsync(id);
+            if (category != null)
+            {
+                category.IsFeatured = !category.IsFeatured;
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Statusul categoriei '{category.Name}' a fost actualizat.";
+            }
+            return RedirectToAction("Index");
         }
 
         [HttpPost]

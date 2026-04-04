@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using OnlineStore.Application.Repositories;
@@ -215,7 +215,7 @@ namespace OnlineStore.ConsoleUI
             IDiscountStrategy discount = new FixedAmountDiscountStrategy(50); // $50 off
             OrderService orderService = new OrderService(discount);
 
-            Order order = orderService.PlaceOrder(currentUser, orderItems);
+            Order order = orderService.PlaceOrder(currentUser, orderItems, "N/A", "N/A");
             orderRepo.Add(order);
 
             // Update Customer history

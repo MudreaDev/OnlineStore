@@ -1,298 +1,262 @@
 @using OnlineStore.Domain.Entities
+@inject OnlineStore.Application.Data.OnlineStoreDbContext _context
 @{
-    ViewData["Title"] = "New Inventory Item";
+    ViewData["Title"] = "Add Item";
+    var categories = _context.Categories.ToList();
 }
 
 <style>
     .admin-form-container {
-        max-width: 650px;
-        margin: 3rem auto 6rem;
+        width: 100%;
+        max-width: 1100px;
+        margin: 1rem auto 3rem;
+        padding: 0 2rem;
     }
 
     .form-card {
         background: #fff;
         border: 1px solid var(--border-subtle);
-        border-radius: 32px;
-        padding: 4rem;
-        box-shadow: var(--shadow-lg);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+
+    .form-header {
+        margin-bottom: 2rem;
     }
 
     .form-title {
         font-family: var(--font-display);
-        font-size: 2.5rem;
+        font-size: 1.75rem;
         font-weight: 800;
         color: var(--midnight);
-        margin-bottom: 0.5rem;
-        letter-spacing: -0.02em;
+        margin: 0;
     }
 
-    .form-subtitle {
-        font-family: var(--font-body);
-        font-size: 0.9375rem;
-        color: var(--text-muted);
-        margin-bottom: 3rem;
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
     }
 
     .form-section-title {
-        font-family: var(--font-display);
         font-size: 0.75rem;
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         color: var(--accent-primary);
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
         display: block;
+        border-bottom: 1px solid #f1f5f9;
+        padding-bottom: 0.5rem;
     }
 
     .field-group {
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
     }
 
     .field-label {
-        font-size: 0.8125rem;
+        font-size: 0.8rem;
         font-weight: 700;
-        color: var(--midnight);
-        margin-bottom: 0.625rem;
+        color: #334155;
+        margin-bottom: 0.5rem;
         display: block;
     }
 
     .premium-input {
         width: 100%;
-        background: var(--bg-base);
-        border: 1.5px solid var(--border-subtle);
-        border-radius: 12px;
-        padding: 0.875rem 1.25rem;
-        font-family: var(--font-body);
-        font-size: 0.9375rem;
-        transition: var(--transition-smooth);
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        transition: 0.2s;
         outline: none;
     }
 
     .premium-input:focus {
-        background: #fff;
         border-color: var(--accent-primary);
-        box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.08);
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.05);
     }
 
     .type-container {
-        background: rgba(5, 150, 105, 0.03);
-        border-left: 3px solid var(--accent-primary);
-        padding: 2rem;
-        border-radius: 0 16px 16px 0;
-        margin: 2rem 0;
+        background: #fdfdfd;
+        border: 1px solid #f1f5f9;
+        padding: 1.25rem;
+        border-radius: 12px;
+        margin-top: 1rem;
     }
 
-    /* Image Upload Area */
-    .upload-box {
-        border: 2px dashed var(--border-bold);
-        border-radius: 20px;
-        padding: 3rem;
+    /* Images */
+    .upload-area {
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 1.5rem;
         text-align: center;
         cursor: pointer;
-        transition: var(--transition-smooth);
-        background: var(--bg-base);
+        background: #f8fafc;
+        transition: 0.2s;
     }
 
-    .upload-box:hover {
+    .upload-area:hover {
         border-color: var(--accent-primary);
         background: #fff;
     }
 
-    .upload-icon-wrap {
-        width: 48px;
-        height: 48px;
-        background: #fff;
-        border: 1px solid var(--border-subtle);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.25rem;
-        color: var(--accent-primary);
-        box-shadow: var(--shadow-sm);
-    }
-
-    .preview-list {
+    .preview-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-        gap: 1rem;
-        margin-top: 2rem;
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 0.75rem;
+        margin-top: 1.5rem;
     }
 
-    .preview-thumb {
+    .thumb-box {
         position: relative;
         aspect-ratio: 1;
-        border-radius: 12px;
+        border-radius: 8px;
         overflow: hidden;
-        border: 1px solid var(--border-subtle);
-        box-shadow: var(--shadow-sm);
+        border: 1px solid #e2e8f0;
     }
 
-    .preview-thumb img {
+    .thumb-box img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
 
-    .btn-submit-form {
+    .btn-submit {
         background: var(--midnight);
         color: #fff;
         border: none;
-        border-radius: 16px;
-        padding: 1.25rem;
-        font-family: var(--font-display);
+        padding: 1rem;
+        border-radius: 10px;
         font-weight: 700;
-        font-size: 1rem;
-        cursor: pointer;
         width: 100%;
-        margin-top: 3rem;
-        transition: var(--transition-smooth);
-        box-shadow: var(--shadow-md);
+        cursor: pointer;
+        margin-top: 2rem;
+        font-size: 0.9rem;
     }
 
-    .btn-submit-form:hover {
+    .btn-submit:hover {
         background: var(--accent-primary);
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(5, 150, 105, 0.2);
-    }
-
-    /* Color Palette Helper */
-    .palette-helper {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-    }
-    .color-picker-trigger {
-        width: 40px;
-        height: 40px;
-        padding: 0;
-        border: 1px solid var(--border-subtle);
-        border-radius: 8px;
-        cursor: pointer;
-    }
-    .btn-add-variant {
-        background: var(--border-subtle);
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: var(--transition-smooth);
-    }
-    .btn-add-variant:hover {
-        background: var(--border-bold);
     }
 </style>
 
-<div class="admin-form-container fade-in">
+<div class="admin-form-container">
     <div class="form-header">
-        <h1 class="form-title">Add Item</h1>
-        <p class="form-subtitle">Define the characteristics of your new collection piece.</p>
+        <h1 class="form-title">📦 New Inventory <span style="color: var(--accent-primary)">Item</span></h1>
     </div>
 
     <div class="form-card">
         <form asp-action="AddProduct" method="post" enctype="multipart/form-data">
-            <span class="form-section-title">Core Identity</span>
+            <div class="form-grid">
+                <!-- Left Column: Core Info -->
+                <div>
+                    <span class="form-section-title">Core Identity</span>
+                    
+                    <div class="field-group">
+                        <label class="field-label">Engine Classification</label>
+                        <select name="Type" id="Type" class="premium-input" onchange="toggleFields()">
+                            <option value="Dynamic">⚡ Dynamic Taxonomy (Custom Categories)</option>
+                            <option value="Electronic">Electronic (Legacy)</option>
+                            <option value="Clothing">Clothing (Legacy)</option>
+                            <option value="Vehicle">Vehicle (Legacy)</option>
+                        </select>
+                    </div>
 
-            <div class="field-group">
-                <label for="Type" class="field-label">Category Classification</label>
-                <select name="Type" id="Type" class="premium-input" onchange="toggleFields()">
-                    <option value="Electronic">Electronic</option>
-                    <option value="Clothing">Clothing</option>
-                    <option value="Vehicle">Vehicle</option>
-                </select>
-            </div>
+                    <div class="field-group">
+                        <label class="field-label">Product Name</label>
+                        <input type="text" name="Name" class="premium-input" placeholder="e.g. Minimalist Watch" required />
+                    </div>
 
-            <div class="field-group">
-                <label for="Name" class="field-label">Product Naming</label>
-                <input type="text" name="Name" id="Name" class="premium-input" placeholder="Enter an elegant name..." required />
-            </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="field-group">
+                            <label class="field-label">Retail Price ($)</label>
+                            <input type="number" name="Price" step="0.01" class="premium-input" placeholder="0.00" required />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Opening Stock</label>
+                            <input type="number" name="stock" class="premium-input" value="10" required />
+                        </div>
+                    </div>
 
-            <div class="field-group">
-                <label for="Price" class="field-label">Retail Value ($)</label>
-                <input type="number" name="Price" id="Price" step="0.01" class="premium-input" placeholder="0.00" required />
-            </div>
+                    <div class="field-group">
+                        <label class="field-label">Color Palette (Comma CSV)</label>
+                        <input type="text" name="availableColors" class="premium-input" placeholder="#000, #fff, #ef4444" />
+                    </div>
 
-            <div class="field-group">
-                <label for="Stock" class="field-label">Initial Stock</label>
-                <input type="number" name="stock" id="Stock" class="premium-input" value="10" required />
-            </div>
+                    <!-- Dynamic Sections -->
+                    <div id="DynamicFields" class="type-container" style="border-top: 3px solid #0077cc;">
+                        <span class="form-section-title" style="color:#0077cc">Taxonomy Mapping</span>
+                        <div class="field-group">
+                            <label class="field-label">Select Sub-Category</label>
+                            <select name="subcategoryId" id="subcategoryId" class="premium-input" onchange="renderDynamicForm()">
+                                <option value="">-- Choose Type --</option>
+                                @inject OnlineStore.Application.Data.OnlineStoreDbContext _db
+                                @{
+                                    var subs = _db.SubCategories.Select(s => new { s.Id, s.Name, s.ExpectedAttributes }).ToList();
+                                }
+                                @foreach(var s in subs) {
+                                    <option value="@s.Id" data-attrs="@s.ExpectedAttributes">@s.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div id="dynamicInputsContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;"></div>
+                    </div>
 
-            <span class="form-section-title">Variants & Options</span>
-            
-            <div class="field-group">
-                <label for="AvailableColors" class="field-label">Color Palette (Comma separated Hex codes)</label>
-                <input type="text" name="availableColors" id="AvailableColors" class="premium-input" placeholder="#000000, #FFFFFF, #FF0000..." />
-                <div class="palette-helper">
-                    <input type="color" id="colorPicker" class="color-picker-trigger" value="#059669">
-                    <button type="button" class="btn-add-variant" onclick="addColorFromPicker()">Add to Palette</button>
-                </div>
-            </div>
+                    <div id="ElectronicFields" class="type-container" style="display:none;">
+                        <span class="form-section-title" style="color:var(--midnight)">Electronic Specs</span>
+                         <div class="field-group">
+                            <label class="field-label">Warranty (Months)</label>
+                            <input type="number" name="WarrantyMonths" class="premium-input" value="24" />
+                        </div>
+                    </div>
 
-            <div id="ElectronicFields" class="type-container">
-                <span class="form-section-title" style="color: var(--midnight); font-size: 0.65rem;">Tech Specs</span>
-                <div class="field-group" style="margin-bottom: 0;">
-                    <label for="WarrantyMonths" class="field-label">Warranty Period (Months)</label>
-                    <input type="number" name="WarrantyMonths" id="WarrantyMonths" class="premium-input" value="24" />
-                </div>
-            </div>
+                    <div id="ClothingFields" class="type-container" style="display:none;">
+                        <span class="form-section-title" style="color:var(--midnight)">Clothing Specs</span>
+                         <div class="field-group">
+                            <label class="field-label">Material</label>
+                            <input type="text" name="material" class="premium-input" placeholder="Cotton, etc." />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Available Sizes</label>
+                            <input type="text" name="availableSizes" class="premium-input" placeholder="S, M, L" />
+                        </div>
+                    </div>
 
-            <div id="ClothingFields" class="type-container" style="display:none;">
-                <span class="form-section-title" style="color: var(--midnight); font-size: 0.65rem;">Clothing Specs</span>
-                
-                <div class="field-group">
-                    <label for="AvailableSizes" class="field-label">Available Sizes (Comma separated)</label>
-                    <input type="text" name="availableSizes" id="AvailableSizes" class="premium-input" placeholder="S, M, L, XL, 42, 44..." />
-                    <div class="palette-helper">
-                        <button type="button" class="btn-add-variant" onclick="addSize('S')">+ S</button>
-                        <button type="button" class="btn-add-variant" onclick="addSize('M')">+ M</button>
-                        <button type="button" class="btn-add-variant" onclick="addSize('L')">+ L</button>
-                        <button type="button" class="btn-add-variant" onclick="addSize('XL')">+ XL</button>
+                    <div id="VehicleFields" class="type-container" style="display:none;">
+                        <span class="form-section-title" style="color:var(--midnight)">Vehicle Specs</span>
+                        <div class="input-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                            <input type="text" name="Brand" class="premium-input" placeholder="Brand" />
+                            <input type="text" name="Model" class="premium-input" placeholder="Model" />
+                            <input type="number" name="Year" class="premium-input" value="2024" style="grid-column: span 2" />
+                        </div>
                     </div>
                 </div>
 
-                <div class="field-group" style="margin-bottom: 0;">
-                    <label for="Material" class="field-label">Material Composition</label>
-                    <input type="text" name="material" id="Material" class="premium-input" placeholder="Organic Cotton, Silk..." />
-                </div>
-            </div>
-
-            <div id="VehicleFields" class="type-container" style="display:none;">
-                <span class="form-section-title" style="color: var(--midnight); font-size: 0.65rem;">Vehicle Origins</span>
-                <div class="field-group">
-                    <label for="Brand" class="field-label">Brand / Manufacturer</label>
-                    <input type="text" name="Brand" id="Brand" class="premium-input" />
-                </div>
-                <div class="field-group">
-                    <label for="Model" class="field-label">Model Designation</label>
-                    <input type="text" name="Model" id="Model" class="premium-input" />
-                </div>
-                <div class="field-group" style="margin-bottom: 0;">
-                    <label for="Year" class="field-label">Manufacturing Year</label>
-                    <input type="number" name="Year" id="Year" class="premium-input" value="2024" />
-                </div>
-            </div>
-
-            <div style="margin-top: 4rem;">
-                <span class="form-section-title">Visual Assets</span>
-                <div class="upload-box" onclick="document.getElementById('imageInput').click()">
-                    <div class="upload-icon-wrap">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
+                <!-- Right Column: Media -->
+                <div>
+                    <span class="form-section-title">Visual Assets & Media</span>
+                    <div class="upload-area" onclick="document.getElementById('imageInput').click()">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">☁</div>
+                        <p style="font-weight: 700; font-size: 0.85rem; margin: 0;">Upload Galleries</p>
+                        <p style="font-size: 0.7rem; color: var(--text-muted);">Max 5 files · Click to browse</p>
                     </div>
-                    <p style="font-weight: 700; font-size: 0.9375rem; color: var(--midnight);">Select Media Files</p>
+                    <input type="file" id="imageInput" multiple accept="image/*" style="display: none;" onchange="handleFileSelect(this)" />
+                    <input type="hidden" name="mainImageIndex" id="mainImageIndex" value="0" />
+                    
+                    <div class="preview-grid" id="previewGrid"></div>
+
+                    <div style="margin-top: 2rem; padding: 1rem; background: #fdfdfd; border: 1px solid #f1f5f9; border-radius: 12px;">
+                        <p style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4; margin: 0;">
+                            <strong>Pro Tip:</strong> Click on an uploaded image to set it as the <b>Primary Cover</b> for this item.
+                        </p>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Register Item in Inventory</button>
                 </div>
-
-                <input type="file" name="images" id="imageInput" multiple accept=".jpg,.jpeg,.png,.webp" style="display: none;" onchange="handleFileSelect(this)" />
-                <div class="preview-list" id="previewGrid"></div>
             </div>
-
-            <button type="submit" class="btn-submit-form">Add to Collection</button>
         </form>
     </div>
 </div>
@@ -300,41 +264,80 @@
 <script>
     function toggleFields() {
         const type = document.getElementById('Type').value;
-        const fields = ['ElectronicFields', 'ClothingFields', 'VehicleFields'];
-        fields.forEach(f => {
-            document.getElementById(f).style.display = f.startsWith(type) ? 'block' : 'none';
+        const sections = ['DynamicFields', 'ElectronicFields', 'ClothingFields', 'VehicleFields'];
+        sections.forEach(s => {
+            document.getElementById(s).style.display = s.startsWith(type) ? 'block' : 'none';
         });
     }
 
-    function addSize(s) {
-        const input = document.getElementById('AvailableSizes');
-        if (input.value) input.value += ', ' + s;
-        else input.value = s;
-    }
+    function renderDynamicForm() {
+        const select = document.getElementById('subcategoryId');
+        const container = document.getElementById('dynamicInputsContainer');
+        container.innerHTML = '';
+        
+        const option = select.options[select.selectedIndex];
+        if(!option || !option.dataset.attrs) return;
 
-    function addColorFromPicker() {
-        const picker = document.getElementById('colorPicker');
-        const input = document.getElementById('AvailableColors');
-        const color = picker.value.toUpperCase();
-        if (input.value) input.value += ', ' + color;
-        else input.value = color;
+        const attrs = option.dataset.attrs.split(',');
+        attrs.forEach(attr => {
+            const clean = attr.trim();
+            if(!clean) return;
+            const key = clean.replace(/\s+/g, '');
+            container.innerHTML += `
+                <div class="field-group">
+                    <label class="field-label">${clean}</label>
+                    <input type="text" name="dyn_${key}" class="premium-input" placeholder="..." />
+                </div>
+            `;
+        });
     }
 
     let selectedFiles = [];
+    let masterIdx = 0;
+
     function handleFileSelect(input) {
         const files = Array.from(input.files);
-        files.forEach(file => {
-            selectedFiles.push(file);
-            const reader = new FileReader();
-            reader.onload = (e) => addPreview(e.target.result, file.name);
-            reader.readAsDataURL(file);
-        });
+        selectedFiles = [...selectedFiles, ...files].slice(0, 5);
+        updatePreview();
     }
 
-    function addPreview(src, name) {
-        const item = document.createElement('div');
-        item.className = 'preview-thumb';
-        item.innerHTML = `<img src="${src}" alt="${name}">`;
-        document.getElementById('previewGrid').appendChild(item);
+    function updatePreview() {
+        const container = document.getElementById('previewGrid');
+        container.innerHTML = '';
+        
+        const dt = new DataTransfer();
+        selectedFiles.forEach(f => dt.items.add(f));
+        document.getElementById('imageInput').files = dt.files;
+        document.getElementById('imageInput').name = "images";
+
+        selectedFiles.forEach((file, idx) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const box = document.createElement('div');
+                box.className = 'thumb-box';
+                if(idx === masterIdx) box.style.borderColor = 'var(--accent-primary)';
+                box.innerHTML = `
+                    <img src="${e.target.result}" onclick="setMaster(${idx})" style="cursor:pointer">
+                    <div onclick="removeFile(${idx})" style="position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.5); color:#fff; width:16px; height:16px; font-size:10px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer">✕</div>
+                `;
+                container.appendChild(box);
+            };
+            reader.readAsDataURL(file);
+        });
+        document.getElementById('mainImageIndex').value = masterIdx;
     }
+
+    function removeFile(idx) {
+        selectedFiles.splice(idx, 1);
+        if(masterIdx >= selectedFiles.length) masterIdx = 0;
+        updatePreview();
+    }
+
+    function setMaster(idx) {
+        masterIdx = idx;
+        updatePreview();
+    }
+
+    // Initial state
+    toggleFields();
 </script>

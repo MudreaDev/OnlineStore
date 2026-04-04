@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineStore.Application.Data;
 
@@ -11,9 +12,11 @@ using OnlineStore.Application.Data;
 namespace OnlineStore.Application.Migrations
 {
     [DbContext(typeof(OnlineStoreDbContext))]
-    partial class OnlineStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260404205722_AddDynamicTaxonomy")]
+    partial class AddDynamicTaxonomy
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,17 +31,8 @@ namespace OnlineStore.Application.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsFeatured")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PublicId")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

@@ -23,12 +23,12 @@ namespace OnlineStore.Application.Services
 
         public async Task<(string Url, string PublicId)> UploadImageAsync(IFormFile file)
         {
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".avif" };
             var extension = Path.GetExtension(file.FileName).ToLower();
 
             if (!allowedExtensions.Contains(extension))
             {
-                throw new ArgumentException("Only .jpg, .jpeg, .png, and .webp files are allowed.");
+                throw new ArgumentException("Only .jpg, .jpeg, .png, .webp, and .avif files are allowed.");
             }
 
             if (file.Length > 5 * 1024 * 1024)

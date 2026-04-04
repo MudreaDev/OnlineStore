@@ -13,6 +13,8 @@ namespace OnlineStore.Domain.Interfaces
         IOrderBuilder AddOrderItem(OrderItem item);
         IOrderBuilder AddProduct(Product product, int quantity = 1, string? size = null, string? color = null);
         IOrderBuilder ApplyDiscount(IDiscountStrategy discountStrategy);
+        IOrderBuilder SetShippingAddress(string address);
+        IOrderBuilder SetPhoneNumber(string phoneNumber);
         Order Build();
     }
 }

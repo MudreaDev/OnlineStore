@@ -33,6 +33,9 @@ namespace OnlineStore.Domain.Entities
         public List<ProductImage> Images { get; set; } = new List<ProductImage>();
         public List<string> SubscriberEmails { get; set; } = new List<string>();
         public string? AvailableColors { get; set; } // e.g. "#000000,#FFFFFF,Navy"
+        
+        public Guid? SubCategoryId { get; set; }
+        public SubCategory? SubCategory { get; set; }
 
         protected Product()
         {

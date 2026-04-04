@@ -298,25 +298,17 @@
                                 </div>
 
                                 <div class="item-controls">
-                                    <div class="qty-wrap">
-                                        <form asp-action="UpdateQuantity" method="post" style="display: inline">
-                                            <input type="hidden" name="id" value="@product.Id" />
-                                            <input type="hidden" name="size" value="@item.Size" />
-                                            <input type="hidden" name="color" value="@item.Color" />
-                                            <input type="hidden" name="quantity" value="@(item.Quantity - 1)" />
-                                            <button type="submit" class="qty-btn" @(item.Quantity <= 1 ? "disabled" : "")>−</button>
-                                        </form>
-                                        <span>@item.Quantity</span>
-                                        <form asp-action="UpdateQuantity" method="post" style="display: inline">
-                                            <input type="hidden" name="id" value="@product.Id" />
-                                            <input type="hidden" name="size" value="@item.Size" />
-                                            <input type="hidden" name="color" value="@item.Color" />
-                                            <input type="hidden" name="quantity" value="@(item.Quantity + 1)" />
-                                            <button type="submit" class="qty-btn">+</button>
-                                        </form>
+                                    @{
+                                        // Create a unique key for identifying the UI elements of this item row
+                                        var itemKey = $"{product.Id}_{item.Size}_{item.Color}".Replace("-", "").Replace(" ", "");
+                                    }
+                                    <div class="qty-wrap" id="item-row-@itemKey">
+                                        <button type="button" class="qty-btn" onclick="updateQty(-1, '@product.Id', '@item.Size', '@item.Color')" id="dec-@itemKey" @(item.Quantity <= 1 ? "disabled" : "")>−</button>
+                                        <span id="qty-@itemKey">@item.Quantity</span>
+                                        <button type="button" class="qty-btn" onclick="updateQty(1, '@product.Id', '@item.Size', '@item.Color')" id="inc-@itemKey" @(item.Quantity >= product.Stock ? "disabled" : "")>+</button>
                                     </div>
 
-                                    <div class="item-price">@((product.Price * item.Quantity).ToString("C0"))</div>
+                                    <div class="item-price" id="total-@itemKey">@((product.Price * item.Quantity).ToString("C0"))</div>
 
                                     <form asp-action="Remove" method="post">
                                         <input type="hidden" name="id" value="@product.Id" />
@@ -356,10 +348,29 @@
 
                     <div class="summary-total">
                         <span>Total</span>
-                        <span>@((total >= freeShippingThreshold ? total : total + 15).ToString("C2"))</span>
+                        <span id="overall-cart-total">@((total >= freeShippingThreshold ? total : total + 15).ToString("C2"))</span>
                     </div>
 
                     <form asp-action="Checkout" method="post">
+                        @inject OnlineStore.Application.Repositories.DbUserRepository UserRepo
+                        @{
+                            var userIdStr_form = Context.Session.GetString("UserId");
+                            var customerUser = !string.IsNullOrEmpty(userIdStr_form) ? UserRepo.GetById(Guid.Parse(userIdStr_form)) as OnlineStore.Domain.Entities.Customer : null;
+                            var defaultAddress = customerUser?.ShippingAddress ?? "";
+                        }
+                        
+                        <div style="margin-bottom: 1rem; text-align: left;">
+                            <label style="font-size: 0.8rem; font-weight: bold; color: var(--midnight);">Adresă de Livrare</label>
+                            <textarea name="shippingAddress" required placeholder="Strada, Număr, Oraș, Județ..." 
+                                style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid var(--border-subtle); margin-top: 0.5rem; font-family: var(--font-main); min-height: 80px;">@defaultAddress</textarea>
+                        </div>
+
+                        <div style="margin-bottom: 1rem; text-align: left;">
+                            <label style="font-size: 0.8rem; font-weight: bold; color: var(--midnight);">Număr de Telefon</label>
+                            <input type="tel" name="phoneNumber" placeholder="07xx xxx xxx" 
+                                style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid var(--border-subtle); margin-top: 0.5rem; font-family: var(--font-main);" />
+                        </div>
+
                         <div style="margin-bottom: 1rem; text-align: left;">
                             <label style="font-size: 0.8rem; font-weight: bold; color: var(--midnight);">Metodă de Plată (Adapter Pattern)</label>
                             <select name="paymentMethod" style="width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid var(--border-subtle); margin-top: 0.5rem; font-family: var(--font-main);">
@@ -398,3 +409,47 @@
         }
     </div>
 </div>
+<script>
+    async function updateQty(adjustment, productId, size, color) {
+        const key = (productId + '_' + size + '_' + color).replace(/-/g, '').replace(/ /g, '');
+        const qtySpan = document.getElementById('qty-' + key);
+        const currentQty = parseInt(qtySpan.innerText);
+        const newQty = currentQty + adjustment;
+
+        if (newQty < 1) return;
+
+        const formData = new FormData();
+        formData.append('id', productId);
+        formData.append('quantity', newQty);
+        formData.append('size', size);
+        formData.append('color', color);
+
+        try {
+            const response = await fetch('@Url.Action("UpdateQuantity", "Cart")', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Update UI
+                qtySpan.innerText = result.newQuantity;
+                document.getElementById('total-' + key).innerText = result.itemTotalFormatted;
+                document.getElementById('overall-cart-total').innerText = result.cartTotalFormatted;
+                
+                // Update button states
+                document.getElementById('dec-' + key).disabled = (result.newQuantity <= 1);
+                document.getElementById('inc-' + key).disabled = result.stockLimitReached;
+                
+                if (result.stockLimitReached && adjustment > 0) {
+                     alert("Stoc maxim atins");
+                }
+            } else {
+                alert(result.message || "Eroare la actualizarea cantității.");
+            }
+        } catch (e) {
+            console.error("Cart error:", e);
+        }
+    }
+</script>

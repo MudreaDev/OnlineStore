@@ -15,7 +15,7 @@
 
     .auth-card {
         background: #fff;
-        border: 1px solid var(--border-light);
+        border: 1px solid var(--border-subtle);
         border-radius: 24px;
         padding: 1.75rem 2rem;
         width: 100%;
@@ -25,8 +25,9 @@
     }
 
     .auth-title {
-        font-family: var(--font-serif);
+        font-family: var(--font-elegant);
         font-size: 1.375rem;
+        color: var(--midnight);
         letter-spacing: -0.03em;
         margin-bottom: 0.25rem;
     }
@@ -45,21 +46,21 @@
     }
 
     .section-headline {
-        font-family: var(--font-serif);
+        font-family: var(--font-elegant);
         font-size: 0.875rem;
         margin-bottom: 0.75rem;
         margin-top: 1rem;
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        color: var(--text-dark);
+        color: var(--midnight);
     }
 
     .section-headline::after {
         content: '';
         flex: 1;
         height: 1px;
-        background: var(--border-light);
+        background: var(--border-subtle);
     }
 
     .form-grid {
@@ -89,21 +90,21 @@
 
     .form-control {
         width: 100%;
-        background: var(--bg-warm);
+        background: var(--bg-base);
         border: 1.5px solid transparent;
         border-radius: 10px;
         padding: 0.6rem 1rem;
-        font-family: var(--font-main);
+        font-family: var(--font-body);
         font-size: 0.8125rem;
-        color: var(--text-dark);
-        transition: var(--transition);
+        color: var(--midnight);
+        transition: var(--transition-smooth);
         outline: none;
     }
 
     .form-control:focus {
         background: #fff;
-        border-color: var(--accent-green);
-        box-shadow: 0 0 0 5px rgba(45, 106, 79, 0.1);
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 5px rgba(5, 150, 105, 0.1);
     }
 
     .input-error {
@@ -116,7 +117,7 @@
 
     .btn-register {
         width: 100%;
-        background: var(--text-dark);
+        background: var(--midnight);
         color: #fff;
         border: none;
         border-radius: 10px;
@@ -124,15 +125,15 @@
         font-size: 0.875rem;
         font-weight: 700;
         cursor: pointer;
-        transition: var(--transition);
+        transition: var(--transition-smooth);
         margin-top: 1rem;
         margin-bottom: 1rem;
     }
 
     .btn-register:hover {
-        background: var(--accent-green);
+        background: var(--accent-primary);
         transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(45, 106, 79, 0.2);
+        box-shadow: 0 10px 20px rgba(5, 150, 105, 0.2);
     }
 
     .auth-link {
@@ -145,7 +146,7 @@
     }
 
     .auth-link strong {
-        color: var(--accent-green);
+        color: var(--accent-primary);
     }
 
     @@media (max-width: 600px) {

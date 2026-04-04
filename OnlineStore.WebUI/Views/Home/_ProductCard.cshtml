@@ -1,0 +1,56 @@
+@model OnlineStore.Domain.Entities.Product
+@using OnlineStore.WebUI.Extensions
+@using Microsoft.AspNetCore.Http
+@using System
+@using System.Collections.Generic
+
+@{
+    var typeName = Model.GetType().Name.Replace("Product", "");
+    var mainImage = Model.Images?.FirstOrDefault(i => i.IsMain) ?? Model.Images?.FirstOrDefault();
+
+    var emoji = typeName switch
+    {
+        "Electronic" => "🔌",
+        "Clothing" => "🏠",
+        "Vehicle" => "🚲",
+        _ => "📦"
+    };
+
+    var wishlist = Context.Session.Get<List<Guid>>("Wishlist") ?? new List<Guid>();
+    var isFavorited = wishlist.Contains(Model.Id);
+}
+
+<div class="product-card">
+    <span class="glass-badge">@typeName</span>
+
+    <div class="visual-container">
+        <button class="heart-btn @(isFavorited ? "is-active" : "")" 
+                onclick="toggleFavorite('@Model.Id', this)"
+                style="position: absolute; top: 10px; right: 10px; z-index: 20; background: rgba(255,255,255,0.8); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); border: 1px solid rgba(0,0,0,0.05); padding: 0;">
+            <svg viewBox="0 0 24 24">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+        </button>
+
+        <a asp-action="Details" asp-controller="Home" asp-route-id="@Model.Id" style="display: block; width: 100%; height: 100%;">
+            @if (mainImage != null)
+            {
+                <img src="@mainImage.ImageUrl" alt="@Model.Name" class="product-img" />
+            }
+            else
+            {
+                <div class="card-emoji">@emoji</div>
+            }
+        </a>
+    </div>
+
+    <div class="info-container">
+        <a asp-action="Details" asp-controller="Home" asp-route-id="@Model.Id" style="text-decoration: none;">
+            <h2 class="product-name" style="font-size: 1rem; font-weight: 500;">@Model.Name</h2>
+        </a>
+
+        <div class="card-footer" style="justify-content: center; margin-top: 0.5rem;">
+            <span class="price-tag" style="font-size: 1.125rem; font-weight: 600;">@Model.Price.ToString("C0")</span>
+        </div>
+    </div>
+</div>

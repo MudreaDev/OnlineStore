@@ -60,13 +60,16 @@ namespace OnlineStore.WebUI.Controllers
             var product = _productRepo.GetById(id);
             if (product != null)
             {
-                if (product.Stock <= 0)
+                var cart = GetCart();
+                var itemInCart = cart.Items.FirstOrDefault(i => i.ProductId == id && i.Size == size && i.Color == color);
+                int currentQty = itemInCart?.Quantity ?? 0;
+
+                if (product.Stock <= currentQty)
                 {
-                    TempData["Error"] = "Produsul nu mai este în stoc.";
+                    TempData["Error"] = "Nu mai există unități disponibile în stoc.";
                     return RedirectToAction("Index", "Home");
                 }
 
-                var cart = GetCart();
                 var caretaker = GetCaretaker();
                 var invoker = new CartActionInvoker(caretaker);
                 
@@ -82,22 +85,100 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
+        public IActionResult AddAjax(Guid id, string? size, string? color)
+        {
+            var product = _productRepo.GetById(id);
+            if (product != null)
+            {
+                var cart = GetCart();
+                var itemInCart = cart.Items.FirstOrDefault(i => i.ProductId == id && i.Size == size && i.Color == color);
+                int currentQty = itemInCart?.Quantity ?? 0;
+
+                if (product.Stock <= currentQty)
+                {
+                    return Json(new { success = false, message = "Nu mai există unități în stoc." });
+                }
+
+                var caretaker = GetCaretaker();
+                var invoker = new CartActionInvoker(caretaker);
+                
+                var command = new AddProductCommand(cart, id, size, color);
+                invoker.ExecuteCommand(command, cart);
+                
+                SaveCart(cart);
+                SaveCaretaker(caretaker);
+                
+                return Json(new { success = true, cartCount = cart.Items.Sum(i => i.Quantity) });
+            }
+            return Json(new { success = false, message = "Produsul nu a fost găsit." });
+        }
+
+        [HttpGet]
+        public IActionResult GetCartPartial()
+        {
+            var cart = GetCart();
+            var products = new List<(Product Product, int Quantity, string? Size, string? Color)>();
+            decimal total = 0;
+
+            foreach (var item in cart.Items)
+            {
+                var p = _productRepo.GetById(item.ProductId);
+                if (p != null)
+                {
+                    products.Add((p, item.Quantity, item.Size, item.Color));
+                    total += p.Price * item.Quantity;
+                }
+            }
+
+            ViewBag.CartItems = products;
+            ViewBag.Total = total;
+            ViewBag.FreeShippingThreshold = ApplicationConfigurationManager.Instance.FreeShippingThreshold;
+
+            return PartialView("_CartDrawer");
+        }
+
+        [HttpPost]
         public IActionResult UpdateQuantity(Guid id, int quantity, string? size, string? color)
         {
+            var product = _productRepo.GetById(id);
+            if (product == null) return Json(new { success = false, message = "Product not found" });
+
+            if (quantity > product.Stock)
+                return Json(new { success = false, message = $"Only {product.Stock} units available" });
+
+            if (quantity < 1) return Json(new { success = false, message = "Quantity must be at least 1" });
+
             var cart = GetCart();
             var item = cart.Items.FirstOrDefault(i => i.ProductId == id && i.Size == size && i.Color == color);
             if (item != null)
             {
                 var caretaker = GetCaretaker();
                 var invoker = new CartActionInvoker(caretaker);
-                
+
                 var command = new UpdateQuantityCommand(cart, id, quantity, size, color);
                 invoker.ExecuteCommand(command, cart);
-                
+
                 SaveCart(cart);
                 SaveCaretaker(caretaker);
+
+                // Calculate New Totals for AJAX
+                decimal itemTotal = product.Price * quantity;
+                decimal cartTotal = cart.Items.Sum(ci => {
+                    var p = _productRepo.GetById(ci.ProductId);
+                    return (p?.Price ?? 0) * ci.Quantity;
+                });
+
+                return Json(new
+                {
+                    success = true,
+                    newQuantity = quantity,
+                    itemTotalFormatted = itemTotal.ToString("C0"),
+                    cartTotalFormatted = cartTotal.ToString("C2"),
+                    cartTotalRaw = cartTotal,
+                    stockLimitReached = (quantity >= product.Stock)
+                });
             }
-            return RedirectToAction("Index");
+            return Json(new { success = false });
         }
 
         [HttpPost]
@@ -161,7 +242,7 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Checkout(string paymentMethod, string storeType, string deliveryType, string shippingProvider)
+        public IActionResult Checkout(string paymentMethod, string storeType, string deliveryType, string shippingProvider, string shippingAddress, string phoneNumber)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
             if (string.IsNullOrEmpty(userIdStr))
@@ -186,6 +267,12 @@ namespace OnlineStore.WebUI.Controllers
                 return RedirectToAction("Index");
             }
 
+            if (string.IsNullOrWhiteSpace(shippingAddress))
+            {
+                TempData["Error"] = "Adresa de livrare este obligatorie.";
+                return RedirectToAction("Index");
+            }
+
             // Setup the Payment Adapter based on user selection
             IExternalPaymentProcessor paymentProcessor;
             if (paymentMethod == "Stripe")
@@ -202,7 +289,7 @@ namespace OnlineStore.WebUI.Controllers
             var orderFacade = new OrderProcessingFacade(_productRepo, _productRepo, _orderRepo, _userRepo, paymentProcessor, _emailService);
 
             // Execute Checkout via Facade
-            if (orderFacade.Checkout(user, cart, out string message, out Order placedOrder))
+            if (orderFacade.Checkout(user, cart, shippingAddress, phoneNumber, out string message, out Order placedOrder))
             {
                 // Abstract Factory Pattern — alege familia de servicii (Local vs Global)
                 IStoreServicesFactory storeFactory = storeType == "Local"
@@ -212,7 +299,6 @@ namespace OnlineStore.WebUI.Controllers
                 var factoryPayment = storeFactory.CreatePaymentProcessor();
                 var factoryShipping = storeFactory.CreateShippingProvider();
 
-                var shippingAddress = (user as Customer)?.ShippingAddress ?? "N/A";
                 factoryPayment.ProcessPayment(placedOrder.Total);
                 factoryShipping.ScheduleShipping(shippingAddress);
 

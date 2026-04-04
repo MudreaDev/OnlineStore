@@ -1,369 +1,473 @@
 @using OnlineStore.Domain.Singleton
+@using OnlineStore.Domain.Entities
 @{
     ViewData["Title"] = "Admin Dashboard";
     var settings = ApplicationConfigurationManager.Instance;
+    var categories = ViewBag.Categories as List<Category> ?? new List<Category>();
 }
 
 <style>
-    .admin-page {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 0 1rem;
+    :root {
+        --admin-bg: #f8fafc;
+        --admin-card-bg: #ffffff;
+        --admin-border: #e2e8f0;
+        --admin-accent: #0f172a;
+        --admin-success: #10b981;
+        --admin-text-main: #1e293b;
+        --admin-text-muted: #64748b;
     }
 
-    .page-header {
-        margin-bottom: 2.5rem;
+    body {
+        background-color: var(--admin-bg);
     }
 
-    .page-header h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #1a1a1a;
-        letter-spacing: -0.03em;
-        margin-bottom: 0.4rem;
+    .admin-container {
+        width: 100%;
+        padding: 1.5rem 2.5rem;
+        box-sizing: border-box;
     }
 
-    .page-header p {
-        color: #6b7280;
-        font-size: 0.95rem;
-    }
-
-    .nav-cards {
+    .dashboard-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 1.25rem;
-        margin-bottom: 3rem;
+        grid-template-columns: 280px 1fr;
+        gap: 2rem;
+        align-items: start;
     }
 
-    .nav-card {
-        background: #ffffff;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 1.75rem;
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-        text-decoration: none;
-        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-    }
-
-    .nav-card:hover {
-        border-color: #10b981;
-        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.12);
-        transform: translateY(-3px);
-    }
-
-    .nav-card-icon {
-        width: 52px;
-        height: 52px;
-        background: #f9fafb;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        flex-shrink: 0;
-        transition: background 0.2s, border-color 0.2s;
-    }
-
-    .nav-card:hover .nav-card-icon {
-        background: #ecfdf5;
-        border-color: #10b981;
-    }
-
-    .nav-card-body h3 {
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #1a1a1a;
-        margin-bottom: 0.25rem;
-    }
-
-    .nav-card-body p {
-        font-size: 0.85rem;
-        color: #6b7280;
-    }
-
-    .nav-card-arrow {
-        margin-left: auto;
-        color: #d1d5db;
-        font-size: 1.1rem;
-        transition: color 0.2s, transform 0.2s;
-    }
-
-    .nav-card:hover .nav-card-arrow {
-        color: #10b981;
-        transform: translateX(3px);
-    }
-
-    /* Settings Section */
-    .settings-section-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #1a1a1a;
-        letter-spacing: -0.02em;
-        margin-bottom: 0.35rem;
-    }
-
-    .settings-section-subtitle {
-        font-size: 0.875rem;
-        color: #6b7280;
-        margin-bottom: 1.5rem;
-    }
-
-    .settings-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        font-size: 0.72rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        padding: 0.25rem 0.65rem;
-        background: #1a1a1a;
-        color: #10b981;
-        border-radius: 99px;
-        margin-bottom: 1.25rem;
-    }
-
-    .settings-card {
-        background: #ffffff;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 16px;
-        overflow: hidden;
-    }
-
-    .settings-form {
-        padding: 2rem;
-    }
-
-    .field-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.25rem;
-        margin-bottom: 1.25rem;
-    }
-
-    .field-row.full {
-        grid-template-columns: 1fr;
-    }
-
-    .field-group {
+    /* Sidebar / Navigation */
+    .admin-sidebar {
+        position: sticky;
+        top: 2rem;
         display: flex;
         flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .side-card {
+        background: var(--admin-card-bg);
+        border: 1px solid var(--admin-border);
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .nav-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--admin-text-main);
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: 0.2s;
+        border: 1px solid transparent;
+    }
+
+    .nav-btn:hover {
+        background: #f1f5f9;
+        color: var(--admin-accent);
+    }
+
+    .nav-btn.active {
+        background: var(--admin-accent);
+        color: #fff;
+    }
+
+    /* Main Content Area */
+    .admin-main {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .compact-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .compact-header h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+
+    /* Stats bar */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+
+    .mini-stat {
+        background: var(--admin-card-bg);
+        border: 1px solid var(--admin-border);
+        padding: 1rem;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .mini-stat label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--admin-text-muted);
+        letter-spacing: 0.05em;
+    }
+
+    .mini-stat span {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--admin-text-main);
+    }
+
+    /* Sections */
+    .admin-section {
+        background: var(--admin-card-bg);
+        border: 1px solid var(--admin-border);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-head {
+        padding: 1rem 1.5rem;
+        background: #fdfdfd;
+        border-bottom: 1px solid var(--admin-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-head h2 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
         gap: 0.5rem;
     }
 
-    .field-label {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #374151;
+    .section-body {
+        padding: 1.25rem 1.5rem;
     }
 
-    .field-hint {
-        font-size: 0.78rem;
-        color: #9ca3af;
-    }
-
-    .field-input {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border: 1.5px solid #e5e7eb;
-        border-radius: 10px;
-        font-family: 'Inter', sans-serif;
-        font-size: 0.95rem;
-        color: #1a1a1a;
-        background: #fafafa;
-        transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-        box-sizing: border-box;
-        outline: none;
-    }
-
-    .field-input:focus {
-        border-color: #10b981;
-        background: #ffffff;
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
-    }
-
-    .settings-footer {
-        padding: 1.25rem 2rem;
-        background: #f9fafb;
-        border-top: 1px solid #f3f4f6;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+    /* Form controls */
+    .input-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1rem;
-        flex-wrap: wrap;
     }
 
-    .settings-meta {
-        font-size: 0.8rem;
-        color: #9ca3af;
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
     }
 
-    .settings-meta span {
-        font-weight: 600;
-        color: #6b7280;
+    .input-group label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--admin-text-main);
     }
 
-    .btn-save {
-        padding: 0.75rem 1.75rem;
-        background: #1a1a1a;
-        color: #ffffff;
+    .compact-input {
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        outline: none;
+        transition: 0.2s;
+    }
+
+    .compact-input:focus {
+        border-color: var(--admin-accent);
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05);
+    }
+
+    .btn-action {
+        background: var(--admin-accent);
+        color: #fff;
         border: none;
-        border-radius: 10px;
-        font-family: 'Inter', sans-serif;
-        font-size: 0.9rem;
-        font-weight: 600;
+        padding: 0.5rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
         cursor: pointer;
-        transition: background 0.2s, transform 0.15s;
-        white-space: nowrap;
+        transition: 0.2s;
     }
 
-    .btn-save:hover {
-        background: #111;
+    .btn-action:hover {
+        opacity: 0.9;
         transform: translateY(-1px);
     }
 
-    @@media (max-width: 600px) {
-        .field-row {
-            grid-template-columns: 1fr;
-        }
+    /* List Table */
+    .compact-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
     }
 
-    /* Stats Bar */
-    .stats-bar {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
+    .compact-table th {
+        text-align: left;
+        padding: 0.75rem;
+        color: var(--admin-text-muted);
+        border-bottom: 1px solid var(--admin-border);
     }
 
-    .stat-card {
-        background: #fff;
-        border: 1px solid var(--border-subtle);
-        border-radius: 20px;
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        box-shadow: var(--shadow-sm);
-        transition: var(--transition-smooth);
+    .compact-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: var(--admin-text-main);
     }
 
-    .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-md);
-        border-color: var(--accent-primary);
+    .cat-badge {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        object-fit: cover;
+        background: #eee;
     }
 
-    .stat-label {
-        font-size: 0.65rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        letter-spacing: 0.1em;
+    /* Tab links */
+    .tab-link {
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--admin-text-muted);
+        border-radius: 4px;
     }
 
-    .stat-value {
-        font-family: var(--font-display);
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: var(--midnight);
-    }
-
-    .stat-alert {
-        color: #dc2626 !important;
+    .tab-link.active {
+        background: #f1f5f9;
+        color: var(--admin-accent);
     }
 </style>
 
-<div class="admin-page">
-    <div class="page-header">
-        <h1>Admin <span style="color:#10b981">Dashboard</span></h1>
-        <p>Manage your store's products, orders, and configuration.</p>
+<div class="admin-container">
+    <div class="compact-header">
+        <h1>Admin <span style="color:var(--admin-success)">Dashboard</span></h1>
+        <div style="font-size: 0.75rem; color: var(--admin-text-muted)">
+            @DateTime.Now.ToString("dd MMM yyyy") · <span style="font-weight: 700">Full Width Workspace</span>
+        </div>
     </div>
 
-    @if (TempData["Message"] != null)
+    @if (TempData["Success"] != null)
     {
-        <div
-            style="padding: 0.9rem 1.25rem; background: #ecfdf5; color: #065f46; border-radius: 10px; border: 1px solid #a7f3d0; margin-bottom: 1.5rem; font-size: 0.9rem; font-weight: 500;">
-            ✓ @TempData["Message"]
+        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 0.75rem 1rem; border-radius: 10px; margin: 1rem 0; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span>✓</span> @TempData["Success"]
         </div>
     }
 
-    <div class="stats-bar">
-        <div class="stat-card">
-            <span class="stat-label">Total Products</span>
-            <span class="stat-value">@ViewBag.TotalProducts</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Orders Processed</span>
-            <span class="stat-value">@ViewBag.TotalOrders</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Gross Revenue</span>
-            <span class="stat-value">@ViewBag.TotalRevenue.ToString("C0")</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Low Stock Alert</span>
-            <span class="stat-value @(ViewBag.LowStock > 0 ? "stat-alert" : "")">@ViewBag.LowStock</span>
-        </div>
-    </div>
-
-    <div class="nav-cards">
-        <a asp-action="Products" class="nav-card">
-            <div class="nav-card-icon">📦</div>
-            <div class="nav-card-body">
-                <h3>Products</h3>
-                <p>Add, edit, clone & remove items</p>
+    <div class="dashboard-grid">
+        <!-- Sidebar Navigation -->
+        <div class="admin-sidebar">
+            <div class="side-card">
+                <nav style="display: flex; flex-direction: column; gap: 0.4rem;">
+                    <a href="#stats" class="nav-btn active">📊 Overview</a>
+                    <a asp-action="Products" class="nav-btn">📦 Product Inventory</a>
+                    <a asp-action="Orders" class="nav-btn">📋 Order Stream</a>
+                    <hr style="border: 0; border-top: 1px solid var(--admin-border); margin: 0.5rem 0;" />
+                    <a href="#visual" class="nav-btn">🖼 Visual Categories</a>
+                    <a href="#tech" class="nav-btn">⚡ Technical Taxonomy</a>
+                    <a href="#config" class="nav-btn">⚙ Store Config</a>
+                </nav>
             </div>
-            <span class="nav-card-arrow">→</span>
-        </a>
-        <a asp-action="Orders" class="nav-card">
-            <div class="nav-card-icon">📋</div>
-            <div class="nav-card-body">
-                <h3>Orders</h3>
-                <p>Track and update order status</p>
-            </div>
-            <span class="nav-card-arrow">→</span>
-        </a>
-    </div>
 
-    <div class="settings-badge">⚙ Singleton · Store Config</div>
-    <p class="settings-section-title">Store Settings</p>
-    <p class="settings-section-subtitle">These settings are stored as a singleton and apply across the entire store.</p>
-
-    <div class="settings-card">
-        <form asp-action="UpdateSettings" method="post" class="settings-form">
-            <div class="field-row full">
-                <div class="field-group">
-                    <label class="field-label" for="storeName">Store Name</label>
-                    <input type="text" name="storeName" id="storeName" class="field-input" value="@settings.StoreName"
-                        required />
+            <div class="side-card" style="background: var(--admin-accent); color: #fff;">
+                <p style="font-size: 0.7rem; font-weight: 700; margin: 0; text-transform: uppercase; opacity: 0.6">Quick Stats</p>
+                <div style="margin-top: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+                        <span style="font-size: 0.8rem; opacity: 0.8">Revenue</span>
+                        <span style="font-weight: 800; font-size: 0.8rem;">@ViewBag.TotalRevenue.ToString("C0")</span>
+                    </div>
+                    <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px;">
+                        <div style="width: 75%; height: 100%; background: var(--admin-success); border-radius: 2px;"></div>
+                    </div>
                 </div>
             </div>
-            <div class="field-row">
-                <div class="field-group">
-                    <label class="field-label" for="vatPercentage">VAT Rate (%)</label>
-                    <span class="field-hint">Applied to all products at checkout</span>
-                    <input type="number" step="0.01" name="vatPercentage" id="vatPercentage" class="field-input"
-                        value="@settings.VatPercentage" required />
+        </div>
+
+        <!-- Main Content area -->
+        <div class="admin-main">
+            <!-- Stats -->
+            <div id="stats" class="stats-row">
+                <div class="mini-stat">
+                    <label>Products</label>
+                    <span>@ViewBag.TotalProducts</span>
                 </div>
-                <div class="field-group">
-                    <label class="field-label" for="freeShippingThreshold">Free Shipping Threshold</label>
-                    <span class="field-hint">Orders above this value ship free</span>
-                    <input type="number" step="0.01" name="freeShippingThreshold" id="freeShippingThreshold"
-                        class="field-input" value="@settings.FreeShippingThreshold" required />
+                <div class="mini-stat">
+                    <label>Orders</label>
+                    <span>@ViewBag.TotalOrders</span>
+                </div>
+                <div class="mini-stat">
+                    <label>Inventory Alerts</label>
+                    <span style="color: @(ViewBag.LowStock > 0 ? "#ef4444" : "inherit")">@ViewBag.LowStock</span>
+                </div>
+                <div class="mini-stat">
+                    <label>Active Categories</label>
+                    <span>@categories.Count</span>
                 </div>
             </div>
-        </form>
-        <div class="settings-footer">
-            <div class="settings-meta">
-                Last updated: <span>@settings.LastUpdated.ToString("MMM d, yyyy · HH:mm")</span>
-                &nbsp;·&nbsp; Max items/order: <span>@settings.MaxItemsPerOrder</span>
+
+            <!-- Group: Visual Categories -->
+            <div id="visual" class="admin-section">
+                <div class="section-head">
+                    <h2>🖼 Visual Category Manager</h2>
+                    <span style="font-size: 0.7rem; color: var(--admin-text-muted)">Featured on Home Page</span>
+                </div>
+                <div class="section-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem;">
+                        <!-- Create Form -->
+                        <form asp-action="CreateCategory" method="post" enctype="multipart/form-data">
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <div class="input-group">
+                                    <label>Category Display Name</label>
+                                    <input type="text" name="categoryName" class="compact-input" placeholder="e.g. Home, Sports, Accessories" required />
+                                </div>
+                                <div class="input-group">
+                                    <label>Cover Image (Banners)</label>
+                                    <div style="border: 2px dashed var(--admin-border); padding: 1rem; border-radius: 8px; text-align: center; background: #fcfcfc;">
+                                        <input type="file" name="categoryImage" style="font-size: 0.75rem;" required />
+                                        <p style="font-size: 0.65rem; color: var(--admin-text-muted); margin-top: 0.5rem;">Recommended: 16:9 Aspect Ratio</p>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-action">Create Visual Category</button>
+                            </div>
+                        </form>
+
+                        <!-- List -->
+                        <div style="max-height: 250px; overflow-y: auto;">
+                            <table class="compact-table">
+                                <thead>
+                                    <tr>
+                                        <th>Icon</th>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var cat in categories)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(cat.ImageUrl)) {
+                                                    <img src="@cat.ImageUrl" class="cat-badge" />
+                                                } else {
+                                                    <div class="cat-badge" style="display: flex; align-items: center; justify-content: center; font-size: 0.6rem;">N/A</div>
+                                                }
+                                            </td>
+                                            <td style="font-weight: 700;">@cat.Name</td>
+                                            <td>
+                                                <form asp-action="ToggleCategoryFeatured" method="post" style="display:inline;">
+                                                    <input type="hidden" name="id" value="@cat.Id" />
+                                                    <button type="submit" class="btn-action" style="background: @(cat.IsFeatured ? "var(--admin-success)" : "var(--admin-text-muted)"); padding: 0.25rem 0.6rem; font-size: 0.7rem;">
+                                                        @(cat.IsFeatured ? "Featured" : "Hidden")
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <button type="submit" form="settings-form-id" class="btn-save"
-                onclick="this.closest('.settings-card').querySelector('form').submit()">Save Settings</button>
+
+            <!-- Group: Technical Taxonomy -->
+            <div id="tech" class="admin-section">
+                <div class="section-head">
+                    <h2>⚡ Technical Sub-Category Manager</h2>
+                    <span style="font-size: 0.7rem; color: var(--admin-text-muted)">Define Product Attributes</span>
+                </div>
+                <div class="section-body">
+                    <form asp-action="CreateTaxonomy" method="post">
+                        <div class="input-grid">
+                            <div class="input-group">
+                                <label>Parent Category</label>
+                                <select name="parentCategoryId" class="compact-input">
+                                    @foreach (var cat in categories)
+                                    {
+                                        <option value="@cat.Id">@cat.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Sub-Category Name</label>
+                                <input type="text" name="taxonomyName" class="compact-input" placeholder="e.g. Laptops, Mountain Bikes" required />
+                            </div>
+                            <div class="input-group" style="grid-column: span 2;">
+                                <label>Required Attributes (CSV)</label>
+                                <input type="text" name="attributesCsv" class="compact-input" placeholder="RAM, CPU, Material, Size" required />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-action" style="margin-top: 1rem; width: 100%;">Map Product Attributes</button>
+                    </form>
+
+                    <div style="margin-top: 1.5rem; border-top: 1px solid var(--admin-border); padding-top: 1rem;">
+                         <table class="compact-table">
+                                <thead>
+                                    <tr>
+                                        <th>Parent</th>
+                                        <th>Sub-Category</th>
+                                        <th>Expected Specs</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var sub in ViewBag.SubCategories)
+                                    {
+                                        <tr>
+                                            <td style="color: var(--admin-text-muted)">@sub.ParentName</td>
+                                            <td style="font-weight: 700;">@sub.Name</td>
+                                            <td>
+                                                <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #475569;">@sub.Attributes</code>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group: Store Config -->
+            <div id="config" class="admin-section">
+                <div class="section-head">
+                    <h2>⚙ Store Configuration (Singleton)</h2>
+                    <button type="submit" form="master-settings" class="btn-action" style="padding: 0.35rem 0.75rem; font-size: 0.7rem;">Update Config</button>
+                </div>
+                <div class="section-body">
+                    <form asp-action="UpdateSettings" id="master-settings" method="post" class="input-grid">
+                        <div class="input-group">
+                            <label>Store Global Name</label>
+                            <input type="text" name="storeName" class="compact-input" value="@settings.StoreName" required />
+                        </div>
+                        <div class="input-group">
+                            <label>VAT Rate (%)</label>
+                            <input type="number" step="0.01" name="vatPercentage" class="compact-input" value="@settings.VatPercentage" required />
+                        </div>
+                        <div class="input-group">
+                            <label>Free Shipping threshold</label>
+                            <input type="number" step="0.01" name="freeShippingThreshold" class="compact-input" value="@settings.FreeShippingThreshold" required />
+                        </div>
+                        <div class="input-group">
+                            <label>Currency Symbol</label>
+                            <input type="text" name="currencySymbol" class="compact-input" value="@settings.CurrencySymbol" />
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>

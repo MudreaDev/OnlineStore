@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Enums;
+using System.Text.Json;
+using System.Collections.Generic;
 
 namespace OnlineStore.Application.Data
 {
@@ -17,6 +19,8 @@ namespace OnlineStore.Application.Data
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Admin> Admins { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
+        public DbSet<Category> Categories { get; set; } = null!;
+        public DbSet<SubCategory> SubCategories { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,7 +43,16 @@ namespace OnlineStore.Application.Data
                 .HasDiscriminator<string>("ProductType")
                 .HasValue<ElectronicProduct>("Electronic")
                 .HasValue<ClothingProduct>("Clothing")
-                .HasValue<VehicleProduct>("Vehicle");
+                .HasValue<VehicleProduct>("Vehicle")
+                .HasValue<DynamicProduct>("Dynamic");
+
+            // Configure DynamicProduct JSON storage
+            modelBuilder.Entity<DynamicProduct>()
+                .Property(dp => dp.CustomAttributes)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, (JsonSerializerOptions?)null) ?? new Dictionary<string, string>()
+                );
 
             // Configure User Hierarchy (TPH)
             modelBuilder.Entity<User>()

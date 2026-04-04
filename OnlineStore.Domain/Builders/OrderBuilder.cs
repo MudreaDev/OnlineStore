@@ -14,6 +14,8 @@ namespace OnlineStore.Domain.Builders
     public class OrderBuilder : IOrderBuilder
     {
         private User? _user;
+        private string _shippingAddress = string.Empty;
+        private string _phoneNumber = string.Empty;
         private readonly List<OrderItem> _items = new();
         private IDiscountStrategy _discountStrategy = new NoDiscountStrategy();
 
@@ -42,6 +44,18 @@ namespace OnlineStore.Domain.Builders
             return this;
         }
 
+        public IOrderBuilder SetShippingAddress(string address)
+        {
+            _shippingAddress = address;
+            return this;
+        }
+
+        public IOrderBuilder SetPhoneNumber(string phoneNumber)
+        {
+            _phoneNumber = phoneNumber;
+            return this;
+        }
+
         public Order Build()
         {
             if (_user == null)
@@ -57,7 +71,7 @@ namespace OnlineStore.Domain.Builders
             decimal subtotal = _items.Sum(i => i.UnitPrice * i.Quantity);
             decimal total = _discountStrategy.ApplyDiscount(subtotal);
 
-            return new Order(_user, new List<OrderItem>(_items), total);
+            return new Order(_user, new List<OrderItem>(_items), total, _shippingAddress, _phoneNumber);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using OnlineStore.Domain.Entities;
+using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +14,12 @@ namespace OnlineStore.Application.Services
             _discountStrategy = discountStrategy;
         }
 
-        public Order PlaceOrder(User user, List<OrderItem> items)
+        public Order PlaceOrder(User user, List<OrderItem> items, string shippingAddress = "N/A", string phoneNumber = "N/A")
         {
             decimal total = items.Sum(i => i.UnitPrice * i.Quantity);
             decimal finalTotal = _discountStrategy.ApplyDiscount(total);
 
-            return new Order(user, items, finalTotal);
+            return new Order(user, items, finalTotal, shippingAddress, phoneNumber);
         }
     }
 }

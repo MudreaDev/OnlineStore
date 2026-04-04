@@ -19,9 +19,11 @@ namespace OnlineStore.Domain.Builders
             _builder = builder;
         }
 
-        public Order BuildStandardOrder(User user, List<OrderItem> items)
+        public Order BuildStandardOrder(User user, List<OrderItem> items, string shippingAddress, string phoneNumber)
         {
             _builder.SetUser(user);
+            _builder.SetShippingAddress(shippingAddress);
+            _builder.SetPhoneNumber(phoneNumber);
             foreach (var item in items) _builder.AddOrderItem(item);
             
             return _builder
@@ -29,9 +31,11 @@ namespace OnlineStore.Domain.Builders
                 .Build();
         }
 
-        public Order BuildPremiumOrder(User user, List<OrderItem> items)
+        public Order BuildPremiumOrder(User user, List<OrderItem> items, string shippingAddress, string phoneNumber)
         {
             _builder.SetUser(user);
+            _builder.SetShippingAddress(shippingAddress);
+            _builder.SetPhoneNumber(phoneNumber);
             foreach (var item in items) _builder.AddOrderItem(item);
 
             return _builder
@@ -39,9 +43,11 @@ namespace OnlineStore.Domain.Builders
                 .Build();
         }
 
-        public Order BuildSaleOrder(User user, List<OrderItem> items, decimal fixedDiscount)
+        public Order BuildSaleOrder(User user, List<OrderItem> items, decimal fixedDiscount, string shippingAddress, string phoneNumber)
         {
             _builder.SetUser(user);
+            _builder.SetShippingAddress(shippingAddress);
+            _builder.SetPhoneNumber(phoneNumber);
             foreach (var item in items) _builder.AddOrderItem(item);
 
             return _builder

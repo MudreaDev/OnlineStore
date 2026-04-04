@@ -92,7 +92,7 @@ namespace OnlineStore.Domain.DesignPatterns.Structural.Facade
             _productReadRepo = productReadRepo;
         }
 
-        public Order CreateAndSaveOrder(User user, ShoppingCart cart)
+        public Order CreateAndSaveOrder(User user, ShoppingCart cart, string shippingAddress, string phoneNumber)
         {
             var orderItems = new List<OrderItem>();
             foreach (var item in cart.Items)
@@ -108,11 +108,11 @@ namespace OnlineStore.Domain.DesignPatterns.Structural.Facade
             Order order;
             if (orderItems.Sum(i => i.Quantity) > 3)
             {
-                order = director.BuildPremiumOrder(user, orderItems);
+                order = director.BuildPremiumOrder(user, orderItems, shippingAddress, phoneNumber);
             }
             else
             {
-                order = director.BuildStandardOrder(user, orderItems);
+                order = director.BuildStandardOrder(user, orderItems, shippingAddress, phoneNumber);
             }
 
             _orderWriteRepo.Add(order);
@@ -151,7 +151,7 @@ namespace OnlineStore.Domain.DesignPatterns.Structural.Facade
             _emailService = emailService;
         }
 
-        public bool Checkout(User user, ShoppingCart cart, out string message, out Order placedOrder)
+        public bool Checkout(User user, ShoppingCart cart, string shippingAddress, string phoneNumber, out string message, out Order placedOrder)
         {
             placedOrder = null!;
 
@@ -162,7 +162,7 @@ namespace OnlineStore.Domain.DesignPatterns.Structural.Facade
             }
 
             // 2. Creare și Salvare Comandă (inclusiv Builder Pattern din lab anterior)
-            placedOrder = _orderRecord.CreateAndSaveOrder(user, cart);
+            placedOrder = _orderRecord.CreateAndSaveOrder(user, cart, shippingAddress, phoneNumber);
 
             // 3. Procesare Plată cu Adapter
             if (!_payment.ProcessPayment(placedOrder.Id.ToString(), placedOrder.Total))
@@ -174,14 +174,10 @@ namespace OnlineStore.Domain.DesignPatterns.Structural.Facade
 
             message = "Comanda a fost finalizată și plătită cu succes!";
 
-            // 4. Send Email Confirmation (Async - fire and forget or await)
-            // Note: Since this method is synchronous, we run it in a task or make the method async.
-            // For now, we'll try to run it synchronously or just ignore the task (not recommended in prod).
-            // Let's make Checkout async for better practice.
+            // 4. Send Email Confirmation
             _emailService.SendOrderConfirmationAsync(user.Email, placedOrder.Id.ToString(), placedOrder.Total).GetAwaiter().GetResult();
 
             return true;
         }
     }
 }
-

@@ -13,17 +13,22 @@ namespace OnlineStore.Domain.Entities
         public DateTime OrderDate { get; set; }
         public OrderStatus Status { get; set; }
 
+        public string ShippingAddress { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+
         protected Order()
         {
             User = null!;
             Items = new List<OrderItem>();
         }
 
-        public Order(User user, List<OrderItem> items, decimal total)
+        public Order(User user, List<OrderItem> items, decimal total, string shippingAddress, string phoneNumber)
         {
             User = user;
             Items = items;
             Total = total;
+            ShippingAddress = shippingAddress;
+            PhoneNumber = phoneNumber;
             OrderDate = DateTime.Now;
             Status = OrderStatus.Pending;
         }

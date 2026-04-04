@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using OnlineStore.Application.Repositories;
+using OnlineStore.Application.Data;
 using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Singleton;
 using OnlineStore.WebUI.Models;
@@ -15,11 +16,13 @@ namespace OnlineStore.WebUI.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly DbProductRepository _productRepo;
+        private readonly OnlineStoreDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger, DbProductRepository productRepo)
+        public HomeController(ILogger<HomeController> logger, DbProductRepository productRepo, OnlineStoreDbContext context)
         {
             _logger = logger;
             _productRepo = productRepo;
+            _context = context;
         }
 
         public IActionResult Index(string? searchQuery, string? categoryFilter, decimal? minPrice, decimal? maxPrice, string? sortStrategy, int page = 1)
@@ -112,6 +115,9 @@ namespace OnlineStore.WebUI.Controllers
             // Pattern 3: Singleton - Transmitem setările globale către View
             ViewBag.FreeShippingThreshold = ApplicationConfigurationManager.Instance.FreeShippingThreshold;
             ViewBag.CurrencySymbol = ApplicationConfigurationManager.Instance.CurrencySymbol;
+
+            // Dynamic Categories for Hero Banners
+            ViewBag.Categories = _context.Categories.ToList();
 
             return View(finalList);
         }
