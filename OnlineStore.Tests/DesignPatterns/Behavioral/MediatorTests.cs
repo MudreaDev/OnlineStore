@@ -20,6 +20,7 @@ namespace OnlineStore.Tests.DesignPatterns.Behavioral
             var mockProductRepo = new Mock<IReadableRepository<Product>>();
             var mockStockService = new Mock<IStockService>();
             var mockPaymentService = new Mock<IPaymentService>();
+            var mockValidationService = new Mock<OrderValidationService>();
 
             // Setup mocks
             var user = new User("test", "test@example.com");
@@ -27,6 +28,7 @@ namespace OnlineStore.Tests.DesignPatterns.Behavioral
             var order = new Order(user, new List<OrderItem>(), 100, "Addr", "123");
 
             mockStockService.Setup(s => s.IsInStock(It.IsAny<Guid>(), It.IsAny<int>())).Returns(true);
+            mockProductRepo.Setup(r => r.GetById(It.IsAny<Guid>())).Returns(new ElectronicProduct("Test", 100));
 
             mockOrderService.Setup(s => s.PlaceOrder(
                 It.IsAny<User>(), 
@@ -46,13 +48,14 @@ namespace OnlineStore.Tests.DesignPatterns.Behavioral
 
             var mediator = new CheckoutMediator(
                 mockOrderService.Object, 
+                mockValidationService.Object,
                 mockEmailService.Object, 
                 mockStockService.Object, 
                 mockPaymentService.Object, 
                 mockProductRepo.Object);
 
             // Act
-            mediator.Checkout(user, cart, "Test Address", "0740000000");
+            mediator.Checkout(user, cart, "Stripe", "Local", "Home", "Courier", "Test Address", "0740000000");
 
             // Assert
             mockOrderService.Verify(s => s.PlaceOrder(user, It.IsAny<List<OrderItem>>(), "Test Address", "0740000000"), Times.Once);

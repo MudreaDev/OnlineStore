@@ -14,9 +14,9 @@ namespace OnlineStore.Tests.DesignPatterns.Behavioral
             // Arrange
             var products = new List<Product>
             {
-                new ElectronicProduct("Z", 100, 12) { Stock = 10 },
-                new ElectronicProduct("A", 300, 24) { Stock = 50 },
-                new ElectronicProduct("M", 50, 6) { Stock = 0 }
+                new ElectronicProduct("Z", 100, warrantyMonths: 12) { Stock = 10 },
+                new ElectronicProduct("A", 300, warrantyMonths: 24) { Stock = 50 },
+                new ElectronicProduct("M", 50, warrantyMonths: 6) { Stock = 0 }
             };
 
             // Act & Assert

@@ -101,10 +101,13 @@ static void SeedData(IServiceProvider services)
     productRepo.Add(vehicleFactory.CreateProduct("SUV", 25000));
 
     // Seed Customer
-    userRepo.Add(new Customer("testuser", "test@test.com", "123 Demo St"));
+    var customer = new Customer("testuser", "test@test.com", "123 Demo St");
+    customer.PasswordHash = OnlineStore.Domain.Utils.PasswordHasher.Hash("test123");
+    userRepo.Add(customer);
 
     // Seed Admin
     var admin = new Admin("admin", "admin@store.com", "SuperAdmin");
+    admin.PasswordHash = OnlineStore.Domain.Utils.PasswordHasher.Hash("admin123");
     admin.Permissions.AddRange(new[] { "ManageProducts", "ManageOrders", "ManageUsers" });
     userRepo.Add(admin);
 }

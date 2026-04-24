@@ -25,7 +25,7 @@ namespace OnlineStore.Application.Services
             _validationChain = userHandler;
         }
 
-        public Order PlaceOrder(User user, List<OrderItem> items, string shippingAddress = "N/A", string phoneNumber = "N/A")
+        public virtual Order PlaceOrder(User user, List<OrderItem> items, string shippingAddress = "N/A", string phoneNumber = "N/A")
         {
             // Use Chain of Responsibility to validate
             string? validationError = _validationChain.Handle(user, items);

@@ -18,7 +18,7 @@ namespace OnlineStore.Tests.DesignPatterns.Behavioral
             var notificationService = new OrderNotificationService(mockEmailService.Object);
 
             var user = new Customer("test", "test@test.com", "Test Addr");
-            var order = new Order(user, new System.Collections.Generic.List<OrderItem>(), 100m) { Status = OrderStatus.Shipped };
+            var order = new Order(user, new System.Collections.Generic.List<OrderItem>(), 100m, "Test Addr", "0700000000") { Status = OrderStatus.Shipped };
 
             // NotificationService already attaches Email, Sms, Dashboard in constructor,
             // but let's test a custom mock observer as well to verify Notification logic.

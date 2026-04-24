@@ -11,17 +11,10 @@ namespace OnlineStore.Domain.DesignPatterns.Behavioral.Memento
         public List<CartItem> ItemsSnapshot { get; }
 
         [JsonConstructor]
-        public CartMemento(List<CartItem> itemsSnapshot)
+        public CartMemento(IEnumerable<CartItem> itemsSnapshot)
         {
-            // Constructor for deserialization
-            ItemsSnapshot = itemsSnapshot;
-        }
-
-        public CartMemento(IEnumerable<CartItem> items)
-        {
-            // Constructor for creating memento from cart state
             // Create a deep copy of the items to preserve state
-            ItemsSnapshot = items.Select(i => new CartItem(i.ProductId, i.Quantity, i.Size, i.Color)).ToList();
+            ItemsSnapshot = itemsSnapshot.Select(i => new CartItem(i.ProductId, i.Quantity, i.Size, i.Color)).ToList();
         }
     }
 }
