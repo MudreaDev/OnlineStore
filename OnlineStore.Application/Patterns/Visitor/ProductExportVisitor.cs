@@ -1,0 +1,62 @@
+using OnlineStore.Domain.Entities;
+using OnlineStore.Domain.Patterns.Visitor;
+using System.Text;
+
+namespace OnlineStore.Application.Patterns.Visitor
+{
+    public class ProductExportVisitor : IProductVisitor
+    {
+        private readonly StringBuilder _exportData = new StringBuilder();
+
+        public string GetExportResult() => _exportData.ToString();
+
+        public void VisitElectronicProduct(ElectronicProduct product)
+        {
+            _exportData.AppendLine($"--- ELECTRONIC PRODUCT EXPORT ---");
+            _exportData.AppendLine($"Name: {product.Name}");
+            _exportData.AppendLine($"Price: {product.Price:C}");
+            _exportData.AppendLine($"Brand: {product.Brand}");
+            _exportData.AppendLine($"Model: {product.Model}");
+            _exportData.AppendLine($"Warranty: {product.WarrantyMonths} months");
+            _exportData.AppendLine($"Stock Status: {(product.Stock > 0 ? "In Stock" : "Out of Stock")} ({product.Stock} units)");
+            _exportData.AppendLine("----------------------------------");
+        }
+
+        public void VisitClothingProduct(ClothingProduct product)
+        {
+            _exportData.AppendLine($"--- CLOTHING PRODUCT EXPORT ---");
+            _exportData.AppendLine($"Name: {product.Name}");
+            _exportData.AppendLine($"Price: {product.Price:C}");
+            _exportData.AppendLine($"Size: {product.Size}");
+            _exportData.AppendLine($"Material: {product.Material}");
+            _exportData.AppendLine($"Available Colors: {product.AvailableColors}");
+            _exportData.AppendLine($"Stock Status: {(product.Stock > 0 ? "In Stock" : "Out of Stock")} ({product.Stock} units)");
+            _exportData.AppendLine("----------------------------------");
+        }
+
+        public void VisitVehicleProduct(VehicleProduct product)
+        {
+            _exportData.AppendLine($"--- VEHICLE PRODUCT EXPORT ---");
+            _exportData.AppendLine($"Name: {product.Name}");
+            _exportData.AppendLine($"Price: {product.Price:C}");
+            _exportData.AppendLine($"Make: {product.Make}");
+            _exportData.AppendLine($"Year: {product.Year}");
+            _exportData.AppendLine($"Fuel: {product.FuelType}");
+            _exportData.AppendLine($"Stock Status: {(product.Stock > 0 ? "In Stock" : "Out of Stock")} ({product.Stock} units)");
+            _exportData.AppendLine("----------------------------------");
+        }
+
+        public void VisitDynamicProduct(DynamicProduct product)
+        {
+            _exportData.AppendLine($"--- DYNAMIC PRODUCT EXPORT ---");
+            _exportData.AppendLine($"Name: {product.Name}");
+            _exportData.AppendLine($"Price: {product.Price:C}");
+            foreach (var attr in product.CustomAttributes)
+            {
+                _exportData.AppendLine($"{attr.Key}: {attr.Value}");
+            }
+            _exportData.AppendLine($"Stock Status: {(product.Stock > 0 ? "In Stock" : "Out of Stock")} ({product.Stock} units)");
+            _exportData.AppendLine("----------------------------------");
+        }
+    }
+}

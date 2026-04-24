@@ -7,7 +7,7 @@ namespace OnlineStore.Domain.Factories
         public override Product CreateProduct(string name, decimal price)
         {
             // Putem adăuga logică implicită sau specifică fabricii
-            return new ElectronicProduct(name, price, 24); // Implicit 24 luni garanție
+            return new ElectronicProduct(name, price, warrantyMonths: 24); // Implicit 24 luni garanție
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OnlineStore.Domain.Common;
 using OnlineStore.Domain.Enums;
+using OnlineStore.Domain.Patterns.State;
 
 namespace OnlineStore.Domain.Entities
 {
@@ -16,10 +17,13 @@ namespace OnlineStore.Domain.Entities
         public string ShippingAddress { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
 
+        private IOrderState _state;
+
         protected Order()
         {
             User = null!;
             Items = new List<OrderItem>();
+            _state = new PendingState();
         }
 
         public Order(User user, List<OrderItem> items, decimal total, string shippingAddress, string phoneNumber)
@@ -31,6 +35,18 @@ namespace OnlineStore.Domain.Entities
             PhoneNumber = phoneNumber;
             OrderDate = DateTime.Now;
             Status = OrderStatus.Pending;
+            _state = new PendingState();
         }
+
+        public void SetState(IOrderState state)
+        {
+            _state = state;
+        }
+
+        public void Pay() => _state.Pay(this);
+        public void Ship() => _state.Ship(this);
+        public void Cancel() => _state.Cancel(this);
+        
+        public string GetStateName() => _state.GetStatusName();
     }
 }

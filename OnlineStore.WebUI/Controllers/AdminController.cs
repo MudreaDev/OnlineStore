@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using OnlineStore.Application.Repositories;
 using OnlineStore.Application.Data;
 using OnlineStore.Application.Services;
+using OnlineStore.Application.Patterns.Visitor;
 using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Factories;
 using OnlineStore.Domain.Singleton;
@@ -13,6 +14,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Text;
 
 namespace OnlineStore.WebUI.Controllers
 {
@@ -130,7 +132,7 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddProduct(string type, string name, decimal price, int? stock, int? warrantyMonths, string size, string material, string availableSizes, string availableColors, string brand, string model, int? year, List<IFormFile>? images, int mainImageIndex = 0)
+        public async Task<IActionResult> AddProduct(string type, string name, decimal price, int? stock, int? warrantyMonths, string size, string material, string availableSizes, string availableColors, string make, string model, int? year, List<IFormFile>? images, int mainImageIndex = 0)
         {
             var accessCheck = CheckAccess();
             if (accessCheck != null) return accessCheck;
@@ -163,7 +165,7 @@ namespace OnlineStore.WebUI.Controllers
                 }
                 else if (newProduct is VehicleProduct vehicle)
                 {
-                    if (!string.IsNullOrEmpty(brand)) vehicle.Brand = brand;
+                    if (!string.IsNullOrEmpty(make)) vehicle.Make = make;
                     if (!string.IsNullOrEmpty(model)) vehicle.Model = model;
                     if (year.HasValue) vehicle.Year = year.Value;
                 }
@@ -290,7 +292,7 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditProduct(Guid id, string name, decimal price, int? stock, int? warrantyMonths, string size, string material, string availableSizes, string availableColors, string brand, string model, int? year, List<IFormFile>? newImages, List<string>? deletePublicIds, string? mainImagePublicId, int? mainNewImageIndex)
+        public async Task<IActionResult> EditProduct(Guid id, string name, decimal price, int? stock, int? warrantyMonths, string size, string material, string availableSizes, string availableColors, string make, string model, int? year, List<IFormFile>? newImages, List<string>? deletePublicIds, string? mainImagePublicId, int? mainNewImageIndex)
         {
             var accessCheck = CheckAccess();
             if (accessCheck != null) return accessCheck;
@@ -316,7 +318,7 @@ namespace OnlineStore.WebUI.Controllers
             }
             else if (product is VehicleProduct vehicleUpdate)
             {
-                vehicleUpdate.Brand = brand;
+                vehicleUpdate.Make = make;
                 vehicleUpdate.Model = model;
                 if (year.HasValue) vehicleUpdate.Year = year.Value;
             }
@@ -507,6 +509,72 @@ namespace OnlineStore.WebUI.Controllers
 
             TempData["Message"] = "Setările magazinului au fost actualizate.";
             return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public IActionResult ExportInventory()
+        {
+            var accessCheck = CheckAccess();
+            if (accessCheck != null) return accessCheck;
+
+            var products = _productRepo.GetAll();
+            var visitor = new ProductExportVisitor();
+
+            foreach (var product in products)
+            {
+                product.Accept(visitor);
+            }
+
+            var exportData = visitor.GetExportResult();
+            var fileName = $"InventoryExport_{DateTime.Now:yyyyMMdd}.txt";
+            
+            return File(Encoding.UTF8.GetBytes(exportData), "text/plain", fileName);
+        }
+
+        [HttpPost]
+        public IActionResult ShipOrderState(Guid id)
+        {
+            var accessCheck = CheckAccess();
+            if (accessCheck != null) return accessCheck;
+
+            var order = _orderRepo.GetById(id);
+            if (order != null)
+            {
+                try
+                {
+                    order.Ship(); // Calls the State transition
+                    _orderRepo.Update(order);
+                    TempData["Success"] = $"Comanda {id.ToString()[..8]} a fost expediată (State Pattern).";
+                }
+                catch (Exception ex)
+                {
+                    TempData["Error"] = $"Eroare (Stat): {ex.Message}";
+                }
+            }
+            return RedirectToAction("Orders");
+        }
+
+        [HttpPost]
+        public IActionResult CancelOrderState(Guid id)
+        {
+            var accessCheck = CheckAccess();
+            if (accessCheck != null) return accessCheck;
+
+            var order = _orderRepo.GetById(id);
+            if (order != null)
+            {
+                try
+                {
+                    order.Cancel(); // Calls the State transition
+                    _orderRepo.Update(order);
+                    TempData["Success"] = $"Comanda {id.ToString()[..8]} a fost anulată (State Pattern).";
+                }
+                catch (Exception ex)
+                {
+                    TempData["Error"] = $"Eroare (Stat): {ex.Message}";
+                }
+            }
+            return RedirectToAction("Orders");
         }
     }
 }

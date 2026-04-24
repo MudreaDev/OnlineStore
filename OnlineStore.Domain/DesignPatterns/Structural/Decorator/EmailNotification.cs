@@ -9,9 +9,7 @@ namespace OnlineStore.Domain.DesignPatterns.Structural.Decorator
         private readonly IEmailService? _emailService;
         private readonly string? _to;
 
-        public EmailNotification() { }
-
-        public EmailNotification(IEmailService emailService, string to)
+        public EmailNotification(IEmailService? emailService = null, string? to = null)
         {
             _emailService = emailService;
             _to = to;
@@ -23,10 +21,10 @@ namespace OnlineStore.Domain.DesignPatterns.Structural.Decorator
             {
                 // Chemăm serviciul REAL de email
                 _emailService.SendEmailAsync(_to, "Notificare Magazin", message).GetAwaiter().GetResult();
-                return $"[REAL Email] Sent to {_to}: {message}";
+                return $"[Email] REAL Sent to {_to}: {message}";
             }
             
-            return $"[Email Simulation] Content: {message}";
+            return $"[Email] Trimis: {message}";
         }
     }
 }

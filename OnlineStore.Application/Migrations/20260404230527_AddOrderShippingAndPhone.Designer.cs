@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineStore.Application.Data;
 
@@ -11,9 +12,11 @@ using OnlineStore.Application.Data;
 namespace OnlineStore.Application.Migrations
 {
     [DbContext(typeof(OnlineStoreDbContext))]
-    partial class OnlineStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260404230527_AddOrderShippingAndPhone")]
+    partial class AddOrderShippingAndPhone
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -284,12 +287,6 @@ namespace OnlineStore.Application.Migrations
                 {
                     b.HasBaseType("OnlineStore.Domain.Entities.Product");
 
-                    b.Property<string>("Brand")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Model")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("WarrantyMonths")
                         .HasColumnType("int");
 
@@ -300,23 +297,16 @@ namespace OnlineStore.Application.Migrations
                 {
                     b.HasBaseType("OnlineStore.Domain.Entities.Product");
 
-                    b.Property<string>("FuelType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Make")
+                    b.Property<string>("Brand")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Model")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Year")
                         .HasColumnType("int");
-
-                    b.ToTable("Products", t =>
-                        {
-                            t.Property("Model")
-                                .HasColumnName("VehicleProduct_Model");
-                        });
 
                     b.HasDiscriminator().HasValue("Vehicle");
                 });

@@ -34,7 +34,7 @@ namespace OnlineStore.Tests
             var facade = new OrderProcessingFacade(productRepo, productRepo, orderRepo, userRepo, paymentProcessor, new MockEmailService());
 
             // Act
-            bool result = facade.Checkout(user, cart, out string message, out Order placedOrder);
+            bool result = facade.Checkout(user, cart, "Adresa Test", "0700000000", out string message, out Order placedOrder);
 
             // Assert
             Assert.True(result);

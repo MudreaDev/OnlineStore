@@ -5,8 +5,8 @@ using OnlineStore.Domain.Factories;
 using Microsoft.EntityFrameworkCore;
 using OnlineStore.Application.Services;
 using OnlineStore.Domain.Interfaces;
-
-
+using OnlineStore.Application.Patterns.Mediator;
+using OnlineStore.Domain.Strategies;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -20,12 +20,28 @@ builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
 
 // Register Repositories as Scoped (Db storage)
 builder.Services.AddScoped<DbProductRepository>();
+builder.Services.AddScoped<IReadableRepository<Product>>(sp => sp.GetRequiredService<DbProductRepository>());
+builder.Services.AddScoped<IWriteableRepository<Product>>(sp => sp.GetRequiredService<DbProductRepository>());
+
 builder.Services.AddScoped<DbUserRepository>();
 builder.Services.AddScoped<DbOrderRepository>();
+
+// Register Services
 builder.Services.AddScoped<ProductAvailabilityService>();
 builder.Services.AddScoped<CloudinaryService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<OrderNotificationService>();
+builder.Services.AddScoped<IStockService, StockService>();
+builder.Services.AddScoped<IPaymentProcessor, LocalPaymentProcessor>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<OrderValidationService>();
+
+// Strategy Pattern for OrderService
+builder.Services.AddScoped<IDiscountStrategy, NoDiscountStrategy>();
+builder.Services.AddScoped<OrderService>();
+
+// Mediator Pattern
+builder.Services.AddScoped<ICheckoutMediator, OnlineStore.Application.Patterns.Mediator.CheckoutMediator>();
 
 var app = builder.Build();
 

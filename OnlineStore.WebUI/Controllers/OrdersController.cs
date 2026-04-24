@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineStore.Application.Repositories;
 using OnlineStore.Domain.Entities;
+using OnlineStore.Application.Patterns.TemplateMethod;
 using System;
 using System.Linq;
+using System.Text;
 
 namespace OnlineStore.WebUI.Controllers
 {
@@ -49,6 +51,25 @@ namespace OnlineStore.WebUI.Controllers
             }
 
             return View(order);
+        }
+
+        [HttpGet]
+        public IActionResult DownloadInvoice(Guid id)
+        {
+            var userId = GetUserId();
+            if (userId == null) return RedirectToAction("Login", "Account");
+
+            var order = _orderRepo.GetById(id);
+            if (order == null || order.User.Id != userId.Value)
+            {
+                return NotFound();
+            }
+
+            var generator = new InvoiceGenerator();
+            string invoiceContent = generator.Generate(order);
+
+            var fileName = $"Invoice_{order.Id.ToString()[..8]}.txt";
+            return File(Encoding.UTF8.GetBytes(invoiceContent), "text/plain", fileName);
         }
     }
 }

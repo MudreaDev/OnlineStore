@@ -1,4 +1,6 @@
 using OnlineStore.Domain.Interfaces;
+using OnlineStore.Domain.Patterns.Visitor;
+using System.Collections.Generic;
 
 namespace OnlineStore.Domain.Entities
 {
@@ -34,7 +36,12 @@ namespace OnlineStore.Domain.Entities
 
         public override string GetDescription()
         {
-            return $"Modern {Material} apparel designed for comfort and style.";
+            return $"Clothing: {Name}, Size: {Size}, Material: {Material}, Color: {AvailableColors}, Price: {Price:C}";
+        }
+
+        public override void Accept(IProductVisitor visitor)
+        {
+            visitor.VisitClothingProduct(this);
         }
     }
 }

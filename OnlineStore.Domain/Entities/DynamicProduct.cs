@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using OnlineStore.Domain.Interfaces;
+using OnlineStore.Domain.Patterns.Visitor;
 
 namespace OnlineStore.Domain.Entities
 {
@@ -20,6 +20,7 @@ namespace OnlineStore.Domain.Entities
                 Stock = this.Stock,
                 SubCategoryId = this.SubCategoryId,
                 AvailableColors = this.AvailableColors,
+                SubscriberEmails = new List<string>(this.SubscriberEmails),
                 CustomAttributes = new Dictionary<string, string>(this.CustomAttributes)
             };
         }
@@ -27,6 +28,11 @@ namespace OnlineStore.Domain.Entities
         public override string GetDescription()
         {
             return $"Dynamic: {Name}, Price: {Price:C}";
+        }
+
+        public override void Accept(IProductVisitor visitor)
+        {
+            visitor.VisitDynamicProduct(this);
         }
     }
 }

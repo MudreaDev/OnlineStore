@@ -13,6 +13,7 @@ using OnlineStore.Domain.DesignPatterns.Structural.Bridge;
 using OnlineStore.Domain.DesignPatterns.Behavioral.Command;
 using OnlineStore.Domain.DesignPatterns.Behavioral.Memento;
 using OnlineStore.Domain.Interfaces;
+using OnlineStore.Application.Patterns.Mediator;
 
 namespace OnlineStore.WebUI.Controllers
 {
@@ -22,13 +23,20 @@ namespace OnlineStore.WebUI.Controllers
         private readonly DbOrderRepository _orderRepo;
         private readonly DbUserRepository _userRepo;
         private readonly IEmailService _emailService;
+        private readonly ICheckoutMediator _checkoutMediator;
 
-        public CartController(DbProductRepository productRepo, DbOrderRepository orderRepo, DbUserRepository userRepo, IEmailService emailService)
+        public CartController(
+            DbProductRepository productRepo, 
+            DbOrderRepository orderRepo, 
+            DbUserRepository userRepo, 
+            IEmailService emailService,
+            ICheckoutMediator checkoutMediator)
         {
             _productRepo = productRepo;
             _orderRepo = orderRepo;
             _userRepo = userRepo;
             _emailService = emailService;
+            _checkoutMediator = checkoutMediator;
         }
 
         public IActionResult Index()
@@ -273,63 +281,34 @@ namespace OnlineStore.WebUI.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Setup the Payment Adapter based on user selection
-            IExternalPaymentProcessor paymentProcessor;
-            if (paymentMethod == "Stripe")
+            // Execute Checkout via Mediator Pattern
+            var result = _checkoutMediator.Checkout(
+                user, 
+                cart, 
+                paymentMethod, 
+                storeType, 
+                deliveryType, 
+                shippingProvider, 
+                shippingAddress, 
+                phoneNumber);
+
+            if (result.Success)
             {
-                paymentProcessor = new StripeAdapter(new StripeApi());
-            }
-            else
-            {
-                // Default to PayPal
-                paymentProcessor = new PayPalAdapter(new PayPalApi());
-            }
-
-            // Create Facade using the requested Repositories and Payment Processor
-            var orderFacade = new OrderProcessingFacade(_productRepo, _productRepo, _orderRepo, _userRepo, paymentProcessor, _emailService);
-
-            // Execute Checkout via Facade
-            if (orderFacade.Checkout(user, cart, shippingAddress, phoneNumber, out string message, out Order placedOrder))
-            {
-                // Abstract Factory Pattern — alege familia de servicii (Local vs Global)
-                IStoreServicesFactory storeFactory = storeType == "Local"
-                    ? new LocalStoreServicesFactory()
-                    : new GlobalStoreServicesFactory();
-
-                var factoryPayment = storeFactory.CreatePaymentProcessor();
-                var factoryShipping = storeFactory.CreateShippingProvider();
-
-                factoryPayment.ProcessPayment(placedOrder.Total);
-                factoryShipping.ScheduleShipping(shippingAddress);
-
+                TempData["Success"] = result.Message;
+                
+                // Set store type for UI display (matching original logic)
                 TempData["StoreType"] = storeType == "Local"
                     ? "Local Store (cash / curier local)"
                     : "Global Store (PayPal / DHL)";
 
-                // Bridge Pattern — separă tipul de livrare de furnizor
-                IShippingImplementation bridgeImpl = shippingProvider == "Courier"
-                    ? new CourierProvider()
-                    : new PostalProvider();
-
-                ShippingMethod shippingMethod = deliveryType == "Home"
-                    ? new HomeDelivery(bridgeImpl)
-                    : new PickupPointDelivery(bridgeImpl);
-
-                var deliveryResult = shippingMethod.Deliver(
-                    placedOrder.Id.ToString()[..8], shippingAddress);
-
-                TempData["DeliveryInfo"] = deliveryResult;
-
-                // Clear Cart
-                cart.Clear();
+                // Save cart (already cleared by mediator)
                 SaveCart(cart);
 
-                TempData["Success"] = message;
-                return View("OrderConfirmation", placedOrder);
+                return View("OrderConfirmation", result.Order);
             }
             else
             {
-                TempData["Error"] = message;
+                TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
         }
