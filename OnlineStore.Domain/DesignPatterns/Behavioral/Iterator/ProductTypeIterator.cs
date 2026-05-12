@@ -56,9 +56,20 @@ namespace OnlineStore.Domain.DesignPatterns.Behavioral.Iterator
         private bool Matches(int index)
         {
             if (index >= _products.Count) return false;
-            return string.IsNullOrEmpty(_typeFilter)
-                || _typeFilter == "All"
-                || _products[index].GetType().Name.StartsWith(_typeFilter);
+            if (string.IsNullOrEmpty(_typeFilter) || _typeFilter.Equals("All", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            var product = _products[index];
+            var typeName = product.GetType().Name;
+            var categoryName = product.SubCategory?.Category?.Name ?? "";
+            var subCategoryName = product.SubCategory?.Name ?? "";
+            
+            // Handle plural/singular mismatches (e.g. "Vehicles" matches "VehicleProduct")
+            var normalizedFilter = _typeFilter.TrimEnd('s');
+            
+            return typeName.Contains(normalizedFilter, StringComparison.OrdinalIgnoreCase)
+                || categoryName.Contains(normalizedFilter, StringComparison.OrdinalIgnoreCase)
+                || subCategoryName.Contains(normalizedFilter, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

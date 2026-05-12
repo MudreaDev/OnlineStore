@@ -262,12 +262,6 @@
         </div>
     </div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 0.75rem 1rem; border-radius: 10px; margin: 1rem 0; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
-            <span>✓</span> @TempData["Success"]
-        </div>
-    }
 
     <div class="dashboard-grid">
         <!-- Sidebar Navigation -->
@@ -281,6 +275,15 @@
                     <a href="#visual" class="nav-btn">🖼 Visual Categories</a>
                     <a href="#tech" class="nav-btn">⚡ Technical Taxonomy</a>
                     <a href="#config" class="nav-btn">⚙ Store Config</a>
+                    <hr style="border: 0; border-top: 1px solid var(--admin-border); margin: 0.5rem 0;" />
+                    <a asp-action="ExportInventory" class="nav-btn" style="background: #f1f5f9; color: var(--admin-accent); border: 1px solid var(--admin-border);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 4px;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Export Inventory (Visitor)
+                    </a>
                 </nav>
             </div>
 

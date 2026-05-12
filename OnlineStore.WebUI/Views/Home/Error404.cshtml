@@ -1,0 +1,119 @@
+@{
+    ViewData["Title"] = "Page Not Found";
+}
+
+<style>
+    .error-404-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 8rem 2rem;
+        min-height: 60vh;
+    }
+
+    .error-code {
+        font-family: var(--font-elegant);
+        font-size: 10rem;
+        line-height: 1;
+        color: var(--midnight);
+        margin-bottom: 1rem;
+        opacity: 0.1;
+        position: relative;
+    }
+
+    .error-code::after {
+        content: "404";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        opacity: 0.2;
+        filter: blur(20px);
+    }
+
+    .error-title {
+        font-family: var(--font-elegant);
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        color: var(--midnight);
+    }
+
+    .error-description {
+        font-size: 1.125rem;
+        color: var(--text-muted);
+        max-width: 500px;
+        margin-bottom: 3rem;
+        line-height: 1.6;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .btn-error-home {
+        background: var(--midnight);
+        color: #fff;
+        padding: 1rem 2.5rem;
+        border-radius: 99px;
+        text-decoration: none;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 0.8rem;
+        transition: var(--transition-smooth);
+    }
+
+    .btn-error-home:hover {
+        background: var(--accent-primary);
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .btn-error-back {
+        background: transparent;
+        color: var(--midnight);
+        padding: 1rem 2.5rem;
+        border-radius: 99px;
+        text-decoration: none;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 0.8rem;
+        border: 1px solid var(--border-bold);
+        transition: var(--transition-smooth);
+    }
+
+    .btn-error-back:hover {
+        background: var(--border-subtle);
+    }
+
+    @@keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+        100% { transform: translateY(0px); }
+    }
+
+    .floating-emoji {
+        font-size: 4rem;
+        margin-bottom: 2rem;
+        animation: float 4s ease-in-out infinite;
+    }
+</style>
+
+<div class="container fade-in">
+    <div class="error-404-container">
+        <div class="floating-emoji">🔍</div>
+        <h1 class="error-code">404</h1>
+        <h2 class="error-title">Lost in Space?</h2>
+        <p class="error-description">
+            The page you are looking for might have been moved, deleted, or never existed in our collection.
+        </p>
+        <div class="error-actions">
+            <a href="/" class="btn-error-home">Back to Collection</a>
+            <a href="javascript:history.back()" class="btn-error-back">Go Back</a>
+        </div>
+    </div>
+</div>

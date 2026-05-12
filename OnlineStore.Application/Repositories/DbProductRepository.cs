@@ -35,12 +35,20 @@ namespace OnlineStore.Application.Repositories
 
         public IEnumerable<Product> GetAll()
         {
-            return _context.Products.Include(p => p.Images).ToList();
+            return _context.Products
+                .Include(p => p.Images)
+                .Include(p => p.SubCategory)
+                    .ThenInclude(s => s!.Category)
+                .ToList();
         }
 
         public Product? GetById(Guid id)
         {
-            return _context.Products.Include(p => p.Images).FirstOrDefault(p => p.Id == id);
+            return _context.Products
+                .Include(p => p.Images)
+                .Include(p => p.SubCategory)
+                    .ThenInclude(s => s!.Category)
+                .FirstOrDefault(p => p.Id == id);
         }
 
         public void Update(Product entity)

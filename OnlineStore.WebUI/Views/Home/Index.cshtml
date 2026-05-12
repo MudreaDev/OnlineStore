@@ -6,28 +6,78 @@
 <style>
     /* --- Hero Section --- */
     .hero-section {
-        background: var(--midnight);
-        color: #fff;
-        padding: 1.25rem 0;
+        position: relative;
+        height: 60vh;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         text-align: center;
-        margin-bottom: 2rem;
-        width: 100%;
+        color: #fff;
+        margin-bottom: 4rem;
+        overflow: hidden;
+        background: var(--midnight);
+    }
+
+    .hero-bg {
+        position: absolute;
+        inset: 0;
+        background-image: url('https://images.unsplash.com/photo-1524758631624-e2822e304c36?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+        background-size: cover;
+        background-position: center;
+        filter: brightness(0.7);
+        transition: transform 2s ease;
+    }
+
+    .hero-section:hover .hero-bg {
+        transform: scale(1.05);
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px;
+        padding: 0 2rem;
     }
 
     .hero-title {
         font-family: var(--font-elegant);
-        font-size: 3rem;
-        margin-bottom: 0.5rem;
-        letter-spacing: -0.01em;
+        font-size: clamp(2.5rem, 8vw, 4.5rem);
+        margin-bottom: 1rem;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
     }
 
     .hero-subtitle {
         font-family: var(--font-display);
-        font-size: 1rem;
+        font-size: clamp(1rem, 3vw, 1.25rem);
         font-weight: 300;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.15em;
         text-transform: uppercase;
-        opacity: 0.8;
+        opacity: 0.9;
+        margin-bottom: 2.5rem;
+    }
+
+    .hero-cta {
+        display: inline-block;
+        background: #fff;
+        color: var(--midnight);
+        padding: 1.25rem 3rem;
+        border-radius: 99px;
+        text-decoration: none;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 0.8rem;
+        transition: var(--transition-smooth);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .hero-cta:hover {
+        background: var(--midnight);
+        color: #fff;
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
     }
 
     /* --- Category Grid (Tiles) --- */
@@ -284,23 +334,155 @@
         padding: 8rem 0;
     }
 
-    @@media (max-width: 1024px) {
+    /* --- Shop Layout (Sidebar + Content) --- */
+    .shop-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 3rem;
+        align-items: start;
+        margin-top: 2rem;
+    }
+
+    .shop-sidebar {
+        position: sticky;
+        top: 100px;
+        background: var(--surface);
+        padding: 2rem;
+        border-radius: 16px;
+        border: 1px solid var(--border-subtle);
+        transition: var(--transition-smooth);
+    }
+
+    .filter-group {
+        margin-bottom: 2rem;
+    }
+
+    .filter-title {
+        font-family: var(--font-display);
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 800;
+        margin-bottom: 1.25rem;
+        color: var(--midnight);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .filter-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .filter-checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.8125rem;
+        cursor: pointer;
+        color: var(--text-main);
+        transition: color 0.2s;
+    }
+
+    .filter-checkbox-label:hover {
+        color: var(--accent-primary);
+    }
+
+    .filter-checkbox-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--midnight);
+        cursor: pointer;
+    }
+
+    .price-range-inputs {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .price-input {
+        width: 100%;
+        padding: 0.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-bold);
+        font-size: 0.75rem;
+        font-family: var(--font-body);
+    }
+
+    .btn-apply-filters {
+        width: 100%;
+        background: var(--midnight);
+        color: #fff;
+        border: none;
+        padding: 0.875rem;
+        border-radius: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        margin-top: 1rem;
+    }
+
+    .btn-apply-filters:hover {
+        background: var(--accent-primary);
+        transform: translateY(-2px);
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 2500;
+        backdrop-filter: blur(4px);
+    }
+
+    @@media (max-width: 1200px) {
+        .shop-layout { grid-template-columns: 240px 1fr; gap: 2rem; }
         .product-grid { grid-template-columns: repeat(3, 1fr); }
-        .category-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @@media (max-width: 1024px) {
+        .shop-layout { grid-template-columns: 1fr; }
+        .shop-sidebar {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 300px;
+            height: 100vh;
+            z-index: 2600;
+            overflow-y: auto;
+            border-radius: 0;
+            background: #fff;
+        }
+        .shop-sidebar.active {
+            left: 0;
+        }
+        body.sidebar-open .sidebar-overlay {
+            display: block;
+        }
+        .product-grid { grid-template-columns: repeat(3, 1fr); }
     }
 
     @@media (max-width: 600px) {
-        .product-grid { grid-template-columns: 1fr; }
-        .category-grid { grid-template-columns: 1fr; }
+        .product-grid { grid-template-columns: repeat(2, 1fr); }
     }
 </style>
 
 @if (string.IsNullOrEmpty(Context.Request.Query["categoryFilter"]) && string.IsNullOrEmpty(Context.Request.Query["searchQuery"]))
 {
     <div class="hero-section fade-in">
-        <div class="container">
-            <h1 class="hero-title">Discover Your Space</h1>
-            <p class="hero-subtitle">Curated essentials for modern living</p>
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Elevate Your Living</h1>
+            <p class="hero-subtitle">Curated essentials for the modern home</p>
+            <a href="#collection" class="hero-cta">Explore Collection</a>
         </div>
     </div>
 
@@ -337,74 +519,173 @@
     </div>
 }
 
-<div class="container fade-in">
-    @if (!Model.Any())
-    {
-        <div class="empty-gallery">
-            <div style="font-size: 3rem; opacity: 0.2; margin-bottom: 2rem;">✧</div>
-            <h3 style="font-family: var(--font-elegant); font-size: 2rem;">No essentials found</h3>
-            <p style="color: var(--text-muted); margin-bottom: 2rem;">Adjust your filters to discover our collection.</p>
-            <a asp-action="Index" class="nav-link" style="text-decoration: underline;">Clear All Filters</a>
-        </div>
-    }
-    else if (!string.IsNullOrEmpty(Context.Request.Query["categoryFilter"]) || !string.IsNullOrEmpty(Context.Request.Query["searchQuery"]))
-    {
-        <div class="product-grid">
-            @foreach (var product in Model)
-            {
-                <partial name="_ProductCard" model="product" />
-            }
-        </div>
-    }
-    else
-    {
-        var uniqueCategories = Model.Select(p => p.GetType().Name.Replace("Product", "")).Distinct().OrderBy(c => c).ToList();
-
-        foreach (var cat in uniqueCategories)
-        {
-            var categoryProducts = Model.Where(p => p.GetType().Name.Replace("Product", "") == cat).ToList();
-            if (!categoryProducts.Any()) continue;
-
-            <div class="category-section">
-                <div class="section-header">
-                    <h2 class="section-title">@cat</h2>
-                    <div class="section-line"></div>
-                </div>
-
-                <div class="scroll-wrapper">
-                    <button class="scroll-btn prev" onclick="scrollSection(this, -1)">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
-                    </button>
-                    
-                    <div class="scroll-container">
-                        @foreach (var product in categoryProducts)
+<div id="collection" class="container shop-layout fade-in">
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <aside class="shop-sidebar" id="shopSidebar">
+        <form id="sidebarFilterForm" method="get" asp-controller="Home" asp-action="Index">
+            <input type="hidden" name="searchQuery" value="@Context.Request.Query["searchQuery"]" />
+            
+            <div class="filter-group">
+                <h4 class="filter-title">Categories</h4>
+                <div class="filter-content">
+                    <label class="filter-checkbox-label">
+                        <input type="radio" name="categoryFilter" value="All" @(string.IsNullOrEmpty(Context.Request.Query["categoryFilter"]) || Context.Request.Query["categoryFilter"].ToString().Equals("All", StringComparison.OrdinalIgnoreCase) ? "checked" : "") onchange="this.form.submit()">
+                        All Essentials
+                    </label>
+                    @if (ViewBag.Categories != null)
+                    {
+                        foreach (var cat in (IEnumerable<OnlineStore.Domain.Entities.Category>)ViewBag.Categories)
                         {
-                            <partial name="_ProductCard" model="product" />
+                            <label class="filter-checkbox-label">
+                                <input type="radio" name="categoryFilter" value="@cat.Name" @(Context.Request.Query["categoryFilter"].ToString().Equals(cat.Name, StringComparison.OrdinalIgnoreCase) ? "checked" : "") onchange="this.form.submit()">
+                                @cat.Name
+                            </label>
                         }
-                    </div>
-
-                    <button class="scroll-btn next" onclick="scrollSection(this, 1)">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-                    </button>
+                    }
                 </div>
             </div>
-        }
-    }
 
-    @if (ViewBag.TotalPages > 1)
-    {
-        <div class="pagination-container">
-            @for (int i = 1; i <= ViewBag.TotalPages; i++)
-            {
-                <a asp-action="Index" 
-                   asp-route-page="@i" 
-                   asp-route-searchQuery="@ViewBag.SearchQuery" 
-                   asp-route-categoryFilter="@ViewBag.CategoryFilter"
-                   asp-route-sortStrategy="@ViewBag.SortStrategy"
-                   class="page-link @(ViewBag.CurrentPage == i ? "active" : "")">@i</a>
+            <div class="filter-group">
+                <h4 class="filter-title">Price Range</h4>
+                <div class="filter-content">
+                    <div class="price-range-inputs">
+                        <input type="number" name="minPrice" placeholder="Min $" class="price-input" value="@Context.Request.Query["minPrice"]">
+                        <span style="color: var(--border-bold)">-</span>
+                        <input type="number" name="maxPrice" placeholder="Max $" class="price-input" value="@Context.Request.Query["maxPrice"]">
+                    </div>
+                </div>
+            </div>
+
+            @{
+                var currentCategory = Context.Request.Query["categoryFilter"].ToString();
             }
-        </div>
-    }
+
+            @if (currentCategory.Equals("Clothing", StringComparison.OrdinalIgnoreCase))
+            {
+                <div class="filter-group">
+                    <h4 class="filter-title">Sizes</h4>
+                    <div class="filter-content">
+                        @{
+                            string[] sizes = { "XS", "S", "M", "L", "XL", "XXL" };
+                            var selectedSizesList = Context.Request.Query["selectedSizes"].ToList();
+                        }
+                        @foreach (var size in sizes)
+                        {
+                            <label class="filter-checkbox-label">
+                                <input type="checkbox" name="selectedSizes" value="@size" @(selectedSizesList.Contains(size, StringComparer.OrdinalIgnoreCase) ? "checked" : "") onchange="this.form.submit()">
+                                @size
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4 class="filter-title">Colors</h4>
+                    <div class="filter-content">
+                        @{
+                            string[] colorsList = { "Black", "White", "Beige", "Navy", "Charcoal", "Sage" };
+                            var selectedColorsList = Context.Request.Query["selectedColors"].ToList();
+                        }
+                        @foreach (var color in colorsList)
+                        {
+                            <label class="filter-checkbox-label">
+                                <input type="checkbox" name="selectedColors" value="@color" @(selectedColorsList.Contains(color, StringComparer.OrdinalIgnoreCase) ? "checked" : "") onchange="this.form.submit()">
+                                @color
+                            </label>
+                        }
+                    </div>
+                </div>
+            }
+            else if (currentCategory.Equals("Vehicles", StringComparison.OrdinalIgnoreCase))
+            {
+                <div class="filter-group">
+                    <h4 class="filter-title">Fuel Type</h4>
+                    <div class="filter-content">
+                        @{
+                            string[] fuels = { "Petrol", "Diesel", "Electric", "Hybrid" };
+                            var selectedFuelsList = Context.Request.Query["selectedFuelTypes"].ToList();
+                        }
+                        @foreach (var fuel in fuels)
+                        {
+                            <label class="filter-checkbox-label">
+                                <input type="checkbox" name="selectedFuelTypes" value="@fuel" @(selectedFuelsList.Contains(fuel, StringComparer.OrdinalIgnoreCase) ? "checked" : "") onchange="this.form.submit()">
+                                @fuel
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4 class="filter-title">Year Range</h4>
+                    <div class="filter-content">
+                        <div class="price-range-inputs">
+                            <input type="number" name="minYear" placeholder="From" class="price-input" value="@Context.Request.Query["minYear"]">
+                            <span style="color: var(--border-bold)">-</span>
+                            <input type="number" name="maxYear" placeholder="To" class="price-input" value="@Context.Request.Query["maxYear"]">
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="filter-group">
+                <h4 class="filter-title">Sort By</h4>
+                <div class="filter-content">
+                    <select name="sortStrategy" class="nav-select" style="width: 100%; min-width: 0;" onchange="this.form.submit()">
+                        <option value="">Featured</option>
+                        <option value="PriceAsc" selected="@(Context.Request.Query["sortStrategy"] == "PriceAsc")">Price: Low to High</option>
+                        <option value="PriceDesc" selected="@(Context.Request.Query["sortStrategy"] == "PriceDesc")">Price: High to Low</option>
+                        <option value="Name" selected="@(Context.Request.Query["sortStrategy"] == "Name")">Alphabetical</option>
+                        <option value="Stock" selected="@(Context.Request.Query["sortStrategy"] == "Stock")">In Stock First</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-apply-filters">Apply Filters</button>
+            <a href="/Home" style="display: block; text-align: center; margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); text-decoration: underline;">Reset All</a>
+        </form>
+    </aside>
+
+    <main class="shop-content">
+        @if (!Model.Any())
+        {
+            <div class="empty-gallery">
+                <div style="font-size: 3rem; opacity: 0.2; margin-bottom: 2rem;">✧</div>
+                <h3 style="font-family: var(--font-elegant); font-size: 2rem;">No matches found</h3>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Try adjusting your filters or search terms.</p>
+                <a asp-action="Index" class="nav-link" style="text-decoration: underline;">Clear All Filters</a>
+            </div>
+        }
+        else
+        {
+            <div class="product-grid">
+                @foreach (var product in Model)
+                {
+                    <partial name="_ProductCard" model="product" />
+                }
+            </div>
+        }
+
+        @if (ViewBag.TotalPages > 1)
+        {
+            <div class="pagination-container">
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <a asp-action="Index"                        asp-route-page="@i" 
+                       asp-route-searchQuery="@ViewBag.SearchQuery" 
+                       asp-route-categoryFilter="@ViewBag.CategoryFilter"
+                       asp-route-sortStrategy="@ViewBag.SortStrategy"
+                       asp-route-minPrice="@ViewBag.MinPrice"
+                       asp-route-maxPrice="@ViewBag.MaxPrice"
+                       asp-route-selectedSizes="@ViewBag.SelectedSizes"
+                       asp-route-selectedColors="@ViewBag.SelectedColors"
+                       asp-route-selectedFuelTypes="@ViewBag.SelectedFuelTypes"
+                       asp-route-minYear="@ViewBag.MinYear"
+                       asp-route-maxYear="@ViewBag.MaxYear"
+                       class="page-link @(ViewBag.CurrentPage == i ? "active" : "")">@i</a>
+                }
+            </div>
+        }
+    </main>
 </div>
 
 <script>

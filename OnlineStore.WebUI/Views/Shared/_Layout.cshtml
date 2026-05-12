@@ -342,6 +342,31 @@
             border-color: var(--accent-primary);
         }
 
+        .btn-filter-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border-bold);
+            border-radius: 12px;
+            padding: 0.5rem 1rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            white-space: nowrap;
+        }
+
+        .btn-filter-toggle:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-base);
+        }
+
+        .btn-filter-toggle svg {
+            color: var(--text-muted);
+        }
+
         /* Right Side Nav */
         .nav-right {
             display: flex;
@@ -683,38 +708,35 @@
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                     <input type="text" name="searchQuery" id="navSearchInput"
-                        value="@Context.Request.Query["searchQuery"]" placeholder="Find essentials..."
+                        value="@Context.Request.Query["searchQuery"]" placeholder="Search our collection..."
                         class="nav-search-input" autocomplete="off" />
                 </div>
+                
+                <button type="button" class="btn-filter-toggle" onclick="toggleSidebar()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="4" y1="21" x2="4" y2="14"></line>
+                        <line x1="4" y1="10" x2="4" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12" y2="3"></line>
+                        <line x1="20" y1="21" x2="20" y2="16"></line>
+                        <line x1="20" y1="12" x2="20" y2="3"></line>
+                        <line x1="1" y1="14" x2="7" y2="14"></line>
+                        <line x1="9" y1="8" x2="15" y2="8"></line>
+                        <line x1="17" y1="16" x2="23" y2="16"></line>
+                    </svg>
+                    Filters
+                </button>
 
-                <select name="categoryFilter" id="navCategorySelect" class="nav-select">
-                    <option value="All">All Categories</option>
-                    @inject OnlineStore.Application.Data.OnlineStoreDbContext _context
-                    @{
-                        var navCategories = _context.Categories.OrderBy(c => c.Name).ToList();
-                    }
-                    @foreach (var cat in navCategories)
-                    {
-                        <option value="@cat.Name" selected="@(Context.Request.Query["categoryFilter"] == cat.Name)">@cat.Name</option>
-                    }
-                </select>
-
-                <select name="sortStrategy" id="navSortSelect" class="nav-select">
-                    <option value="">Sort By</option>
-                    <option value="PriceAsc" selected="@(Context.Request.Query["sortStrategy"] == "PriceAsc")">Price (Low to High)</option>
-                    <option value="PriceDesc" selected="@(Context.Request.Query["sortStrategy"] == "PriceDesc")">Price (High to Low)</option>
-                    <option value="Name" selected="@(Context.Request.Query["sortStrategy"] == "Name")">Alphabetical</option>
-                    <option value="Stock" selected="@(Context.Request.Query["sortStrategy"] == "Stock")">Availability</option>
-                </select>
-                @* Preserve other filters if they exist in query *@
-                @if (Context.Request.Query.ContainsKey("minPrice"))
-                {
-                    <input type="hidden" name="minPrice" value="@Context.Request.Query["minPrice"]" />
-                }
-                @if (Context.Request.Query.ContainsKey("maxPrice"))
-                {
-                    <input type="hidden" name="maxPrice" value="@Context.Request.Query["maxPrice"]" />
-                }
+                @* Hidden fields for other filters to preserve state during search *@
+                @if (Context.Request.Query.ContainsKey("categoryFilter")) { <input type="hidden" name="categoryFilter" value="@Context.Request.Query["categoryFilter"]" /> }
+                @if (Context.Request.Query.ContainsKey("minPrice")) { <input type="hidden" name="minPrice" value="@Context.Request.Query["minPrice"]" /> }
+                @if (Context.Request.Query.ContainsKey("maxPrice")) { <input type="hidden" name="maxPrice" value="@Context.Request.Query["maxPrice"]" /> }
+                @if (Context.Request.Query.ContainsKey("sortStrategy")) { <input type="hidden" name="sortStrategy" value="@Context.Request.Query["sortStrategy"]" /> }
+                @foreach (var val in Context.Request.Query["selectedSizes"]) { <input type="hidden" name="selectedSizes" value="@val" /> }
+                @foreach (var val in Context.Request.Query["selectedColors"]) { <input type="hidden" name="selectedColors" value="@val" /> }
+                @foreach (var val in Context.Request.Query["selectedFuelTypes"]) { <input type="hidden" name="selectedFuelTypes" value="@val" /> }
+                @if (Context.Request.Query.ContainsKey("minYear")) { <input type="hidden" name="minYear" value="@Context.Request.Query["minYear"]" /> }
+                @if (Context.Request.Query.ContainsKey("maxYear")) { <input type="hidden" name="maxYear" value="@Context.Request.Query["maxYear"]" /> }
             </form>
 
             <div class="nav-right">
@@ -748,17 +770,6 @@
                         <span>Cart @(count > 0 ? " • " + count : "")</span>
                     </a>
 
-                    <form asp-controller="Home" asp-action="SetCurrency" method="post" id="currencyForm" style="margin-right: 0.5rem;">
-                        <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
-                        <select name="currencyCode" onchange="this.form.submit()" class="nav-select" style="min-width: 80px; padding: 0.4rem 0.75rem; border-radius: 99px; height: 38px;">
-                            @{
-                                var currentCurrency = CurrencyService.GetCurrentStrategy().CurrencyCode;
-                            }
-                            <option value="USD" selected="@(currentCurrency == "USD")">USD</option>
-                            <option value="EUR" selected="@(currentCurrency == "EUR")">EUR</option>
-                            <option value="MDL" selected="@(currentCurrency == "MDL")">MDL</option>
-                        </select>
-                    </form>
 
                     @if (!string.IsNullOrEmpty(username))
                     {
@@ -830,43 +841,51 @@
         </div>
         <nav class="drawer-links">
             <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="Index">Shop</a>
-            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Cart" asp-action="Index">Cart
-                (@count)</a>
+            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="OutOfStock">Archive</a>
+            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Cart" asp-action="Index">Cart (@count)</a>
+            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Wishlist" asp-action="Index">Wishlist (@wishCount)</a>
+            
             @if (!string.IsNullOrEmpty(username))
             {
+                <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1rem 0;" />
+                <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Profile" asp-action="Index">My Profile</a>
+                
                 var userIdStr = session.GetString("UserId");
                 if (!string.IsNullOrEmpty(userIdStr) && Guid.TryParse(userIdStr, out Guid userId))
                 {
                     var user = UserRepo.GetById(userId);
                     if (user is Admin)
                     {
-                        <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="Catalog">Catalog
-                            Inventar</a>
+                        <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Admin" asp-action="Index">Dashboard</a>
+                        <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="Catalog">Catalog (Composite)</a>
+                    }
+                    else
+                    {
+                        <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Orders" asp-action="MyOrders">My Orders</a>
                     }
                 }
-                <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Profile" asp-action="Index">Profile</a>
-                <a class="drawer-link" style="font-size: 1.125rem; color: #a4161a" asp-controller="Account"
-                    asp-action="Logout">Sign Out</a>
+                <a class="drawer-link" style="font-size: 1.125rem; color: #a4161a" asp-controller="Account" asp-action="Logout">Sign Out</a>
             }
             else
             {
                 <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Account" asp-action="Login">Sign In</a>
-                <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Account" asp-action="Register">Join
-                    Us</a>
+                <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Account" asp-action="Register">Join Us</a>
             }
         </nav>
     </div>
 
-    <div class="alerts-container">
-        @if (TempData["Success"] != null)
-        {
-            <div class="alert alert-success">@TempData["Success"]</div>
-        }
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger">@TempData["Error"]</div>
-        }
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (TempData["Success"] != null)
+            {
+                <text>showToast('@TempData["Success"]', 'success');</text>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <text>showToast('@TempData["Error"]', 'error');</text>
+            }
+        });
+    </script>
 
     <main role="main" class="main-content">
         @RenderBody()
@@ -898,7 +917,7 @@
                     <ul class="footer-links-list">
                         <li><a asp-controller="Home" asp-action="Index">New Arrivals</a></li>
                         <li><a asp-controller="Home" asp-action="Index">Best Sellers</a></li>
-                        <li><a asp-controller="Home" asp-action="Index">Featured Collections</a></li>
+                        <li><a asp-controller="Home" asp-action="Catalog" style="color: var(--accent-primary); font-weight: 700;">Catalog (Composite Pattern)</a></li>
                         <li><a asp-controller="Home" asp-action="Index">Gift Cards</a></li>
                     </ul>
                 </div>
@@ -1001,36 +1020,34 @@
         }
 
         function toggleMenu() { document.body.classList.toggle('menu-open'); }
+        function toggleSidebar() { 
+            const sidebar = document.getElementById('shopSidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('active');
+                document.body.classList.toggle('sidebar-open');
+            } else {
+                window.location.href = '/Home#collection';
+            }
+        }
 
-        // Live Filtering Logic
+        // Live Filtering Logic (Navbar Search)
         const filterForm = document.getElementById('liveFilterForm');
         const searchInput = document.getElementById('navSearchInput');
-        const categorySelect = document.getElementById('navCategorySelect');
-        const sortSelect = document.getElementById('navSortSelect');
 
         let debounceTimer;
         const debounceSubmit = () => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 filterForm.submit();
-            }, 400);
+            }, 600);
         };
 
         if (searchInput) {
             searchInput.addEventListener('input', debounceSubmit);
-            // Focus at end of text on load if search was active
             if (searchInput.value) {
                 searchInput.focus();
                 searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
             }
-        }
-
-        if (categorySelect) {
-            categorySelect.addEventListener('change', () => filterForm.submit());
-        }
-
-        if (sortSelect) {
-            sortSelect.addEventListener('change', () => filterForm.submit());
         }
 
         // Theme Toggle Logic
@@ -1150,7 +1167,7 @@
             badge.style.display = count > 0 ? 'flex' : 'none';
         }
 
-        // Alert auto-dismiss
+        // Alert auto-dismiss (Sync with Toast)
         setTimeout(() => {
             document.querySelectorAll('.alert').forEach(a => {
                 a.style.opacity = '0';
@@ -1158,7 +1175,7 @@
                 a.style.transition = '0.4s';
                 setTimeout(() => a.remove(), 400);
             });
-        }, 3000);
+        }, 5000);
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

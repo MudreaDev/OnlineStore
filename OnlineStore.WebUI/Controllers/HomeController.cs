@@ -32,7 +32,7 @@ namespace OnlineStore.WebUI.Controllers
             _toastService = toastService;
         }
 
-        public IActionResult Index(string? searchQuery, string? categoryFilter, decimal? minPrice, decimal? maxPrice, string? sortStrategy, int page = 1)
+        public IActionResult Index(string? searchQuery, string? categoryFilter, decimal? minPrice, decimal? maxPrice, string? sortStrategy, string[]? selectedSizes, string[]? selectedColors, string[]? selectedFuelTypes, int? minYear, int? maxYear, int page = 1)
         {
             int pageSize = 25; // 5x5 grid
             var allProducts = _productRepo.GetAll().ToList();
@@ -47,7 +47,7 @@ namespace OnlineStore.WebUI.Controllers
                 filteredProducts.Add(iterator.Next());
             }
 
-            var productsQuery = filteredProducts.AsQueryable();
+            var productsQuery = filteredProducts.AsEnumerable();
 
             if (!string.IsNullOrEmpty(searchQuery))
             {
@@ -62,6 +62,57 @@ namespace OnlineStore.WebUI.Controllers
             if (maxPrice.HasValue)
             {
                 productsQuery = productsQuery.Where(p => p.Price <= maxPrice.Value);
+            }
+
+            // Filter by sizes
+            if (selectedSizes != null && selectedSizes.Any())
+            {
+                productsQuery = productsQuery.Where(p => 
+                    p is ClothingProduct cp && !string.IsNullOrEmpty(cp.AvailableSizes) &&
+                    selectedSizes.Any(s => cp.AvailableSizes.Split(',', StringSplitOptions.TrimEntries)
+                        .Contains(s, StringComparer.OrdinalIgnoreCase)));
+            }
+
+            // Filter by colors
+            if (selectedColors != null && selectedColors.Any())
+            {
+                var colorMap = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+                {
+                    { "Black", new[] { "Black", "#000000", "#000", "Noir" } },
+                    { "White", new[] { "White", "#FFFFFF", "#fff", "Blanc" } },
+                    { "Red", new[] { "Red", "#FF0000", "#f00", "Rouge" } },
+                    { "Blue", new[] { "Blue", "#0000FF", "#00f", "Bleu" } },
+                    { "Beige", new[] { "Beige", "#F5F5DC", "#f5f5dc" } },
+                    { "Navy", new[] { "Navy", "#000080", "#000080" } },
+                    { "Charcoal", new[] { "Charcoal", "#36454F", "#36454f" } },
+                    { "Sage", new[] { "Sage", "#BCB88A", "#bcb88a" } }
+                };
+
+                productsQuery = productsQuery.Where(p => 
+                    !string.IsNullOrEmpty(p.AvailableColors) &&
+                    selectedColors.Any(c => {
+                        var searchValues = colorMap.TryGetValue(c, out var values) ? values : new[] { c };
+                        var productColors = p.AvailableColors.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                        return searchValues.Any(sv => productColors.Contains(sv, StringComparer.OrdinalIgnoreCase));
+                    }));
+            }
+
+            // Vehicle filters
+            if (selectedFuelTypes != null && selectedFuelTypes.Any())
+            {
+                productsQuery = productsQuery.Where(p => 
+                    p is VehicleProduct vp && !string.IsNullOrEmpty(vp.FuelType) &&
+                    selectedFuelTypes.Contains(vp.FuelType, StringComparer.OrdinalIgnoreCase));
+            }
+
+            if (minYear.HasValue)
+            {
+                productsQuery = productsQuery.Where(p => p is VehicleProduct vp && vp.Year >= minYear.Value);
+            }
+
+            if (maxYear.HasValue)
+            {
+                productsQuery = productsQuery.Where(p => p is VehicleProduct vp && vp.Year <= maxYear.Value);
             }
 
             IEnumerable<Product> finalProducts = productsQuery;
@@ -116,8 +167,12 @@ namespace OnlineStore.WebUI.Controllers
             ViewBag.CategoryFilter = categoryFilter;
             ViewBag.MinPrice = minPrice;
             ViewBag.MaxPrice = maxPrice;
-
             ViewBag.SortStrategy = sortStrategy;
+            ViewBag.SelectedSizes = selectedSizes;
+            ViewBag.SelectedColors = selectedColors;
+            ViewBag.SelectedFuelTypes = selectedFuelTypes;
+            ViewBag.MinYear = minYear;
+            ViewBag.MaxYear = maxYear;
 
             // Pattern 3: Singleton - Transmitem setările globale către View
             ViewBag.FreeShippingThreshold = ApplicationConfigurationManager.Instance.FreeShippingThreshold;
@@ -208,6 +263,11 @@ namespace OnlineStore.WebUI.Controllers
             _currencyService.SetCurrency(currencyCode);
             _toastService.AddToast($"Moneda a fost schimbată în {currencyCode}.", "info");
             return LocalRedirect(returnUrl ?? "/");
+        }
+
+        public IActionResult Error404()
+        {
+            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

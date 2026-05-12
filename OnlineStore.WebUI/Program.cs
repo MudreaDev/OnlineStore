@@ -62,6 +62,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStatusCodePagesWithReExecute("/Home/Error404");
 app.UseRouting();
 app.UseSession(); // Use Session Middleware
 app.UseAuthorization();
@@ -86,27 +87,87 @@ static void SeedData(IServiceProvider services)
     var productRepo = services.GetRequiredService<DbProductRepository>();
     var userRepo = services.GetRequiredService<DbUserRepository>();
 
-    // Check if data already exists to avoid duplication
-    if (productRepo.GetAll().Any())
+    var existing = productRepo.GetAll().ToList();
+    if (existing.Any())
     {
+        foreach (var p in existing)
+        {
+            if (p.Name.Contains("Laptop") && string.IsNullOrEmpty(p.AvailableColors)) p.AvailableColors = "Black, Silver";
+            if (p.Name.Contains("Smartphone") && string.IsNullOrEmpty(p.AvailableColors)) p.AvailableColors = "Black, White, Blue";
+            if (p.Name.Contains("Headphones") && string.IsNullOrEmpty(p.AvailableColors)) p.AvailableColors = "Black, Charcoal";
+            if (p.Name.Contains("T-Shirt")) 
+            { 
+                if (string.IsNullOrEmpty(p.AvailableColors)) p.AvailableColors = "White, Beige, Sage"; 
+                if (p is ClothingProduct cp && string.IsNullOrEmpty(cp.AvailableSizes)) cp.AvailableSizes = "S, M, L, XL"; 
+            }
+            if (p.Name.Contains("Jeans")) 
+            { 
+                if (string.IsNullOrEmpty(p.AvailableColors)) p.AvailableColors = "Navy, Charcoal"; 
+                if (p is ClothingProduct cp && string.IsNullOrEmpty(cp.AvailableSizes)) cp.AvailableSizes = "M, L, XL, XXL"; 
+            }
+            if (p.Name.Contains("Car")) 
+            { 
+                if (string.IsNullOrEmpty(p.AvailableColors)) p.AvailableColors = "White, Silver, Black"; 
+                if (p is VehicleProduct vp && string.IsNullOrEmpty(vp.FuelType)) { vp.FuelType = "Petrol"; vp.Year = 2022; } 
+            }
+            if (p.Name.Contains("SUV")) 
+            { 
+                if (string.IsNullOrEmpty(p.AvailableColors)) p.AvailableColors = "Black, Navy"; 
+                if (p is VehicleProduct vp && string.IsNullOrEmpty(vp.FuelType)) { vp.FuelType = "Diesel"; vp.Year = 2023; } 
+            }
+            if (p.Stock <= 0) p.Stock = 50;
+            productRepo.Update(p);
+        }
         return;
     }
 
     // Seed Products
     // Using factories just like in ConsoleUI, but manually here for simplicity or could inject factories
     // Let's manually instantiate for now as factories are simple classes
+    // Seed Products
     var electronicsFactory = new ElectronicProductFactory();
-    productRepo.Add(electronicsFactory.CreateProduct("Gaming Laptop", 1500));
-    productRepo.Add(electronicsFactory.CreateProduct("Smartphone", 800));
-    productRepo.Add(electronicsFactory.CreateProduct("Headphones", 200));
+    var laptop = electronicsFactory.CreateProduct("Gaming Laptop", 1500);
+    laptop.AvailableColors = "Black, Silver";
+    laptop.Stock = 50;
+    productRepo.Add(laptop);
+
+    var phone = electronicsFactory.CreateProduct("Smartphone", 800);
+    phone.AvailableColors = "Black, White, Blue";
+    phone.Stock = 50;
+    productRepo.Add(phone);
+
+    var headphones = electronicsFactory.CreateProduct("Headphones", 200);
+    headphones.AvailableColors = "Black, Charcoal";
+    headphones.Stock = 50;
+    productRepo.Add(headphones);
 
     var clothingFactory = new ClothingProductFactory();
-    productRepo.Add(clothingFactory.CreateProduct("Cotton T-Shirt", 25));
-    productRepo.Add(clothingFactory.CreateProduct("Jeans", 50));
+    var tshirt = (ClothingProduct)clothingFactory.CreateProduct("Cotton T-Shirt", 25);
+    tshirt.AvailableSizes = "S, M, L, XL";
+    tshirt.AvailableColors = "Black, White, Beige, Sage";
+    tshirt.Stock = 50;
+    productRepo.Add(tshirt);
+
+    var jeans = (ClothingProduct)clothingFactory.CreateProduct("Jeans", 50);
+    jeans.AvailableSizes = "M, L, XL, XXL";
+    jeans.AvailableColors = "Black, Navy, Charcoal";
+    jeans.Stock = 50;
+    productRepo.Add(jeans);
 
     var vehicleFactory = new VehicleProductFactory();
-    productRepo.Add(vehicleFactory.CreateProduct("City Car", 15000));
-    productRepo.Add(vehicleFactory.CreateProduct("SUV", 25000));
+    var car = (VehicleProduct)vehicleFactory.CreateProduct("City Car", 15000);
+    car.FuelType = "Petrol";
+    car.Year = 2022;
+    car.AvailableColors = "White, Silver, Black";
+    car.Stock = 50;
+    productRepo.Add(car);
+
+    var suv = (VehicleProduct)vehicleFactory.CreateProduct("SUV", 25000);
+    suv.FuelType = "Diesel";
+    suv.Year = 2023;
+    suv.AvailableColors = "Black, Navy";
+    suv.Stock = 50;
+    productRepo.Add(suv);
 
     // Seed Customer
     var customer = new Customer("testuser", "test@test.com", "123 Demo St");
