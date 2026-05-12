@@ -24,8 +24,9 @@
 
 <style>
     .details-page {
-        padding-top: 0.75rem;
+        padding-top: 0;
         padding-bottom: 2rem;
+        margin-top: -1.5rem;
     }
 
     .details-grid {
@@ -398,15 +399,19 @@
 
     /* ── Bottom sections ── */
     .bottom-wrap {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 3rem;
-        align-items: start;
-        border-top: 1px solid var(--border-subtle);
-        padding-top: 2rem;
-        margin-top: 2rem;
-        padding-bottom: 4rem;
-    }
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 1rem;      /* ← mai aproape de linie */
+    margin-top: 0.75rem;    /* ← linia mai aproape de produs */
+    padding-bottom: 4rem;
+}
+    .bottom-wrap > div > p.bottom-section-title {
+    margin-bottom: 1rem;
+    display: block;
+}
 
     .bottom-section-title {
         font-family: var(--font-display);
