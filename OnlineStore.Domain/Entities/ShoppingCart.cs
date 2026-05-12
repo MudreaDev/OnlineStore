@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq;
 using OnlineStore.Domain.Common;
 using OnlineStore.Domain.DesignPatterns.Behavioral.Memento;
 

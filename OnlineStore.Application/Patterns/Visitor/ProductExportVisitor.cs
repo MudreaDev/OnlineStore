@@ -4,6 +4,11 @@ using System.Text;
 
 namespace OnlineStore.Application.Patterns.Visitor
 {
+    /// <summary>
+    /// Pattern Visitor — permite adăugarea de noi operații (ex: export inventar) pe structuri de obiecte 
+    /// existente (produse) fără a modifica clasele acestora.
+    /// Respectă Open/Closed Principle din SOLID.
+    /// </summary>
     public class ProductExportVisitor : IProductVisitor
     {
         private readonly StringBuilder _exportData = new StringBuilder();

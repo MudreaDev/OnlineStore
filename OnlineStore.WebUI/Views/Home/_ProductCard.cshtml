@@ -20,6 +20,8 @@
     var isFavorited = wishlist.Contains(Model.Id);
 }
 
+@inject OnlineStore.Application.Services.CurrencyService CurrencyService
+
 <div class="product-card">
     <span class="glass-badge">@typeName</span>
 
@@ -50,7 +52,7 @@
         </a>
 
         <div class="card-footer" style="justify-content: center; margin-top: 0.5rem;">
-            <span class="price-tag" style="font-size: 1.125rem; font-weight: 600;">@Model.Price.ToString("C0")</span>
+            <span class="price-tag" style="font-size: 1.125rem; font-weight: 600;">@CurrencyService.FormatPrice(Model.Price)</span>
         </div>
     </div>
 </div>

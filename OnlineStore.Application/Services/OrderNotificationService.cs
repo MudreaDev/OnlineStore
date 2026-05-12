@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using OnlineStore.Domain.DesignPatterns.Behavioral.Observer;
 using OnlineStore.Domain.Entities;
+using OnlineStore.Application.Data;
 
 namespace OnlineStore.Application.Services
 {
@@ -13,12 +14,17 @@ namespace OnlineStore.Application.Services
     {
         private readonly List<IOrderObserver> _observers = new List<IOrderObserver>();
 
-        public OrderNotificationService(OnlineStore.Domain.Interfaces.IEmailService emailService)
+        public OrderNotificationService(OnlineStore.Domain.Interfaces.IEmailService emailService, OnlineStoreDbContext? context = null)
         {
             // Attach default observers
             Attach(new EmailObserver(emailService));
             Attach(new SmsObserver());
             Attach(new DashboardObserver());
+            
+            if (context != null)
+            {
+                Attach(new UserToastObserver(context));
+            }
         }
 
         public void Attach(IOrderObserver observer)

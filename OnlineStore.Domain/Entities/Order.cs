@@ -8,6 +8,7 @@ namespace OnlineStore.Domain.Entities
 {
     public class Order : Entity
     {
+        public Guid UserId { get; set; }
         public User User { get; set; }
         public List<OrderItem> Items { get; set; }
         public decimal Total { get; set; }
@@ -28,6 +29,7 @@ namespace OnlineStore.Domain.Entities
 
         public Order(User user, List<OrderItem> items, decimal total, string shippingAddress, string phoneNumber)
         {
+            UserId = user.Id;
             User = user;
             Items = items;
             Total = total;

@@ -38,7 +38,7 @@ namespace OnlineStore.Application.Repositories
             return _context.Products.Include(p => p.Images).ToList();
         }
 
-        public Product GetById(Guid id)
+        public Product? GetById(Guid id)
         {
             return _context.Products.Include(p => p.Images).FirstOrDefault(p => p.Id == id);
         }

@@ -12,15 +12,17 @@ namespace OnlineStore.Tests.DesignPatterns.Behavioral
     public class MediatorTests
     {
         [Fact]
-        public void Checkout_ShouldCoordinateServicesAndClearCart()
+        public async Task Checkout_ShouldCoordinateServicesAndClearCart()
         {
             // Arrange
-            var mockOrderService = new Mock<OrderService>(null); // Fixed null mock
+            var mockDiscount = new Mock<IDiscountStrategy>();
+            var mockOrderService = new Mock<OrderService>(mockDiscount.Object);
             var mockEmailService = new Mock<IEmailService>();
             var mockProductRepo = new Mock<IReadableRepository<Product>>();
             var mockStockService = new Mock<IStockService>();
             var mockPaymentService = new Mock<IPaymentService>();
             var mockValidationService = new Mock<OrderValidationService>();
+            var mockOrderRepo = new Mock<IWriteableRepository<Order>>();
 
             // Setup mocks
             var user = new User("test", "test@example.com");
@@ -52,10 +54,11 @@ namespace OnlineStore.Tests.DesignPatterns.Behavioral
                 mockEmailService.Object, 
                 mockStockService.Object, 
                 mockPaymentService.Object, 
-                mockProductRepo.Object);
+                mockProductRepo.Object,
+                mockOrderRepo.Object);
 
             // Act
-            mediator.Checkout(user, cart, "Stripe", "Local", "Home", "Courier", "Test Address", "0740000000");
+            await mediator.CheckoutAsync(user, cart, "Stripe", "Local", "Home", "Courier", "Test Address", "0740000000");
 
             // Assert
             mockOrderService.Verify(s => s.PlaceOrder(user, It.IsAny<List<OrderItem>>(), "Test Address", "0740000000"), Times.Once);

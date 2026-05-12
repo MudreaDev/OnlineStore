@@ -5,7 +5,7 @@ namespace OnlineStore.Application.Patterns.Mediator
 {
     public interface ICheckoutMediator
     {
-        (bool Success, string Message, Order? Order) Checkout(
+        Task<(bool Success, string Message, Order? Order)> CheckoutAsync(
             User user, 
             ShoppingCart cart, 
             string paymentMethod, 

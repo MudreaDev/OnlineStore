@@ -28,7 +28,8 @@ namespace OnlineStore.WebUI.Controllers
         [HttpPost]
         public IActionResult Login(string username, string password)
         {
-            var user = _userRepo.GetAll().FirstOrDefault(u => u.Username == username);
+            // Permitem logarea atât cu Username cât și cu Email
+            var user = _userRepo.GetByUsername(username) ?? _userRepo.GetByEmail(username);
 
             if (user != null && PasswordHasher.Verify(password, user.PasswordHash))
             {
@@ -64,7 +65,7 @@ namespace OnlineStore.WebUI.Controllers
             }
 
             // Check if username already exists
-            var existingUser = _userRepo.GetAll().FirstOrDefault(u => u.Username == model.Username);
+            var existingUser = _userRepo.GetByUsername(model.Username);
             if (existingUser != null)
             {
                 ModelState.AddModelError("Username", "Utilizatorul există deja.");
@@ -97,7 +98,7 @@ namespace OnlineStore.WebUI.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var user = _userRepo.GetAll().FirstOrDefault(u => u.Email == model.Email);
+            var user = _userRepo.GetByEmail(model.Email);
             if (user == null)
             {
                 // For security reasons, don't reveal if the user exists or not
@@ -129,7 +130,7 @@ namespace OnlineStore.WebUI.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var user = _userRepo.GetAll().FirstOrDefault(u => u.Email == model.Email);
+            var user = _userRepo.GetByEmail(model.Email);
 
             if (user == null || user.PasswordResetCode != model.Code || user.PasswordResetCodeExpiration < DateTime.Now)
             {

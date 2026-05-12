@@ -29,7 +29,7 @@ namespace OnlineStore.Application.Repositories
             return _users;
         }
 
-        public User GetById(Guid id)
+        public User? GetById(Guid id)
         {
             return _users.FirstOrDefault(u => u.Id == id);
         }

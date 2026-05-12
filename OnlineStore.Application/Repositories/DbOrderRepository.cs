@@ -19,11 +19,19 @@ namespace OnlineStore.Application.Repositories
 
         public void Add(Order entity)
         {
-            // Ensure User is attached if necessary, but assume entity is valid
-            // If User is new, EF will Insert it. If it exists, we might need to attach.
-            // For now, assuming standard add.
+            // Păstrăm referința pentru a o restaura ulterior
+            var userRef = entity.User;
+            
+            // Setăm proprietatea de navigare pe null pentru a forța EF să folosească doar UserId
+            // Acest lucru previne eroarea de tip "An error occurred while saving the entity changes" 
+            // cauzată de încercarea de a re-insera un utilizator care există deja în DB.
+            entity.User = null!;
+            
             _context.Orders.Add(entity);
             _context.SaveChanges();
+            
+            // Restaurăm referința pentru a fi disponibilă în obiectul returnat
+            entity.User = userRef;
         }
 
         public void Delete(Guid id)
@@ -45,7 +53,7 @@ namespace OnlineStore.Application.Repositories
                 .ToList();
         }
 
-        public Order GetById(Guid id)
+        public Order? GetById(Guid id)
         {
             return _context.Orders
                 .Include(o => o.Items)

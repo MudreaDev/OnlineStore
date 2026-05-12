@@ -5,6 +5,8 @@
 @using OnlineStore.Application.Repositories
 @inject IHttpContextAccessor HttpContextAccessor
 @inject DbUserRepository UserRepo
+@inject OnlineStore.Application.Services.CurrencyService CurrencyService
+@inject OnlineStore.Application.Services.ToastService ToastService
 
 <!DOCTYPE html>
 <html lang="en">
@@ -143,6 +145,131 @@
             align-items: center;
             gap: 3rem;
             width: 100%;
+        }
+
+        /* --- Footer --- */
+        .site-footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border-subtle);
+            padding: 5rem 0 3rem;
+            margin-top: 6rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: 4rem;
+            margin-bottom: 4rem;
+        }
+
+        .footer-brand .footer-logo {
+            font-family: var(--font-elegant);
+            font-size: 2rem;
+            color: var(--midnight);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-tagline {
+            color: var(--text-muted);
+            font-size: 0.9375rem;
+            max-width: 300px;
+            margin-bottom: 2rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.25rem;
+        }
+
+        .social-icon {
+            color: var(--text-muted);
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-base);
+        }
+
+        .social-icon:hover {
+            color: var(--accent-primary);
+            background: var(--border-subtle);
+            transform: translateY(-3px);
+        }
+
+        .footer-heading {
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--midnight);
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+
+        .footer-links-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-links-list li {
+            margin-bottom: 1rem;
+        }
+
+        .footer-links-list a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9375rem;
+            transition: var(--transition-smooth);
+        }
+
+        .footer-links-list a:hover {
+            color: var(--accent-primary);
+            padding-left: 4px;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 1.5rem;
+            opacity: 0.6;
+        }
+
+        .payment-badge {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @@media (max-width: 1024px) {
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 3rem;
+            }
+        }
+
+        @@media (max-width: 640px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            .footer-bottom {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
         }
 
         .logo {
@@ -412,6 +539,40 @@
             border: 1px solid #fecaca;
         }
 
+        /* --- Toasts --- */
+        #toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .toast {
+            background: var(--surface);
+            border-left: 4px solid var(--accent-primary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            animation: slideInRight 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: opacity 0.4s;
+        }
+
+        .toast-success { border-color: #10b981; }
+        .toast-error { border-color: #ef4444; }
+        .toast-info { border-color: #3b82f6; }
+
+        @@keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
         /* --- Layout --- */
         .main-content {
             padding-top: calc(var(--navbar-height) + 2rem);
@@ -587,6 +748,18 @@
                         <span>Cart @(count > 0 ? " • " + count : "")</span>
                     </a>
 
+                    <form asp-controller="Home" asp-action="SetCurrency" method="post" id="currencyForm" style="margin-right: 0.5rem;">
+                        <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                        <select name="currencyCode" onchange="this.form.submit()" class="nav-select" style="min-width: 80px; padding: 0.4rem 0.75rem; border-radius: 99px; height: 38px;">
+                            @{
+                                var currentCurrency = CurrencyService.GetCurrentStrategy().CurrencyCode;
+                            }
+                            <option value="USD" selected="@(currentCurrency == "USD")">USD</option>
+                            <option value="EUR" selected="@(currentCurrency == "EUR")">EUR</option>
+                            <option value="MDL" selected="@(currentCurrency == "MDL")">MDL</option>
+                        </select>
+                    </form>
+
                     @if (!string.IsNullOrEmpty(username))
                     {
                         <div class="user-menu" style="position: relative;">
@@ -700,29 +873,68 @@
     </main>
 
     <footer class="site-footer">
-        <div class="container footer-content" style="font-size: 0.8125rem;">
-            <div>
-                <a class="footer-logo" style="font-size: 1.25rem;" asp-controller="Home"
-                    asp-action="Index">@ApplicationConfigurationManager.Instance.StoreName</a>
-                <p style="color: var(--text-muted); max-width: 240px">Curated essentials for the modern home. Quality
-                    over quantity, always.</p>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a class="footer-logo" asp-controller="Home" asp-action="Index">
+                        @ApplicationConfigurationManager.Instance.StoreName
+                    </a>
+                    <p class="footer-tagline">Curating the finest essentials for your lifestyle. Excellence in every detail, delivered to your door.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon" aria-label="Facebook">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                        </a>
+                        <a href="#" class="social-icon" aria-label="Instagram">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                        </a>
+                        <a href="#" class="social-icon" aria-label="Twitter">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-nav-col">
+                    <h4 class="footer-heading">Shop</h4>
+                    <ul class="footer-links-list">
+                        <li><a asp-controller="Home" asp-action="Index">New Arrivals</a></li>
+                        <li><a asp-controller="Home" asp-action="Index">Best Sellers</a></li>
+                        <li><a asp-controller="Home" asp-action="Index">Featured Collections</a></li>
+                        <li><a asp-controller="Home" asp-action="Index">Gift Cards</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-nav-col">
+                    <h4 class="footer-heading">Support</h4>
+                    <ul class="footer-links-list">
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Shipping & Returns</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Track Order</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-nav-col">
+                    <h4 class="footer-heading">Legal</h4>
+                    <ul class="footer-links-list">
+                        <li><a asp-controller="Home" asp-action="Privacy">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Cookie Policy</a></li>
+                        <li><a href="#">Accessibility</a></li>
+                    </ul>
+                </div>
             </div>
-            <div style="display: flex; gap: 4rem;">
-                <ul class="footer-links">
-                    <li><span style="font-weight: 700; color: var(--text-dark)">Navigate</span></li>
-                    <li><a asp-controller="Home" asp-action="Index">Shop All</a></li>
-                    <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
-                </ul>
-                <ul class="footer-links">
-                    <li><span style="font-weight: 700; color: var(--text-dark)">Account</span></li>
-                    <li><a asp-controller="Cart" asp-action="Index">Cart</a></li>
-                    <li><a asp-controller="Profile" asp-action="Index">Settings</a></li>
-                </ul>
+
+            <div class="footer-bottom">
+                <div class="copyright">
+                    &copy; @DateTime.Now.Year @ApplicationConfigurationManager.Instance.StoreName. All rights reserved.
+                </div>
+                <div class="payment-methods">
+                    <span class="payment-badge">Visa</span>
+                    <span class="payment-badge">Mastercard</span>
+                    <span class="payment-badge">PayPal</span>
+                    <span class="payment-badge">Stripe</span>
+                </div>
             </div>
-        </div>
-        <div class="container"
-            style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border-light); font-size: 0.75rem; color: var(--text-muted); text-align: center;">
-            &copy; 2026 @ApplicationConfigurationManager.Instance.StoreName. Fine Goods.
         </div>
     </footer>
 
@@ -738,7 +950,56 @@
         </div>
     </div>
 
+    <div id="toast-container"></div>
+
+    @{
+        var pendingToasts = ToastService.GetPendingToasts();
+    }
+
     <script>
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div style="flex: 1; font-weight: 600; font-size: 0.875rem;">${message}</div>
+                <button onclick="this.parentElement.remove()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.25rem;">&times;</button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 400);
+            }, 5000);
+        }
+
+        @foreach (var t in pendingToasts)
+        {
+            <text>showToast('@t.Message', '@t.Type');</text>
+        }
+
+        // Live Polling for Notifications
+        function checkNotifications() {
+            fetch('/Notification/GetLatest')
+                .then(response => response.json())
+                .then(notifications => {
+                    if (notifications && notifications.length > 0) {
+                        notifications.forEach(n => {
+                            showToast(n.message, n.type);
+                        });
+                    }
+                })
+                .catch(err => console.error('Error fetching notifications:', err));
+        }
+
+        // Check every 5 seconds if logged in
+        @if (HttpContextAccessor.HttpContext?.Session.GetString("UserId") != null)
+        {
+            <text>
+            setInterval(checkNotifications, 5000);
+            checkNotifications(); // check immediately on load
+            </text>
+        }
+
         function toggleMenu() { document.body.classList.toggle('menu-open'); }
 
         // Live Filtering Logic

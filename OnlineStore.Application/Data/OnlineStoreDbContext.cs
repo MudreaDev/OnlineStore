@@ -21,6 +21,8 @@ namespace OnlineStore.Application.Data
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<SubCategory> SubCategories { get; set; } = null!;
+        public DbSet<ProductReview> ProductReviews { get; set; } = null!;
+        public DbSet<UserNotification> UserNotifications { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -101,6 +103,19 @@ namespace OnlineStore.Application.Data
             modelBuilder.Entity<Order>()
                 .Property(o => o.Total)
                 .HasColumnType("decimal(18,2)");
+
+            // Composite Pattern for Reviews
+            modelBuilder.Entity<ProductReview>(entity =>
+            {
+                entity.HasKey(r => r.Id);
+                entity.HasOne<ProductReview>()
+                    .WithMany(r => r.Replies)
+                    .HasForeignKey(r => r.ParentReviewId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                
+                entity.Property(r => r.UserName).IsRequired();
+                entity.Property(r => r.Content).IsRequired();
+            });
         }
     }
 }

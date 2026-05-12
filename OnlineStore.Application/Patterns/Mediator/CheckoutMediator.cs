@@ -1,4 +1,5 @@
 using OnlineStore.Application.Services;
+using OnlineStore.Application.Repositories;
 using OnlineStore.Domain.Entities;
 using OnlineStore.Domain.Interfaces;
 using OnlineStore.Domain.DesignPatterns.Structural.Adapter;
@@ -10,6 +11,11 @@ using System.Linq;
 
 namespace OnlineStore.Application.Patterns.Mediator
 {
+    /// <summary>
+    /// Pattern Mediator — acționează ca un punct central de control pentru procesul de checkout.
+    /// Rol: Reduce cuplarea între serviciile de comenzi, stoc, plăți și notificări.
+    /// În loc ca serviciile să comunice direct între ele, acestea interacționează prin mediator.
+    /// </summary>
     public class CheckoutMediator : ICheckoutMediator
     {
         private readonly OrderService _orderService;
@@ -18,6 +24,7 @@ namespace OnlineStore.Application.Patterns.Mediator
         private readonly IStockService _stockService;
         private readonly IPaymentService _paymentService;
         private readonly IReadableRepository<Product> _productRepository;
+        private readonly IWriteableRepository<Order> _orderRepository;
 
         public CheckoutMediator(
             OrderService orderService, 
@@ -25,7 +32,8 @@ namespace OnlineStore.Application.Patterns.Mediator
             IEmailService emailService,
             IStockService stockService,
             IPaymentService paymentService,
-            IReadableRepository<Product> productRepository)
+            IReadableRepository<Product> productRepository,
+            IWriteableRepository<Order> orderRepository)
         {
             _orderService = orderService;
             _validationService = validationService;
@@ -33,9 +41,10 @@ namespace OnlineStore.Application.Patterns.Mediator
             _stockService = stockService;
             _paymentService = paymentService;
             _productRepository = productRepository;
+            _orderRepository = orderRepository;
         }
 
-        public (bool Success, string Message, Order? Order) Checkout(
+        public async Task<(bool Success, string Message, Order? Order)> CheckoutAsync(
             User user, 
             ShoppingCart cart, 
             string paymentMethod, 
@@ -47,7 +56,6 @@ namespace OnlineStore.Application.Patterns.Mediator
         {
             try
             {
-                Console.WriteLine("Mediator: Starting checkout process.");
 
                 // 1. Prepare Order Items
                 var orderItems = new List<OrderItem>();
@@ -74,6 +82,9 @@ namespace OnlineStore.Application.Patterns.Mediator
 
                 // 4. Place Order via OrderService
                 var order = _orderService.PlaceOrder(user, orderItems, shippingAddress, phoneNumber);
+                
+                // Salvează comanda în baza de date pentru persistență!
+                _orderRepository.Add(order);
 
                 // 5. Process Payment
                 _paymentService.Process(order.Total);
@@ -108,12 +119,11 @@ namespace OnlineStore.Application.Patterns.Mediator
 
                 // 9. Notify via Email Service
                 Notify(this, "OrderPlaced");
-                _emailService.SendOrderConfirmationAsync(user.Email, order.Id.ToString(), order.Total).Wait();
+                await _emailService.SendOrderConfirmationAsync(user.Email, order.Id.ToString(), order.Total);
 
                 // 10. Clear Cart
                 cart.Clear();
 
-                Console.WriteLine($"Mediator: Checkout completed for Order {order.Id}");
                 return (true, $"Comanda {order.Id} a fost plasată cu succes! {deliveryResult}", order);
             }
             catch (Exception ex)
@@ -126,7 +136,7 @@ namespace OnlineStore.Application.Patterns.Mediator
         {
             if (eventCode == "OrderPlaced")
             {
-                Console.WriteLine("Mediator: Reacting to OrderPlaced event.");
+                // Notificare eveniment
             }
         }
     }

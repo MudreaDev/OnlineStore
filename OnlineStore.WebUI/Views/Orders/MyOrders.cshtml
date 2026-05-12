@@ -4,6 +4,140 @@
     ViewData["Title"] = "My Orders";
 }
 
+<style>
+    .orders-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+    }
+
+    .hero-section {
+        text-align: center;
+        margin-bottom: 4rem;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .display-title {
+        font-family: var(--font-elegant);
+        font-size: 3.5rem;
+        color: var(--midnight);
+        margin-bottom: 1rem;
+        letter-spacing: -0.03em;
+    }
+
+    .highlight {
+        color: var(--text-muted);
+        font-style: italic;
+    }
+
+    .subtitle {
+        color: var(--text-muted);
+        font-size: 1.125rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .order-table-container {
+        background: var(--surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        animation: fadeInUp 1s ease-out;
+    }
+
+    .minimal-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .minimal-table th {
+        background: #fcfbf8;
+        padding: 1.5rem 2rem;
+        font-family: var(--font-display);
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .minimal-table td {
+        padding: 1.5rem 2rem;
+        font-size: 0.9375rem;
+        color: var(--text-main);
+        border-bottom: 1px solid var(--border-subtle);
+        vertical-align: middle;
+    }
+
+    .minimal-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .order-id-cell {
+        font-family: monospace;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.4rem 1rem;
+        border-radius: 100px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .status-pending { background: #fff7ed; color: #9a3412; }
+    .status-shipped { background: #f0f9ff; color: #075985; }
+    .status-delivered { background: #f0fdf4; color: #166534; }
+    .status-cancelled { background: #fef2f2; color: #991b1b; }
+
+    .price-cell {
+        font-weight: 600;
+        color: var(--midnight);
+    }
+
+    .btn-action-view {
+        display: inline-block;
+        padding: 0.6rem 1.25rem;
+        background: var(--bg-base);
+        color: var(--midnight);
+        text-decoration: none;
+        border-radius: 12px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        transition: var(--transition-smooth);
+        border: 1px solid var(--border-subtle);
+    }
+
+    .btn-action-view:hover {
+        background: var(--midnight);
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 6rem 2rem;
+        background: var(--surface);
+        border: 1px dashed var(--border-bold);
+        border-radius: 32px;
+    }
+
+    .no-results-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.5;
+    }
+</style>
+
 <div class="orders-page">
     <div class="hero-section">
         <h1 class="display-title">Order <span class="highlight">History</span></h1>

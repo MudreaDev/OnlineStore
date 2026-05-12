@@ -17,8 +17,8 @@ namespace OnlineStore.ConsoleUI
         static InMemoryUserRepository userRepo = new InMemoryUserRepository();
         static InMemoryOrderRepository orderRepo = new InMemoryOrderRepository();
 
-        static User currentUser = null;
-        static ShoppingCart currentCart = null;
+        static User? currentUser = null;
+        static ShoppingCart? currentCart = null;
 
         static void Main(string[] args)
         {
@@ -37,7 +37,7 @@ namespace OnlineStore.ConsoleUI
                 Console.WriteLine("0. Exit");
                 Console.Write("Select option: ");
 
-                string choice = Console.ReadLine();
+                string? choice = Console.ReadLine();
 
                 switch (choice)
                 {
@@ -126,7 +126,7 @@ namespace OnlineStore.ConsoleUI
             while (!back)
             {
                 Console.Clear();
-                Console.WriteLine($"Logged in as: {currentUser.Username}");
+                Console.WriteLine($"Logged in as: {currentUser!.Username}");
                 // Console.WriteLine($"Cart Total: {currentCart.CalculateTotal()}"); // Removed as CalculateTotal moved to logic layers
                 Console.WriteLine("1. View Products & Add to Cart");
                 Console.WriteLine("2. View Cart");
@@ -167,7 +167,7 @@ namespace OnlineStore.ConsoleUI
 
             if (int.TryParse(Console.ReadLine(), out int pid) && pid > 0 && pid <= products.Count)
             {
-                currentCart.AddProduct(products[pid - 1].Id);
+                currentCart!.AddProduct(products[pid - 1].Id);
                 Console.WriteLine("Added to cart!");
             }
             // Simple pause
@@ -178,7 +178,7 @@ namespace OnlineStore.ConsoleUI
         {
             Console.Clear();
             decimal total = 0;
-            foreach (var item in currentCart.Items)
+            foreach (var item in currentCart!.Items)
             {
                 var p = productRepo.GetById(item.ProductId);
                 if (p != null)
@@ -194,7 +194,7 @@ namespace OnlineStore.ConsoleUI
         static void Checkout()
         {
             Console.Clear();
-            if (!currentCart.Items.Any())
+            if (!currentCart!.Items.Any())
             {
                 Console.WriteLine("Cart is empty.");
                 Console.ReadKey();
@@ -215,7 +215,7 @@ namespace OnlineStore.ConsoleUI
             IDiscountStrategy discount = new FixedAmountDiscountStrategy(50); // $50 off
             OrderService orderService = new OrderService(discount);
 
-            Order order = orderService.PlaceOrder(currentUser, orderItems, "N/A", "N/A");
+            Order order = orderService.PlaceOrder(currentUser!, orderItems, "N/A", "N/A");
             orderRepo.Add(order);
 
             // Update Customer history
@@ -256,9 +256,10 @@ namespace OnlineStore.ConsoleUI
         static void AddProductAdmin()
         {
             Console.Write("Enter product name: ");
-            string name = Console.ReadLine();
+            string name = Console.ReadLine() ?? "Unnamed Product";
             Console.Write("Enter price: ");
-            decimal price = decimal.Parse(Console.ReadLine());
+            string? priceInput = Console.ReadLine();
+            decimal price = decimal.TryParse(priceInput, out decimal pVal) ? pVal : 0;
 
             // Use Factory
             ProductFactory factory = new ElectronicProductFactory(); // Standardizing electronics for demo

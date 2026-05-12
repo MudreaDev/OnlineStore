@@ -27,6 +27,7 @@ namespace OnlineStore.WebUI.Controllers
         private readonly OnlineStoreDbContext _context;
         private readonly OrderNotificationService _notificationService;
         private readonly ProductAvailabilityService _availabilityService;
+        private readonly ToastService _toastService;
 
         public AdminController(
             DbProductRepository productRepo, 
@@ -35,7 +36,8 @@ namespace OnlineStore.WebUI.Controllers
             CloudinaryService cloudinaryService,
             OnlineStoreDbContext context,
             OrderNotificationService notificationService,
-            ProductAvailabilityService availabilityService)
+            ProductAvailabilityService availabilityService,
+            ToastService toastService)
         {
             _productRepo = productRepo;
             _orderRepo = orderRepo;
@@ -44,9 +46,10 @@ namespace OnlineStore.WebUI.Controllers
             _context = context;
             _notificationService = notificationService;
             _availabilityService = availabilityService;
+            _toastService = toastService;
         }
 
-        private IActionResult CheckAccess()
+        private IActionResult? CheckAccess()
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
             if (string.IsNullOrEmpty(userIdStr))
@@ -137,7 +140,7 @@ namespace OnlineStore.WebUI.Controllers
             var accessCheck = CheckAccess();
             if (accessCheck != null) return accessCheck;
 
-            ProductFactory factory = type switch
+            ProductFactory? factory = type switch
             {
                 "Electronic" => new ElectronicProductFactory(),
                 "Clothing" => new ClothingProductFactory(),
@@ -489,7 +492,7 @@ namespace OnlineStore.WebUI.Controllers
                     $"Comanda {orderId.ToString()[..8]} este acum {status}");
                 TempData["NotificationChain"] = decoratorResult;
 
-                TempData["Success"] = $"Statusul comenzii {orderId} a fost actualizat la {status}.";
+                _toastService.AddToast($"Statusul comenzii {orderId.ToString()[..8]} a fost actualizat la {status}!");
             }
             else
             {
@@ -544,6 +547,10 @@ namespace OnlineStore.WebUI.Controllers
                 {
                     order.Ship(); // Calls the State transition
                     _orderRepo.Update(order);
+                    
+                    // Trigger Notification (Observer Pattern)
+                    _notificationService.UpdateStatusAndNotify(order, order.Status);
+                    
                     TempData["Success"] = $"Comanda {id.ToString()[..8]} a fost expediată (State Pattern).";
                 }
                 catch (Exception ex)
@@ -567,6 +574,10 @@ namespace OnlineStore.WebUI.Controllers
                 {
                     order.Cancel(); // Calls the State transition
                     _orderRepo.Update(order);
+                    
+                    // Trigger Notification (Observer Pattern)
+                    _notificationService.UpdateStatusAndNotify(order, order.Status);
+                    
                     TempData["Success"] = $"Comanda {id.ToString()[..8]} a fost anulată (State Pattern).";
                 }
                 catch (Exception ex)

@@ -4,11 +4,14 @@ using System;
 
 namespace OnlineStore.Domain.Patterns.State
 {
+    /// <summary>
+    /// Pattern State — permite unui obiect (Order) să își schimbe comportamentul atunci când starea sa internă se modifică.
+    /// Rol: Elimină structurile condiționale complexe (if/switch) pentru gestionarea tranzițiilor de stare.
+    /// </summary>
     public class PendingState : IOrderState
     {
         public void Pay(Order order)
         {
-            Console.WriteLine("Payment successful. Transitioning to Paid state.");
             order.SetState(new PaidState());
             order.Status = OrderStatus.Paid;
         }
@@ -20,7 +23,6 @@ namespace OnlineStore.Domain.Patterns.State
 
         public void Cancel(Order order)
         {
-            Console.WriteLine("Order cancelled.");
             order.SetState(new CancelledState());
             order.Status = OrderStatus.Cancelled;
         }
@@ -37,14 +39,12 @@ namespace OnlineStore.Domain.Patterns.State
 
         public void Ship(Order order)
         {
-            Console.WriteLine("Order shipped. Transitioning to Shipped state.");
             order.SetState(new ShippedState());
             order.Status = OrderStatus.Shipped;
         }
 
         public void Cancel(Order order)
         {
-            Console.WriteLine("Order cancelled and payment refunded.");
             order.SetState(new CancelledState());
             order.Status = OrderStatus.Cancelled;
         }

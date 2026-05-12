@@ -1,4 +1,5 @@
 @using OnlineStore.Domain.Singleton
+@inject OnlineStore.Application.Services.CurrencyService CurrencyService
 @{
     var cartItems = ViewBag.CartItems as List<(OnlineStore.Domain.Entities.Product Product, int Quantity, string? Size, string? Color)>;
     decimal total = ViewBag.Total ?? 0;
@@ -159,7 +160,7 @@
                             <span id="qty-@itemKey">@item.Quantity</span>
                             <button type="button" class="qty-btn" onclick="updateQty(1, '@product.Id', '@item.Size', '@item.Color')" id="inc-@itemKey" @(item.Quantity >= product.Stock ? "disabled" : "")>+</button>
                         </div>
-                        <div class="item-price" id="total-@itemKey">@((product.Price * item.Quantity).ToString("C0"))</div>
+                        <div class="item-price" id="total-@itemKey">@CurrencyService.FormatPrice(product.Price * item.Quantity)</div>
                         
                         <form asp-controller="Cart" asp-action="Remove" method="post" style="margin: 0;">
                             <input type="hidden" name="id" value="@product.Id" />
@@ -181,13 +182,13 @@
     <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem; background: var(--surface); border-top: 1px solid var(--border-subtle); box-shadow: 0 -4px 12px rgba(0,0,0,0.05);">
         <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-family: var(--font-display); font-weight: 800; font-size: 1.125rem;">
             <span>Subtotal</span>
-            <span id="overall-cart-total">@total.ToString("C2")</span>
+            <span id="overall-cart-total">@CurrencyService.FormatPrice(total)</span>
         </div>
         
         @if(total < freeShippingThreshold && total > 0)
         {
             <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; text-align: center;">
-                Adaugă de <b>@((freeShippingThreshold - total).ToString("C2"))</b> pt transport gratuit. 
+                Adaugă de <b>@CurrencyService.FormatPrice(freeShippingThreshold - total)</b> pt transport gratuit. 
                 <div class="progress-bar-container">
                     <div style="background: var(--accent-primary); height: 100%; width: @((total/freeShippingThreshold)*100)%;"></div>
                 </div>

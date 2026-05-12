@@ -15,10 +15,12 @@ namespace OnlineStore.Domain.DesignPatterns.Behavioral.Observer
 
         public void Update(Order order)
         {
+            if (order.User == null || string.IsNullOrEmpty(order.User.Email)) return;
+
             _emailService.SendEmailAsync(
-                "customer@example.com", // in real world, this would be user.Email
-                $"Status Comandă Actualizat - {order.Id}",
-                $"Statusul comenzii tale a fost actualizat la: {order.Status}."
+                order.User.Email,
+                $"Status Comandă Actualizat - {order.Id.ToString()[..8]}",
+                $"Bună {order.User.Username}, statusul comenzii tale a fost actualizat la: {order.Status}."
             ).GetAwaiter().GetResult();
             
             Console.WriteLine($"[EmailObserver] Sent email notification for Order {order.Id} regarding status {order.Status}");

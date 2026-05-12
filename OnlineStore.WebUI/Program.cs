@@ -13,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession(); // Enable Session
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<CurrencyRateProvider>();
 
 // Register DbContext
 builder.Services.AddDbContext<OnlineStoreDbContext>(options =>
@@ -25,6 +27,8 @@ builder.Services.AddScoped<IWriteableRepository<Product>>(sp => sp.GetRequiredSe
 
 builder.Services.AddScoped<DbUserRepository>();
 builder.Services.AddScoped<DbOrderRepository>();
+builder.Services.AddScoped<IReadableRepository<Order>>(sp => sp.GetRequiredService<DbOrderRepository>());
+builder.Services.AddScoped<IWriteableRepository<Order>>(sp => sp.GetRequiredService<DbOrderRepository>());
 
 // Register Services
 builder.Services.AddScoped<ProductAvailabilityService>();
@@ -35,6 +39,10 @@ builder.Services.AddScoped<IStockService, StockService>();
 builder.Services.AddScoped<IPaymentProcessor, LocalPaymentProcessor>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<OrderValidationService>();
+builder.Services.AddScoped<CurrencyService>();
+builder.Services.AddScoped<ReviewNotificationService>();
+builder.Services.AddScoped<ReviewService>();
+builder.Services.AddScoped<ToastService>();
 
 // Strategy Pattern for OrderService
 builder.Services.AddScoped<IDiscountStrategy, NoDiscountStrategy>();

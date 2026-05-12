@@ -24,19 +24,22 @@ namespace OnlineStore.WebUI.Controllers
         private readonly DbUserRepository _userRepo;
         private readonly IEmailService _emailService;
         private readonly ICheckoutMediator _checkoutMediator;
+        private readonly ToastService _toastService;
 
         public CartController(
             DbProductRepository productRepo, 
             DbOrderRepository orderRepo, 
             DbUserRepository userRepo, 
             IEmailService emailService,
-            ICheckoutMediator checkoutMediator)
+            ICheckoutMediator checkoutMediator,
+            ToastService toastService)
         {
             _productRepo = productRepo;
             _orderRepo = orderRepo;
             _userRepo = userRepo;
             _emailService = emailService;
             _checkoutMediator = checkoutMediator;
+            _toastService = toastService;
         }
 
         public IActionResult Index()
@@ -87,7 +90,7 @@ namespace OnlineStore.WebUI.Controllers
                 SaveCart(cart);
                 SaveCaretaker(caretaker);
                 
-                TempData["Success"] = $"Produsul {product.Name} a fost adăugat în coș.";
+                _toastService.AddToast($"{product.Name} a fost adăugat în coș!");
             }
             return RedirectToAction("Index", "Home");
         }
@@ -116,6 +119,7 @@ namespace OnlineStore.WebUI.Controllers
                 SaveCart(cart);
                 SaveCaretaker(caretaker);
                 
+                _toastService.AddToast($"{product.Name} a fost adăugat în coș!");
                 return Json(new { success = true, cartCount = cart.Items.Sum(i => i.Quantity) });
             }
             return Json(new { success = false, message = "Produsul nu a fost găsit." });
@@ -250,7 +254,7 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Checkout(string paymentMethod, string storeType, string deliveryType, string shippingProvider, string shippingAddress, string phoneNumber)
+        public async Task<IActionResult> Checkout(string paymentMethod, string storeType, string deliveryType, string shippingProvider, string shippingAddress, string phoneNumber)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
             if (string.IsNullOrEmpty(userIdStr))
@@ -282,7 +286,7 @@ namespace OnlineStore.WebUI.Controllers
             }
 
             // Execute Checkout via Mediator Pattern
-            var result = _checkoutMediator.Checkout(
+            var result = await _checkoutMediator.CheckoutAsync(
                 user, 
                 cart, 
                 paymentMethod, 

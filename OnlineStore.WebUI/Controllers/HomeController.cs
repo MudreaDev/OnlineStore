@@ -9,6 +9,7 @@ using OnlineStore.Domain.DesignPatterns.Structural.Composite;
 using OnlineStore.Domain.DesignPatterns.Structural.Flyweight;
 using OnlineStore.Domain.DesignPatterns.Behavioral.Iterator;
 using OnlineStore.Domain.Strategies;
+using OnlineStore.Application.Services;
 
 namespace OnlineStore.WebUI.Controllers
 {
@@ -16,13 +17,19 @@ namespace OnlineStore.WebUI.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly DbProductRepository _productRepo;
+        private readonly ReviewService _reviewService;
+        private readonly ToastService _toastService;
+        private readonly CurrencyService _currencyService;
         private readonly OnlineStoreDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger, DbProductRepository productRepo, OnlineStoreDbContext context)
+        public HomeController(ILogger<HomeController> logger, DbProductRepository productRepo, OnlineStoreDbContext context, CurrencyService currencyService, ReviewService reviewService, ToastService toastService)
         {
             _logger = logger;
             _productRepo = productRepo;
             _context = context;
+            _currencyService = currencyService;
+            _reviewService = reviewService;
+            _toastService = toastService;
         }
 
         public IActionResult Index(string? searchQuery, string? categoryFilter, decimal? minPrice, decimal? maxPrice, string? sortStrategy, int page = 1)
@@ -150,16 +157,6 @@ namespace OnlineStore.WebUI.Controllers
             return View(outOfStockProducts);
         }
 
-        public IActionResult ProductDetails(Guid id)
-        {
-            var product = _productRepo.GetById(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-            return View(product);
-        }
-
         public IActionResult Details(Guid id)
         {
             var product = _productRepo.GetById(id);
@@ -167,12 +164,50 @@ namespace OnlineStore.WebUI.Controllers
             {
                 return NotFound();
             }
+
+            // Pattern: Strategy pentru recomandări
+            IRecommendationStrategy recommendationStrategy = new SameCategoryRecommendationStrategy();
+            var allProducts = _productRepo.GetAll();
+            var recommended = recommendationStrategy.GetRecommendations(product, allProducts, 5);
+            
+            ViewBag.Recommendations = recommended;
+
+            // Recenzii (Composite Pattern)
+            var reviews = _reviewService.GetProductReviews(id);
+            ViewBag.Reviews = reviews;
+
             return View(product);
+        }
+
+        [HttpPost]
+        public IActionResult AddReview(Guid productId, string content, int rating, Guid? parentId)
+        {
+            var username = HttpContext.Session.GetString("Username") ?? "Anonymous";
+            var review = new ProductReview
+            {
+                ProductId = productId,
+                UserName = username,
+                Content = content,
+                Rating = rating,
+                ParentReviewId = parentId
+            };
+
+            _reviewService.AddReview(review);
+            _toastService.AddToast("Recenzia a fost adăugată cu succes!");
+            return RedirectToAction("Details", new { id = productId });
         }
 
         public IActionResult Privacy()
         {
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult SetCurrency(string currencyCode, string returnUrl)
+        {
+            _currencyService.SetCurrency(currencyCode);
+            _toastService.AddToast($"Moneda a fost schimbată în {currencyCode}.", "info");
+            return LocalRedirect(returnUrl ?? "/");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

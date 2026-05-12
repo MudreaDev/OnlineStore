@@ -37,7 +37,7 @@ namespace OnlineStore.Application.Repositories
             return _context.Users.ToList();
         }
 
-        public User GetById(Guid id)
+        public User? GetById(Guid id)
         {
             return _context.Users.Find(id);
         }
@@ -46,6 +46,17 @@ namespace OnlineStore.Application.Repositories
         {
             _context.Users.Update(entity);
             _context.SaveChanges();
+        }
+
+        public User? GetByUsername(string username)
+        {
+            // Căutare directă în DB - SQL Server este case-insensitive implicit
+            return _context.Users.FirstOrDefault(u => u.Username == username);
+        }
+
+        public User? GetByEmail(string email)
+        {
+            return _context.Users.FirstOrDefault(u => u.Email == email);
         }
     }
 }
