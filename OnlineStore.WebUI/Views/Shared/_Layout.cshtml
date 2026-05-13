@@ -700,7 +700,7 @@
                 @ApplicationConfigurationManager.Instance.StoreName
             </a>
 
-            <form id="liveFilterForm" method="get" asp-controller="Home" asp-action="Index" class="nav-search-form">
+            <form id="liveFilterForm" method="get" asp-controller="Home" asp-action="Index" asp-fragment="collection" class="nav-search-form">
                 <div class="search-input-wrap">
                     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2.5">
@@ -1022,9 +1022,16 @@
         function toggleMenu() { document.body.classList.toggle('menu-open'); }
         function toggleSidebar() { 
             const sidebar = document.getElementById('shopSidebar');
+            const collection = document.getElementById('collection');
+            
             if (sidebar) {
                 sidebar.classList.toggle('active');
                 document.body.classList.toggle('sidebar-open');
+                
+                // If opening or already on the collection page, scroll to filters
+                if (collection) {
+                    collection.scrollIntoView({ behavior: 'smooth' });
+                }
             } else {
                 window.location.href = '/Home#collection';
             }

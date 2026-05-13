@@ -522,7 +522,7 @@
 <div id="collection" class="container shop-layout fade-in">
     <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
     <aside class="shop-sidebar" id="shopSidebar">
-        <form id="sidebarFilterForm" method="get" asp-controller="Home" asp-action="Index">
+        <form id="sidebarFilterForm" method="get" asp-controller="Home" asp-action="Index" asp-fragment="collection">
             <input type="hidden" name="searchQuery" value="@Context.Request.Query["searchQuery"]" />
             
             <div class="filter-group">
@@ -670,7 +670,8 @@
             <div class="pagination-container">
                 @for (int i = 1; i <= ViewBag.TotalPages; i++)
                 {
-                    <a asp-action="Index"                        asp-route-page="@i" 
+                    <a asp-action="Index" asp-fragment="collection"
+                       asp-route-page="@i" 
                        asp-route-searchQuery="@ViewBag.SearchQuery" 
                        asp-route-categoryFilter="@ViewBag.CategoryFilter"
                        asp-route-sortStrategy="@ViewBag.SortStrategy"
