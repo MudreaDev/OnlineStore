@@ -1,61 +1,201 @@
 @{
-    ViewData["Title"] = "Sign In";
+    ViewData["Title"] = "Autentificare";
 }
 
 <style>
-    .auth-page {
+    .auth-container-fullscreen {
+        margin: -2rem auto -4rem; /* Compensate for layout padding */
+        min-height: calc(100vh - var(--navbar-height));
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        background-color: var(--bg-base);
+    }
+
+    /* Left Side - Luxury Visual Panel */
+    .auth-visual-panel {
+        position: relative;
+        background-image: url('/images/auth_background.png');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: flex-end;
+        padding: 4rem;
+        color: #ffffff;
+        overflow: hidden;
+    }
+
+    .auth-visual-panel::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(45, 41, 38, 0.1) 0%, rgba(45, 41, 38, 0.8) 100%);
+        z-index: 1;
+    }
+
+    .auth-visual-content {
+        position: relative;
+        z-index: 2;
+        max-width: 520px;
+        animation: fadeInUp 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .auth-tagline-badge {
+        display: inline-block;
+        font-family: var(--font-body);
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 0.4rem 1rem;
+        border-radius: 99px;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(4px);
+    }
+
+    .auth-visual-title {
+        font-family: var(--font-elegant);
+        font-size: 3rem;
+        line-height: 1.15;
+        font-weight: 400;
+        letter-spacing: -0.02em;
+        margin-bottom: 1.25rem;
+        color: #ffffff;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+
+    .auth-visual-text {
+        font-family: var(--font-body);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.75);
+    }
+
+    /* Right Side - Form Panel */
+    .auth-form-panel {
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: calc(100vh - 350px);
-        padding: 2rem 1rem;
+        padding: 3rem 2rem;
+        position: relative;
     }
 
-    .auth-card {
-        background: #fff;
-        border: 1px solid var(--border-subtle);
-        border-radius: 20px;
-        padding: 2rem 2.5rem;
+    .auth-glass-card {
+        background: rgba(255, 255, 255, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(24px) saturate(120%);
+        -webkit-backdrop-filter: blur(24px) saturate(120%);
+        border-radius: 32px;
+        padding: 3.5rem 3rem;
         width: 100%;
-        max-width: 380px;
-        box-shadow: 0 10px 50px rgba(0, 0, 0, 0.05);
-        text-align: center;
+        max-width: 440px;
+        box-shadow: 0 30px 70px rgba(45, 41, 38, 0.04), 
+                    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        animation: cardAppear 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        position: relative;
+        z-index: 2;
     }
 
-    .auth-logo {
-        width: 36px;
-        height: 36px;
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2.25rem;
+    }
+
+    .auth-logo-badge {
+        width: 48px;
+        height: 48px;
         background: var(--midnight);
-        color: var(--accent-primary);
-        border-radius: 10px;
+        color: #ffffff;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 1rem;
-        font-size: 1rem;
+        margin: 0 auto 1.25rem;
+        box-shadow: 0 10px 20px rgba(45, 41, 38, 0.15);
+        transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .auth-logo-badge:hover {
+        transform: rotate(10deg) scale(1.05);
     }
 
     .auth-title {
         font-family: var(--font-elegant);
-        font-size: 1.375rem;
+        font-size: 1.85rem;
         color: var(--midnight);
         letter-spacing: -0.02em;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.4rem;
     }
 
     .auth-subtitle {
         color: var(--text-muted);
-        font-size: 0.8125rem;
-        margin-bottom: 1.25rem;
+        font-size: 0.875rem;
     }
 
-    .form-group {
-        text-align: left;
-        margin-bottom: 1rem;
+    .form-group-custom {
+        margin-bottom: 1.25rem;
         position: relative;
     }
 
-    .form-label {
+    .input-wrapper-custom {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-icon-left {
+        position: absolute;
+        left: 1.25rem;
+        color: var(--text-muted);
+        pointer-events: none;
+        transition: var(--transition-smooth);
+    }
+
+    .form-control-custom {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.4);
+        border: 1.5px solid var(--border-subtle);
+        border-radius: 14px;
+        padding: 0.85rem 1.25rem 0.85rem 3rem;
+        font-family: var(--font-body);
+        font-size: 0.875rem;
+        color: var(--midnight);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        outline: none;
+    }
+
+    .form-control-custom:focus {
+        background: #ffffff;
+        border-color: var(--midnight);
+        box-shadow: 0 0 0 5px rgba(45, 41, 38, 0.05);
+    }
+
+    .form-control-custom:focus + .input-icon-left {
+        color: var(--midnight);
+    }
+
+    .password-toggle-btn {
+        position: absolute;
+        right: 1rem;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.25rem;
+        border-radius: 6px;
+        transition: var(--transition-smooth);
+    }
+
+    .password-toggle-btn:hover {
+        color: var(--midnight);
+        background: rgba(45, 41, 38, 0.05);
+    }
+
+    .form-label-custom {
         font-size: 0.65rem;
         font-weight: 800;
         text-transform: uppercase;
@@ -63,108 +203,322 @@
         color: var(--text-muted);
         margin-bottom: 0.4rem;
         display: block;
+        padding-left: 0.25rem;
     }
 
-    .form-control {
-        width: 100%;
-        background: var(--bg-base);
-        border: 1.5px solid transparent;
-        border-radius: 10px;
-        padding: 0.65rem 1rem;
-        font-family: var(--font-body);
-        font-size: 0.875rem;
-        color: var(--midnight);
-        transition: var(--transition-smooth);
-        outline: none;
-    }
-
-    .form-control:focus {
-        background: #fff;
-        border-color: var(--accent-primary);
-        box-shadow: 0 0 0 5px rgba(5, 150, 105, 0.1);
-    }
-
-    .btn-login {
+    .btn-login-premium {
         width: 100%;
         background: var(--midnight);
-        color: #fff;
+        color: #ffffff;
         border: none;
-        border-radius: 10px;
-        padding: 0.75rem;
+        border-radius: 14px;
+        padding: 0.95rem;
         font-size: 0.875rem;
         font-weight: 700;
         cursor: pointer;
-        transition: var(--transition-smooth);
-        margin-bottom: 1rem;
+        transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        margin-top: 1.5rem;
+        box-shadow: 0 10px 25px rgba(45, 41, 38, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
     }
 
-    .btn-login:hover {
-        background: var(--accent-primary);
+    .btn-login-premium:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(5, 150, 105, 0.2);
+        box-shadow: 0 15px 30px rgba(45, 41, 38, 0.25);
+        background: #000000;
     }
 
-    .auth-link {
-        font-weight: 600;
+    .btn-login-premium:active {
+        transform: translateY(0);
+    }
+
+    .auth-forgot-link {
+        font-size: 0.8rem;
         color: var(--text-muted);
-        font-size: 0.9375rem;
-    }
-
-    .auth-link strong {
-        color: var(--accent-primary);
-    }
-
-    .validation-summary {
-        margin-bottom: 2rem;
-        padding: 1rem;
-        background: #fff1f2;
-        border: 1px solid #fecaca;
-        border-radius: 12px;
-        color: #991b1b;
-        font-size: 0.875rem;
+        text-decoration: none;
         font-weight: 500;
+        float: right;
+        margin-top: 0.4rem;
+        transition: var(--transition-smooth);
     }
 
-    .validation-summary ul {
+    .auth-forgot-link:hover {
+        color: var(--midnight);
+        text-decoration: underline;
+    }
+
+    .auth-footer-divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 2rem 0;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .auth-footer-divider::before,
+    .auth-footer-divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .auth-footer-divider:not(:empty)::before {
+        margin-right: .75em;
+    }
+
+    .auth-footer-divider:not(:empty)::after {
+        margin-left: .75em;
+    }
+
+    .social-auth-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .social-auth-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+        padding: 0.75rem;
+        font-family: var(--font-body);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--midnight);
+        cursor: pointer;
+        transition: var(--transition-smooth);
+    }
+
+    .social-auth-btn:hover {
+        background: #ffffff;
+        border-color: var(--border-bold);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+
+    .auth-switch-prompt {
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .auth-switch-link {
+        color: var(--midnight);
+        font-weight: 700;
+        text-decoration: none;
+        position: relative;
+        padding-bottom: 2px;
+    }
+
+    .auth-switch-link::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 1.5px;
+        background: var(--midnight);
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.3s ease;
+    }
+
+    .auth-switch-link:hover::after {
+        transform: scaleX(1);
+        transform-origin: left;
+    }
+
+    .validation-summary-custom {
+        margin-bottom: 1.5rem;
+        padding: 1rem 1.25rem;
+        background: rgba(254, 242, 242, 0.9);
+        border: 1px solid #fee2e2;
+        border-radius: 14px;
+        color: #991b1b;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        text-align: left;
+        backdrop-filter: blur(8px);
+    }
+
+    .validation-summary-custom ul {
         list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Animations */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes cardAppear {
+        from {
+            opacity: 0;
+            transform: translateY(15px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 991px) {
+        .auth-container-fullscreen {
+            grid-template-columns: 1fr;
+            margin: -2rem auto -4rem;
+            position: relative;
+        }
+
+        .auth-visual-panel {
+            display: none; /* Hide visual split-panel, use background instead */
+        }
+
+        .auth-form-panel {
+            background-image: url('/images/auth_background.png');
+            background-size: cover;
+            background-position: center;
+            min-height: calc(100vh - var(--navbar-height));
+            padding: 3rem 1.5rem;
+        }
+
+        .auth-form-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(249, 247, 242, 0.65); /* Elegant light mask matching theme bg-base */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 1;
+        }
     }
 </style>
 
-<div class="auth-page">
-    <div class="auth-card">
-        <div class="auth-logo">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <path
-                    d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-7.247-9.571c0 3.517 1.009 6.799 2.753 9.571m0 0c.847.658 1.776 1.148 2.753 1.429m14.494-11c0 3.517 1.009 6.799 2.753 9.571m-2.753-9.571h-14.494m14.494 0c0-3.517-1.009-6.799-2.753-9.571m-7.247 9.571c0-3.517 1.009-6.799 2.753-9.571m0 0c.847-.658 1.776-1.148 2.753-1.429m11.741 11c0 3.517-1.009 6.799-2.753 9.571m-2.753-11c0-3.517 1.009-6.799 2.753-9.571m-2.753 9.571c0 3.517 1.009 6.799 2.753 9.571">
-                </path>
-            </svg>
+<div class="auth-container-fullscreen">
+    <!-- Visual side for wide displays -->
+    <div class="auth-visual-panel">
+        <div class="auth-visual-content">
+            <span class="auth-tagline-badge">Colecția Minimalistă</span>
+            <h1 class="auth-visual-title">Simplitatea este definiția eleganței absolute.</h1>
+            <p class="auth-visual-text">Curatoriem cele mai rafinate elemente pentru stilul tău de viață. Autentifică-te pentru a reveni în experiența colecției noastre.</p>
         </div>
+    </div>
 
-        <h1 class="auth-title">Welcome back</h1>
-        <p class="auth-subtitle">Sign in to experience the collection.</p>
-
-        @if (!ViewContext.ViewData.ModelState.IsValid)
-        {
-            <div asp-validation-summary="All" class="validation-summary"></div>
-        }
-
-        <form asp-action="Login" method="post">
-            <div class="form-group">
-                <label class="form-label" for="username">Username or Email</label>
-                <input type="text" name="username" id="username" class="form-control" placeholder="Enter username or email"
-                    required autocomplete="username" />
+    <!-- Interactive Form side -->
+    <div class="auth-form-panel">
+        <div class="auth-glass-card">
+            <div class="auth-header">
+                <div class="auth-logo-badge">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-7.247-9.571c0 3.517 1.009 6.799 2.753 9.571m0 0c.847.658 1.776 1.148 2.753 1.429m14.494-11c0 3.517 1.009 6.799 2.753 9.571m-2.753-9.571h-14.494m14.494 0c0-3.517-1.009-6.799-2.753-9.571m-7.247 9.571c0-3.517 1.009-6.799 2.753-9.571m0 0c.847-.658 1.776-1.148 2.753-1.429m11.741 11c0 3.517-1.009 6.799-2.753 9.571m-2.753-11c0-3.517 1.009-6.799 2.753-9.571m-2.753 9.571c0 3.517 1.009 6.799 2.753 9.571"></path>
+                    </svg>
+                </div>
+                <h2 class="auth-title">Bine ai revenit</h2>
+                <p class="auth-subtitle">Autentifică-te pentru a explora colecția.</p>
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="password">Password</label>
-                <input type="password" name="password" id="password" class="form-control" placeholder="••••••••"
-                    required autocomplete="current-password" />
+            @if (!ViewContext.ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All" class="validation-summary-custom"></div>
+            }
+
+            <form asp-action="Login" method="post">
+                <div class="form-group-custom">
+                    <label class="form-label-custom" for="username">Nume utilizator sau Email</label>
+                    <div class="input-wrapper-custom">
+                        <svg class="input-icon-left" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <input type="text" name="username" id="username" class="form-control-custom" placeholder="Nume sau email..." required autocomplete="username" />
+                    </div>
+                </div>
+
+                <div class="form-group-custom">
+                    <div style="overflow: hidden; width: 100%;">
+                        <label class="form-label-custom" for="password" style="float: left;">Parolă</label>
+                        <a asp-action="ForgotPassword" class="auth-forgot-link">Ai uitat parola?</a>
+                    </div>
+                    <div class="input-wrapper-custom">
+                        <svg class="input-icon-left" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <input type="password" name="password" id="password" class="form-control-custom" placeholder="••••••••" required autocomplete="current-password" style="padding-right: 3rem;" />
+                        <button type="button" class="password-toggle-btn" id="password-toggle" onclick="togglePasswordVisibility('password', 'password-toggle')" aria-label="Toggle Password Visibility">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login-premium">
+                    Intră în Colecție
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+            </form>
+
+            <div class="auth-footer-divider">Sau intră cu</div>
+
+            <div class="social-auth-grid">
+                <button class="social-auth-btn" type="button" onclick="alert('Social sign-in integrat vizual.')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12.24 10.285V13.4h6.887C18.2 15.614 15.645 18 12.24 18c-3.86 0-7-3.14-7-7s3.14-7 7-7c1.7 0 3.3.6 4.6 1.7l2.42-2.42C17.43 1.63 14.99 1 12.24 1c-5.52 0-10 4.48-10 10s4.48 10 10 10c5.73 0 9.54-4.03 9.54-9.72 0-.6-.06-1.19-.17-1.72H12.24z"/>
+                    </svg>
+                    Google
+                </button>
+                <button class="social-auth-btn" type="button" onclick="alert('Social sign-in integrat vizual.')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.2.67-2.92 1.49-.62.71-1.16 1.85-1.01 2.96 1.1.09 2.23-.57 2.94-1.39z"/>
+                    </svg>
+                    Apple
+                </button>
             </div>
 
-            <button type="submit" class="btn-login">Explore Now</button>
-        </form>
-
-        <a asp-action="ForgotPassword" class="auth-link d-block mb-3" style="font-size: 0.8125rem;">Ai uitat parola?</a>
-        <a asp-action="Register" class="auth-link">Not a member? <strong>Join the collection</strong></a>
+            <div class="auth-switch-prompt">
+                Nu ești membru? <a asp-action="Register" class="auth-switch-link">Alătură-te colecției</a>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    function togglePasswordVisibility(inputId, buttonId) {
+        const passwordInput = document.getElementById(inputId);
+        const toggleButton = document.getElementById(buttonId);
+        if (passwordInput && toggleButton) {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleButton.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+            } else {
+                passwordInput.type = 'password';
+                toggleButton.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+            }
+        }
+    }
+</script>
