@@ -261,6 +261,51 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> EditCategory(Guid categoryId, string categoryName, IFormFile? categoryImage)
+        {
+            var accessCheck = CheckAccess();
+            if (accessCheck != null) return accessCheck;
+
+            var category = await _context.Categories.FindAsync(categoryId);
+            if (category != null)
+            {
+                if (!string.IsNullOrEmpty(categoryName))
+                {
+                    category.Name = categoryName;
+                }
+
+                if (categoryImage != null)
+                {
+                    // delete old Cloudinary image if it exists
+                    if (!string.IsNullOrEmpty(category.PublicId))
+                    {
+                        try
+                        {
+                            await _cloudinaryService.DeleteImageAsync(category.PublicId);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error deleting old category image: {ex.Message}");
+                        }
+                    }
+
+                    var uploadResult = await _cloudinaryService.UploadImageAsync(categoryImage);
+                    category.ImageUrl = uploadResult.Url;
+                    category.PublicId = uploadResult.PublicId;
+                }
+
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Categoria '{category.Name}' a fost actualizată cu succes!";
+            }
+            else
+            {
+                TempData["Error"] = "Categoria nu a fost găsită.";
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
         public IActionResult CreateTaxonomy(Guid parentCategoryId, string taxonomyName, string attributesCsv)
         {
             var accessCheck = CheckAccess();

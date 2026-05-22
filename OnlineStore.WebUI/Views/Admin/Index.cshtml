@@ -252,6 +252,100 @@
         background: #f1f5f9;
         color: var(--admin-accent);
     }
+
+    /* Modal Styles */
+    .edit-modal {
+        display: none; 
+        position: fixed; 
+        z-index: 1000; 
+        left: 0;
+        top: 0;
+        width: 100%; 
+        height: 100%; 
+        overflow: auto; 
+        background-color: rgba(15, 23, 42, 0.4); 
+        backdrop-filter: blur(8px);
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .edit-modal.show {
+        display: flex;
+        opacity: 1;
+    }
+
+    .edit-modal-content {
+        background-color: var(--admin-card-bg);
+        border: 1px solid var(--admin-border);
+        border-radius: 16px;
+        width: 100%;
+        max-width: 480px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        transform: scale(0.95);
+        transition: transform 0.3s ease;
+        overflow: hidden;
+    }
+
+    .edit-modal.show .edit-modal-content {
+        transform: scale(1);
+    }
+
+    .edit-modal-header {
+        padding: 1.25rem 1.5rem;
+        background: #fdfdfd;
+        border-bottom: 1px solid var(--admin-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .edit-modal-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--admin-text-main);
+    }
+
+    .edit-modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        color: var(--admin-text-muted);
+        transition: 0.2s;
+    }
+
+    .edit-modal-close:hover {
+        color: var(--admin-text-main);
+    }
+
+    .edit-modal-body {
+        padding: 1.5rem;
+    }
+
+    .preview-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        border: 1px solid var(--admin-border);
+        border-radius: 8px;
+        background: #f8fafc;
+    }
+
+    .preview-img {
+        width: 60px;
+        height: 60px;
+        border-radius: 6px;
+        object-fit: cover;
+        background: #eee;
+        border: 1px solid var(--admin-border);
+    }
 </style>
 
 <div class="admin-container">
@@ -356,7 +450,7 @@
                                     <tr>
                                         <th>Icon</th>
                                         <th>Name</th>
-                                        <th>Status</th>
+                                        <th style="text-align: right;">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -371,13 +465,18 @@
                                                 }
                                             </td>
                                             <td style="font-weight: 700;">@cat.Name</td>
-                                            <td>
-                                                <form asp-action="ToggleCategoryFeatured" method="post" style="display:inline;">
-                                                    <input type="hidden" name="id" value="@cat.Id" />
-                                                    <button type="submit" class="btn-action" style="background: @(cat.IsFeatured ? "var(--admin-success)" : "var(--admin-text-muted)"); padding: 0.25rem 0.6rem; font-size: 0.7rem;">
-                                                        @(cat.IsFeatured ? "Featured" : "Hidden")
+                                            <td style="text-align: right;">
+                                                <div style="display: inline-flex; gap: 0.4rem; justify-content: flex-end; align-items: center;">
+                                                    <form asp-action="ToggleCategoryFeatured" method="post" style="display:inline; margin: 0;">
+                                                        <input type="hidden" name="id" value="@cat.Id" />
+                                                        <button type="submit" class="btn-action" style="background: @(cat.IsFeatured ? "var(--admin-success)" : "var(--admin-text-muted)"); padding: 0.25rem 0.6rem; font-size: 0.7rem;">
+                                                            @(cat.IsFeatured ? "Featured" : "Hidden")
+                                                        </button>
+                                                    </form>
+                                                    <button type="button" class="btn-action" style="background: #3b82f6; padding: 0.25rem 0.6rem; font-size: 0.7rem;" onclick="openEditCategoryModal('@cat.Id', '@cat.Name', '@cat.ImageUrl')">
+                                                        ✏️ Edit
                                                     </button>
-                                                </form>
+                                                </div>
                                             </td>
                                         </tr>
                                     }
@@ -474,3 +573,98 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Category Modal -->
+<div id="editCategoryModal" class="edit-modal">
+    <div class="edit-modal-content">
+        <div class="edit-modal-header">
+            <h3>✏️ Editează Categoria</h3>
+            <button class="edit-modal-close" onclick="closeEditCategoryModal()">&times;</button>
+        </div>
+        <div class="edit-modal-body">
+            <form id="editCategoryForm" asp-action="EditCategory" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="categoryId" id="editCategoryId" />
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div class="input-group">
+                        <label>Category Display Name</label>
+                        <input type="text" name="categoryName" id="editCategoryName" class="compact-input" placeholder="e.g. Home, Sports, Accessories" required />
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Imagine Curentă</label>
+                        <div class="preview-container">
+                            <img id="editCategoryPreview" src="" class="preview-img" alt="Preview" onerror="this.style.display='none';" />
+                            <span id="noPreviewText" style="font-size: 0.75rem; color: var(--admin-text-muted)">Nicio imagine încărcată</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Schimbă Copertă (Banner)</label>
+                        <div style="border: 2px dashed var(--admin-border); padding: 1rem; border-radius: 8px; text-align: center; background: #fcfcfc;">
+                            <input type="file" name="categoryImage" id="editCategoryImageFile" style="font-size: 0.75rem;" onchange="previewNewImage(this)" />
+                            <p style="font-size: 0.65rem; color: var(--admin-text-muted); margin-top: 0.5rem;">Recomandat: Aspect Ratio 16:9</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
+                        <button type="button" class="btn-action" style="background: #64748b;" onclick="closeEditCategoryModal()">Anulează</button>
+                        <button type="submit" class="btn-action" style="background: var(--admin-success)">Salvează Modificările</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openEditCategoryModal(id, name, imageUrl) {
+        document.getElementById('editCategoryId').value = id;
+        document.getElementById('editCategoryName').value = name;
+        
+        const previewImg = document.getElementById('editCategoryPreview');
+        const noPreview = document.getElementById('noPreviewText');
+        
+        if (imageUrl && imageUrl !== 'null' && imageUrl.trim() !== '') {
+            previewImg.src = imageUrl;
+            previewImg.style.display = 'block';
+            noPreview.style.display = 'none';
+        } else {
+            previewImg.src = '';
+            previewImg.style.display = 'none';
+            noPreview.style.display = 'block';
+        }
+        
+        // Reset file input
+        document.getElementById('editCategoryImageFile').value = '';
+
+        const modal = document.getElementById('editCategoryModal');
+        modal.classList.add('show');
+    }
+
+    function closeEditCategoryModal() {
+        const modal = document.getElementById('editCategoryModal');
+        modal.classList.remove('show');
+    }
+
+    function previewNewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewImg = document.getElementById('editCategoryPreview');
+                const noPreview = document.getElementById('noPreviewText');
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+                noPreview.style.display = 'none';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Close modal when clicking outside of it
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('editCategoryModal');
+        if (event.target === modal) {
+            closeEditCategoryModal();
+        }
+    });
+</script>
