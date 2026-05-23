@@ -1,0 +1,2310 @@
+[
+    {
+        "id": "d3dbf2c5-93a5-46e3-8809-3f4e52547c2c",
+        "name": "Converse Belt Premium",
+        "description": "Premium belt by Converse. Designed for comfort and style.",
+        "price": 32.93,
+        "productType": "Accessory",
+        "brand": "Converse",
+        "material": "Leather",
+        "availableSizes": "One Size",
+        "availableColors": "Green",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/belt,Green/all?lock=1000",
+                "color": "Green"
+            }
+        ]
+    },
+    {
+        "id": "eecc08b7-f72f-4409-969e-474a5b61e472",
+        "name": "Adidas Boots Premium",
+        "description": "Premium boots by Adidas. Designed for comfort and style.",
+        "price": 113.53,
+        "productType": "Footwear",
+        "brand": "Adidas",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Red, Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/boots,Red/all?lock=1001",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Yellow/all?lock=1002",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "049dd699-c5f0-4ec6-8ad7-1c11f67b24f4",
+        "name": "H&M Jacket Premium",
+        "description": "Premium jacket by H&M. Designed for comfort and style.",
+        "price": 186.55,
+        "productType": "Clothing",
+        "brand": "H&M",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "White, Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jacket,White/all?lock=1003",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Grey/all?lock=1004",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "2e270777-1943-4dd3-8004-1ce66b53e7c9",
+        "name": "Vans Jacket Premium",
+        "description": "Premium jacket by Vans. Designed for comfort and style.",
+        "price": 286.75,
+        "productType": "Clothing",
+        "brand": "Vans",
+        "material": "Wool",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Grey, Brown",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Grey/all?lock=1005",
+                "color": "Grey"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Brown/all?lock=1006",
+                "color": "Brown"
+            }
+        ]
+    },
+    {
+        "id": "b5a3d0cd-316e-4a51-88da-fb9e21bf0704",
+        "name": "Zara Tshirt Premium",
+        "description": "Premium tshirt by Zara. Designed for comfort and style.",
+        "price": 92.38,
+        "productType": "Clothing",
+        "brand": "Zara",
+        "material": "Polyester",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "White, Red, Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,White/all?lock=1007",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Red/all?lock=1008",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Grey/all?lock=1009",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "fc353ca5-d9dc-49c5-97d5-46d7da919bf7",
+        "name": "Rolex Jeans Premium",
+        "description": "Premium jeans by Rolex. Designed for comfort and style.",
+        "price": 273.21,
+        "productType": "Clothing",
+        "brand": "Rolex",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Blue",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Blue/all?lock=1010",
+                "color": "Blue"
+            }
+        ]
+    },
+    {
+        "id": "182e000a-8e68-40c1-a97c-86ae42f065b9",
+        "name": "Casio Boots Premium",
+        "description": "Premium boots by Casio. Designed for comfort and style.",
+        "price": 189.72,
+        "productType": "Footwear",
+        "brand": "Casio",
+        "material": "Leather",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Blue, White, Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/boots,Blue/all?lock=1011",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,White/all?lock=1012",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Yellow/all?lock=1013",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "692ecbf5-66ac-418f-a1c3-3e4c572ddb2c",
+        "name": "Vans Heels Premium",
+        "description": "Premium heels by Vans. Designed for comfort and style.",
+        "price": 127.96,
+        "productType": "Footwear",
+        "brand": "Vans",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Red, Blue, White, Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/heels,Red/all?lock=1014",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Blue/all?lock=1015",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,White/all?lock=1016",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Yellow/all?lock=1017",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "f9e307c6-4096-431f-aea6-24dad0a3edc6",
+        "name": "H&M Sunglasses Premium",
+        "description": "Premium sunglasses by H&M. Designed for comfort and style.",
+        "price": 76.7,
+        "productType": "Accessory",
+        "brand": "H&M",
+        "material": "Leather",
+        "availableSizes": "One Size",
+        "availableColors": "Brown, Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sunglasses,Brown/all?lock=1018",
+                "color": "Brown"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sunglasses,Grey/all?lock=1019",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "e3b5c57f-f5ec-4f82-973a-fb7d6b87936f",
+        "name": "Nike Hoodie Premium",
+        "description": "Premium hoodie by Nike. Designed for comfort and style.",
+        "price": 241.04,
+        "productType": "Clothing",
+        "brand": "Nike",
+        "material": "Wool",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Pink, Green, Red, Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Pink/all?lock=1020",
+                "color": "Pink"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Green/all?lock=1021",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Red/all?lock=1022",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Grey/all?lock=1023",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "e26a05cf-3b32-4353-a733-f53c5bf0220d",
+        "name": "Gucci Hoodie Premium",
+        "description": "Premium hoodie by Gucci. Designed for comfort and style.",
+        "price": 255.97,
+        "productType": "Clothing",
+        "brand": "Gucci",
+        "material": "Polyester",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Red, Green, Blue",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Red/all?lock=1024",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Green/all?lock=1025",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Blue/all?lock=1026",
+                "color": "Blue"
+            }
+        ]
+    },
+    {
+        "id": "bc419a81-5c43-4e17-b527-aa43521fec9b",
+        "name": "Adidas Sneakers Premium",
+        "description": "Premium sneakers by Adidas. Designed for comfort and style.",
+        "price": 37.11,
+        "productType": "Footwear",
+        "brand": "Adidas",
+        "material": "Canvas",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Green",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Green/all?lock=1027",
+                "color": "Green"
+            }
+        ]
+    },
+    {
+        "id": "b4771364-eb1f-44c0-8f74-ffff1b4de4ff",
+        "name": "Prada Heels Premium",
+        "description": "Premium heels by Prada. Designed for comfort and style.",
+        "price": 121.55,
+        "productType": "Footwear",
+        "brand": "Prada",
+        "material": "Leather",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Blue, Brown, Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/heels,Blue/all?lock=1028",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Brown/all?lock=1029",
+                "color": "Brown"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Yellow/all?lock=1030",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "1b716cde-5250-4936-a92a-ba9e1bf3a2d6",
+        "name": "Rolex Jeans Premium",
+        "description": "Premium jeans by Rolex. Designed for comfort and style.",
+        "price": 115.78,
+        "productType": "Clothing",
+        "brand": "Rolex",
+        "material": "Denim",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Red, Grey, Black, Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Red/all?lock=1031",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Grey/all?lock=1032",
+                "color": "Grey"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Black/all?lock=1033",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Yellow/all?lock=1034",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "318a8101-8113-4b1e-ba96-82070f006854",
+        "name": "Nike Jeans Premium",
+        "description": "Premium jeans by Nike. Designed for comfort and style.",
+        "price": 238.2,
+        "productType": "Clothing",
+        "brand": "Nike",
+        "material": "Wool",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Green, Black, Blue, Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Green/all?lock=1035",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Black/all?lock=1036",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Blue/all?lock=1037",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Yellow/all?lock=1038",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "0adbe05c-a067-4077-bea3-5751d39487b7",
+        "name": "Gucci Heels Premium",
+        "description": "Premium heels by Gucci. Designed for comfort and style.",
+        "price": 108.35,
+        "productType": "Footwear",
+        "brand": "Gucci",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Green",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/heels,Green/all?lock=1039",
+                "color": "Green"
+            }
+        ]
+    },
+    {
+        "id": "8962e148-6a67-4601-8fb8-ff555ccc2c5f",
+        "name": "Vans Jacket Premium",
+        "description": "Premium jacket by Vans. Designed for comfort and style.",
+        "price": 202.54,
+        "productType": "Clothing",
+        "brand": "Vans",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Red, Brown, Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Red/all?lock=1040",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Brown/all?lock=1041",
+                "color": "Brown"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Yellow/all?lock=1042",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "a2b5671b-7a08-4589-8748-0ebb33607b24",
+        "name": "Vans Jacket Premium",
+        "description": "Premium jacket by Vans. Designed for comfort and style.",
+        "price": 111.28,
+        "productType": "Clothing",
+        "brand": "Vans",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Blue, Pink, Brown",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Blue/all?lock=1043",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Pink/all?lock=1044",
+                "color": "Pink"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Brown/all?lock=1045",
+                "color": "Brown"
+            }
+        ]
+    },
+    {
+        "id": "5c5a745d-28fe-4534-a89c-dd3b2115f511",
+        "name": "Casio Heels Premium",
+        "description": "Premium heels by Casio. Designed for comfort and style.",
+        "price": 118.75,
+        "productType": "Footwear",
+        "brand": "Casio",
+        "material": "Leather",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Green, Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/heels,Green/all?lock=1046",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Yellow/all?lock=1047",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "4b720b08-a3d8-4ee3-9061-dd85782e4726",
+        "name": "Zara Jeans Premium",
+        "description": "Premium jeans by Zara. Designed for comfort and style.",
+        "price": 213.29,
+        "productType": "Clothing",
+        "brand": "Zara",
+        "material": "Polyester",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Brown",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Brown/all?lock=1048",
+                "color": "Brown"
+            }
+        ]
+    },
+    {
+        "id": "8f988457-29c5-4f51-bb79-4c0ddf7bac97",
+        "name": "Rolex Boots Premium",
+        "description": "Premium boots by Rolex. Designed for comfort and style.",
+        "price": 258.93,
+        "productType": "Footwear",
+        "brand": "Rolex",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "White",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/boots,White/all?lock=1049",
+                "color": "White"
+            }
+        ]
+    },
+    {
+        "id": "8c90f434-7174-4e95-9d82-b0bf4738c94a",
+        "name": "H&M Heels Premium",
+        "description": "Premium heels by H&M. Designed for comfort and style.",
+        "price": 53.74,
+        "productType": "Footwear",
+        "brand": "H&M",
+        "material": "Leather",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Yellow, Grey, Red, Green",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/heels,Yellow/all?lock=1050",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Grey/all?lock=1051",
+                "color": "Grey"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Red/all?lock=1052",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Green/all?lock=1053",
+                "color": "Green"
+            }
+        ]
+    },
+    {
+        "id": "20e15597-60f8-4fce-b15a-e44922a0802c",
+        "name": "H&M Sneakers Premium",
+        "description": "Premium sneakers by H&M. Designed for comfort and style.",
+        "price": 35.63,
+        "productType": "Footwear",
+        "brand": "H&M",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Green, Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Green/all?lock=1054",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Grey/all?lock=1055",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "11fd1e0e-e6d0-4ee8-bf0f-c7a5bbf920a3",
+        "name": "Nike Boots Premium",
+        "description": "Premium boots by Nike. Designed for comfort and style.",
+        "price": 181.28,
+        "productType": "Footwear",
+        "brand": "Nike",
+        "material": "Leather",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Green, Yellow, Grey, Blue",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/boots,Green/all?lock=1056",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Yellow/all?lock=1057",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Grey/all?lock=1058",
+                "color": "Grey"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Blue/all?lock=1059",
+                "color": "Blue"
+            }
+        ]
+    },
+    {
+        "id": "bfa09978-a8cf-4cd7-93f6-2df2e0b1bc2c",
+        "name": "H&M Sneakers Premium",
+        "description": "Premium sneakers by H&M. Designed for comfort and style.",
+        "price": 271.83,
+        "productType": "Footwear",
+        "brand": "H&M",
+        "material": "Leather",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Blue, Pink, Black",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Blue/all?lock=1060",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Pink/all?lock=1061",
+                "color": "Pink"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Black/all?lock=1062",
+                "color": "Black"
+            }
+        ]
+    },
+    {
+        "id": "50c898de-a17b-4fe4-8fa8-1b392dca5f1f",
+        "name": "Adidas Sneakers Premium",
+        "description": "Premium sneakers by Adidas. Designed for comfort and style.",
+        "price": 260.86,
+        "productType": "Footwear",
+        "brand": "Adidas",
+        "material": "Canvas",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Green",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Green/all?lock=1063",
+                "color": "Green"
+            }
+        ]
+    },
+    {
+        "id": "20e34a04-f8e7-48f5-8007-7fe256881b2d",
+        "name": "Prada Boots Premium",
+        "description": "Premium boots by Prada. Designed for comfort and style.",
+        "price": 231.64,
+        "productType": "Footwear",
+        "brand": "Prada",
+        "material": "Canvas",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Green, Black, Grey, Brown",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/boots,Green/all?lock=1064",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Black/all?lock=1065",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Grey/all?lock=1066",
+                "color": "Grey"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Brown/all?lock=1067",
+                "color": "Brown"
+            }
+        ]
+    },
+    {
+        "id": "36217435-f7d2-4377-af18-8d1ea3d79a09",
+        "name": "Rolex Watch Premium",
+        "description": "Premium watch by Rolex. Designed for comfort and style.",
+        "price": 210.98,
+        "productType": "Accessory",
+        "brand": "Rolex",
+        "material": "Metal",
+        "availableSizes": "One Size",
+        "availableColors": "Yellow, Black",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/watch,Yellow/all?lock=1068",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/watch,Black/all?lock=1069",
+                "color": "Black"
+            }
+        ]
+    },
+    {
+        "id": "5af18347-eae5-4980-985a-71cd8e6cf798",
+        "name": "H&M Dress Premium",
+        "description": "Premium dress by H&M. Designed for comfort and style.",
+        "price": 213.93,
+        "productType": "Clothing",
+        "brand": "H&M",
+        "material": "Wool",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "White, Green, Pink",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/dress,White/all?lock=1070",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/dress,Green/all?lock=1071",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/dress,Pink/all?lock=1072",
+                "color": "Pink"
+            }
+        ]
+    },
+    {
+        "id": "fcee39bf-18c8-4262-93dc-b83ff1a0b556",
+        "name": "Adidas Jacket Premium",
+        "description": "Premium jacket by Adidas. Designed for comfort and style.",
+        "price": 295.43,
+        "productType": "Clothing",
+        "brand": "Adidas",
+        "material": "Denim",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Blue",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Blue/all?lock=1073",
+                "color": "Blue"
+            }
+        ]
+    },
+    {
+        "id": "6e90a3c6-2827-4445-9394-3aa8adaf3286",
+        "name": "Nike Jacket Premium",
+        "description": "Premium jacket by Nike. Designed for comfort and style.",
+        "price": 102.74,
+        "productType": "Clothing",
+        "brand": "Nike",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Blue, Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Blue/all?lock=1074",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Yellow/all?lock=1075",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "08d42aed-a646-4900-9f44-604d20c821fe",
+        "name": "Gucci Hoodie Premium",
+        "description": "Premium hoodie by Gucci. Designed for comfort and style.",
+        "price": 31.91,
+        "productType": "Clothing",
+        "brand": "Gucci",
+        "material": "Wool",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Red, Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Red/all?lock=1076",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Grey/all?lock=1077",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "ba54d8ee-43c7-4f8a-9648-77e4a92b03c0",
+        "name": "Vans Belt Premium",
+        "description": "Premium belt by Vans. Designed for comfort and style.",
+        "price": 234.91,
+        "productType": "Accessory",
+        "brand": "Vans",
+        "material": "Metal",
+        "availableSizes": "One Size",
+        "availableColors": "White, Brown",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/belt,White/all?lock=1078",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/belt,Brown/all?lock=1079",
+                "color": "Brown"
+            }
+        ]
+    },
+    {
+        "id": "45623721-4897-4bf1-bc2c-ee8d56fca956",
+        "name": "Zara Sunglasses Premium",
+        "description": "Premium sunglasses by Zara. Designed for comfort and style.",
+        "price": 279.75,
+        "productType": "Accessory",
+        "brand": "Zara",
+        "material": "Leather",
+        "availableSizes": "One Size",
+        "availableColors": "Black, White",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sunglasses,Black/all?lock=1080",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sunglasses,White/all?lock=1081",
+                "color": "White"
+            }
+        ]
+    },
+    {
+        "id": "970267e0-a91f-445b-b32f-37c3756066cc",
+        "name": "Adidas Boots Premium",
+        "description": "Premium boots by Adidas. Designed for comfort and style.",
+        "price": 231.69,
+        "productType": "Footwear",
+        "brand": "Adidas",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Pink, Blue, Brown, Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/boots,Pink/all?lock=1082",
+                "color": "Pink"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Blue/all?lock=1083",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Brown/all?lock=1084",
+                "color": "Brown"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Yellow/all?lock=1085",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "b12b63ff-b268-4f08-bce8-bca6682a16ff",
+        "name": "Prada Heels Premium",
+        "description": "Premium heels by Prada. Designed for comfort and style.",
+        "price": 56.34,
+        "productType": "Footwear",
+        "brand": "Prada",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Brown",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/heels,Brown/all?lock=1086",
+                "color": "Brown"
+            }
+        ]
+    },
+    {
+        "id": "cdaf2754-7924-4387-9899-8b834dcb850e",
+        "name": "Nike Dress Premium",
+        "description": "Premium dress by Nike. Designed for comfort and style.",
+        "price": 88.49,
+        "productType": "Clothing",
+        "brand": "Nike",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Green, Red, Black",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/dress,Green/all?lock=1087",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/dress,Red/all?lock=1088",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/dress,Black/all?lock=1089",
+                "color": "Black"
+            }
+        ]
+    },
+    {
+        "id": "ffe24883-e72c-43c5-a840-ecd7f6d18931",
+        "name": "Casio Dress Premium",
+        "description": "Premium dress by Casio. Designed for comfort and style.",
+        "price": 245.75,
+        "productType": "Clothing",
+        "brand": "Casio",
+        "material": "Polyester",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Green",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/dress,Green/all?lock=1090",
+                "color": "Green"
+            }
+        ]
+    },
+    {
+        "id": "c918fec4-5a51-46d7-82b3-2c60a265cf4a",
+        "name": "Levi's Watch Premium",
+        "description": "Premium watch by Levi's. Designed for comfort and style.",
+        "price": 138.34,
+        "productType": "Accessory",
+        "brand": "Levi's",
+        "material": "Plastic",
+        "availableSizes": "One Size",
+        "availableColors": "Pink, Black",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/watch,Pink/all?lock=1091",
+                "color": "Pink"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/watch,Black/all?lock=1092",
+                "color": "Black"
+            }
+        ]
+    },
+    {
+        "id": "eca95dee-d32d-4837-9fd5-fc96fd73b063",
+        "name": "Rolex Jeans Premium",
+        "description": "Premium jeans by Rolex. Designed for comfort and style.",
+        "price": 146.44,
+        "productType": "Clothing",
+        "brand": "Rolex",
+        "material": "Polyester",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Black, Pink, White, Blue",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Black/all?lock=1093",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Pink/all?lock=1094",
+                "color": "Pink"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,White/all?lock=1095",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Blue/all?lock=1096",
+                "color": "Blue"
+            }
+        ]
+    },
+    {
+        "id": "1c6e8547-1095-4bea-8b5e-f263efcd8e1a",
+        "name": "Rolex Jacket Premium",
+        "description": "Premium jacket by Rolex. Designed for comfort and style.",
+        "price": 241.56,
+        "productType": "Clothing",
+        "brand": "Rolex",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Pink, Red, Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Pink/all?lock=1097",
+                "color": "Pink"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Red/all?lock=1098",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Yellow/all?lock=1099",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "bd08d601-ddd8-4850-adbc-56f29187f8aa",
+        "name": "Converse Hoodie Premium",
+        "description": "Premium hoodie by Converse. Designed for comfort and style.",
+        "price": 231.8,
+        "productType": "Clothing",
+        "brand": "Converse",
+        "material": "Wool",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Red, Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Red/all?lock=1100",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Grey/all?lock=1101",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "e48dfe89-f7b3-45af-a0c3-eef307aad49a",
+        "name": "Casio Sunglasses Premium",
+        "description": "Premium sunglasses by Casio. Designed for comfort and style.",
+        "price": 218.99,
+        "productType": "Accessory",
+        "brand": "Casio",
+        "material": "Leather",
+        "availableSizes": "One Size",
+        "availableColors": "Black",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sunglasses,Black/all?lock=1102",
+                "color": "Black"
+            }
+        ]
+    },
+    {
+        "id": "4a04f7fc-99ff-4b9b-aacb-cb39af517b56",
+        "name": "Casio Jacket Premium",
+        "description": "Premium jacket by Casio. Designed for comfort and style.",
+        "price": 44.33,
+        "productType": "Clothing",
+        "brand": "Casio",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Green, White, Red, Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Green/all?lock=1103",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,White/all?lock=1104",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Red/all?lock=1105",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Grey/all?lock=1106",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "78010a1f-936b-42b3-a892-3a527ba42b9f",
+        "name": "Prada Boots Premium",
+        "description": "Premium boots by Prada. Designed for comfort and style.",
+        "price": 135.69,
+        "productType": "Footwear",
+        "brand": "Prada",
+        "material": "Canvas",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Black, Green",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/boots,Black/all?lock=1107",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Green/all?lock=1108",
+                "color": "Green"
+            }
+        ]
+    },
+    {
+        "id": "9d1b9afd-d1eb-414c-9aff-b122ac7ca102",
+        "name": "Ray-Ban Belt Premium",
+        "description": "Premium belt by Ray-Ban. Designed for comfort and style.",
+        "price": 222.36,
+        "productType": "Accessory",
+        "brand": "Ray-Ban",
+        "material": "Metal",
+        "availableSizes": "One Size",
+        "availableColors": "Grey, Yellow, Blue, Green",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/belt,Grey/all?lock=1109",
+                "color": "Grey"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/belt,Yellow/all?lock=1110",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/belt,Blue/all?lock=1111",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/belt,Green/all?lock=1112",
+                "color": "Green"
+            }
+        ]
+    },
+    {
+        "id": "b9561245-2138-4c09-aece-2915d0184d6e",
+        "name": "Rolex Tshirt Premium",
+        "description": "Premium tshirt by Rolex. Designed for comfort and style.",
+        "price": 209.86,
+        "productType": "Clothing",
+        "brand": "Rolex",
+        "material": "Denim",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Pink, Red, Green, Brown",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Pink/all?lock=1113",
+                "color": "Pink"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Red/all?lock=1114",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Green/all?lock=1115",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Brown/all?lock=1116",
+                "color": "Brown"
+            }
+        ]
+    },
+    {
+        "id": "3408ef11-04b6-45c7-a92a-aa478b8370ca",
+        "name": "Ray-Ban Boots Premium",
+        "description": "Premium boots by Ray-Ban. Designed for comfort and style.",
+        "price": 57.01,
+        "productType": "Footwear",
+        "brand": "Ray-Ban",
+        "material": "Leather",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Red, Brown, White, Blue",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/boots,Red/all?lock=1117",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Brown/all?lock=1118",
+                "color": "Brown"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,White/all?lock=1119",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Blue/all?lock=1120",
+                "color": "Blue"
+            }
+        ]
+    },
+    {
+        "id": "1f41dfe9-9305-45f5-8c76-13b1340b1194",
+        "name": "Adidas Jeans Premium",
+        "description": "Premium jeans by Adidas. Designed for comfort and style.",
+        "price": 76.5,
+        "productType": "Clothing",
+        "brand": "Adidas",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Red",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Red/all?lock=1121",
+                "color": "Red"
+            }
+        ]
+    },
+    {
+        "id": "dc38baef-2635-4b26-85f7-571895d84e0b",
+        "name": "Adidas Belt Premium",
+        "description": "Premium belt by Adidas. Designed for comfort and style.",
+        "price": 225.9,
+        "productType": "Accessory",
+        "brand": "Adidas",
+        "material": "Metal",
+        "availableSizes": "One Size",
+        "availableColors": "Red, Blue, Yellow, Black",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/belt,Red/all?lock=1122",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/belt,Blue/all?lock=1123",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/belt,Yellow/all?lock=1124",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/belt,Black/all?lock=1125",
+                "color": "Black"
+            }
+        ]
+    },
+    {
+        "id": "b54a10f8-1125-4c59-b5a8-b8789f25804b",
+        "name": "Rolex Dress Premium",
+        "description": "Premium dress by Rolex. Designed for comfort and style.",
+        "price": 268.47,
+        "productType": "Clothing",
+        "brand": "Rolex",
+        "material": "Polyester",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Black, Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/dress,Black/all?lock=1126",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/dress,Grey/all?lock=1127",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "5d0295f5-7e61-4fd9-904b-3533faae9d8f",
+        "name": "Gucci Jeans Premium",
+        "description": "Premium jeans by Gucci. Designed for comfort and style.",
+        "price": 266.1,
+        "productType": "Clothing",
+        "brand": "Gucci",
+        "material": "Wool",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Blue, Red, Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Blue/all?lock=1128",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Red/all?lock=1129",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Yellow/all?lock=1130",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "a069c4bd-d729-4e5e-837d-cb76c871ec7d",
+        "name": "Levi's Tshirt Premium",
+        "description": "Premium tshirt by Levi's. Designed for comfort and style.",
+        "price": 176.35,
+        "productType": "Clothing",
+        "brand": "Levi's",
+        "material": "Wool",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Blue, Pink, Brown",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Blue/all?lock=1131",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Pink/all?lock=1132",
+                "color": "Pink"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Brown/all?lock=1133",
+                "color": "Brown"
+            }
+        ]
+    },
+    {
+        "id": "d80d4626-cb0f-4b75-9a2e-7ff5827dd1eb",
+        "name": "Prada Sneakers Premium",
+        "description": "Premium sneakers by Prada. Designed for comfort and style.",
+        "price": 160.19,
+        "productType": "Footwear",
+        "brand": "Prada",
+        "material": "Canvas",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Green",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Green/all?lock=1134",
+                "color": "Green"
+            }
+        ]
+    },
+    {
+        "id": "1d869cff-e963-4b54-a5f2-b0bae7260322",
+        "name": "Nike Jeans Premium",
+        "description": "Premium jeans by Nike. Designed for comfort and style.",
+        "price": 297.8,
+        "productType": "Clothing",
+        "brand": "Nike",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Green, Red, Brown, Blue",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Green/all?lock=1135",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Red/all?lock=1136",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Brown/all?lock=1137",
+                "color": "Brown"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Blue/all?lock=1138",
+                "color": "Blue"
+            }
+        ]
+    },
+    {
+        "id": "b9bd7aad-b27f-4cbf-a7ed-001e096fb733",
+        "name": "Gucci Hoodie Premium",
+        "description": "Premium hoodie by Gucci. Designed for comfort and style.",
+        "price": 122.08,
+        "productType": "Clothing",
+        "brand": "Gucci",
+        "material": "Wool",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Brown, Red, Grey, Green",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Brown/all?lock=1139",
+                "color": "Brown"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Red/all?lock=1140",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Grey/all?lock=1141",
+                "color": "Grey"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Green/all?lock=1142",
+                "color": "Green"
+            }
+        ]
+    },
+    {
+        "id": "e3bb688c-efa5-4739-8405-779d9ff9cd70",
+        "name": "Gucci Boots Premium",
+        "description": "Premium boots by Gucci. Designed for comfort and style.",
+        "price": 108.08,
+        "productType": "Footwear",
+        "brand": "Gucci",
+        "material": "Canvas",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Yellow, Black, Green",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/boots,Yellow/all?lock=1143",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Black/all?lock=1144",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Green/all?lock=1145",
+                "color": "Green"
+            }
+        ]
+    },
+    {
+        "id": "ac6ece5a-57b0-4327-b484-2a50d0aa19fb",
+        "name": "Prada Sneakers Premium",
+        "description": "Premium sneakers by Prada. Designed for comfort and style.",
+        "price": 126.67,
+        "productType": "Footwear",
+        "brand": "Prada",
+        "material": "Leather",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "White, Green, Red, Blue",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,White/all?lock=1146",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Green/all?lock=1147",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Red/all?lock=1148",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Blue/all?lock=1149",
+                "color": "Blue"
+            }
+        ]
+    },
+    {
+        "id": "fbf12c16-d19c-45ab-afdb-a1c33af0b643",
+        "name": "Zara Sneakers Premium",
+        "description": "Premium sneakers by Zara. Designed for comfort and style.",
+        "price": 181.4,
+        "productType": "Footwear",
+        "brand": "Zara",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Yellow, Pink",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Yellow/all?lock=1150",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Pink/all?lock=1151",
+                "color": "Pink"
+            }
+        ]
+    },
+    {
+        "id": "fb6cd483-d8fb-417d-992f-2efdc03fcc28",
+        "name": "Puma Heels Premium",
+        "description": "Premium heels by Puma. Designed for comfort and style.",
+        "price": 211.78,
+        "productType": "Footwear",
+        "brand": "Puma",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Brown, Black, Blue",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/heels,Brown/all?lock=1152",
+                "color": "Brown"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Black/all?lock=1153",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Blue/all?lock=1154",
+                "color": "Blue"
+            }
+        ]
+    },
+    {
+        "id": "e1cfda2e-ebc1-4a06-b15a-733c7f26c6dd",
+        "name": "Vans Sunglasses Premium",
+        "description": "Premium sunglasses by Vans. Designed for comfort and style.",
+        "price": 254.22,
+        "productType": "Accessory",
+        "brand": "Vans",
+        "material": "Metal",
+        "availableSizes": "One Size",
+        "availableColors": "White, Brown",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sunglasses,White/all?lock=1155",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sunglasses,Brown/all?lock=1156",
+                "color": "Brown"
+            }
+        ]
+    },
+    {
+        "id": "f1cfe02a-fb1e-488c-81ca-eac1a6194429",
+        "name": "Adidas Sunglasses Premium",
+        "description": "Premium sunglasses by Adidas. Designed for comfort and style.",
+        "price": 174.56,
+        "productType": "Accessory",
+        "brand": "Adidas",
+        "material": "Plastic",
+        "availableSizes": "One Size",
+        "availableColors": "Blue, Green, Red",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sunglasses,Blue/all?lock=1157",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sunglasses,Green/all?lock=1158",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sunglasses,Red/all?lock=1159",
+                "color": "Red"
+            }
+        ]
+    },
+    {
+        "id": "4605f3bd-7d98-47d7-842c-5e55c5873244",
+        "name": "Adidas Jacket Premium",
+        "description": "Premium jacket by Adidas. Designed for comfort and style.",
+        "price": 256.81,
+        "productType": "Clothing",
+        "brand": "Adidas",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Pink, Black",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Pink/all?lock=1160",
+                "color": "Pink"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Black/all?lock=1161",
+                "color": "Black"
+            }
+        ]
+    },
+    {
+        "id": "169dac18-8151-4565-aea2-33c6e774eeec",
+        "name": "Levi's Boots Premium",
+        "description": "Premium boots by Levi's. Designed for comfort and style.",
+        "price": 52.62,
+        "productType": "Footwear",
+        "brand": "Levi's",
+        "material": "Canvas",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Black, Red, Pink, Green",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/boots,Black/all?lock=1162",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Red/all?lock=1163",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Pink/all?lock=1164",
+                "color": "Pink"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Green/all?lock=1165",
+                "color": "Green"
+            }
+        ]
+    },
+    {
+        "id": "3319b6d3-ce22-400c-9b12-751d687f58e4",
+        "name": "H&M Heels Premium",
+        "description": "Premium heels by H&M. Designed for comfort and style.",
+        "price": 143.13,
+        "productType": "Footwear",
+        "brand": "H&M",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "White, Blue",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/heels,White/all?lock=1166",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Blue/all?lock=1167",
+                "color": "Blue"
+            }
+        ]
+    },
+    {
+        "id": "c0b1f03b-8d8b-4d4d-b126-80e5ea14f6b6",
+        "name": "Rolex Dress Premium",
+        "description": "Premium dress by Rolex. Designed for comfort and style.",
+        "price": 30.74,
+        "productType": "Clothing",
+        "brand": "Rolex",
+        "material": "Wool",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Yellow, White",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/dress,Yellow/all?lock=1168",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/dress,White/all?lock=1169",
+                "color": "White"
+            }
+        ]
+    },
+    {
+        "id": "a435399d-d56c-4c7f-b3ce-c95d1841f3c3",
+        "name": "Gucci Watch Premium",
+        "description": "Premium watch by Gucci. Designed for comfort and style.",
+        "price": 80.12,
+        "productType": "Accessory",
+        "brand": "Gucci",
+        "material": "Plastic",
+        "availableSizes": "One Size",
+        "availableColors": "Black",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/watch,Black/all?lock=1170",
+                "color": "Black"
+            }
+        ]
+    },
+    {
+        "id": "f386190a-143c-4196-bcc1-c34368632ca9",
+        "name": "Casio Dress Premium",
+        "description": "Premium dress by Casio. Designed for comfort and style.",
+        "price": 259.73,
+        "productType": "Clothing",
+        "brand": "Casio",
+        "material": "Wool",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Grey, White",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/dress,Grey/all?lock=1171",
+                "color": "Grey"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/dress,White/all?lock=1172",
+                "color": "White"
+            }
+        ]
+    },
+    {
+        "id": "9c71d7c8-e65b-4eb4-ac37-3119d34f938e",
+        "name": "Prada Heels Premium",
+        "description": "Premium heels by Prada. Designed for comfort and style.",
+        "price": 86.52,
+        "productType": "Footwear",
+        "brand": "Prada",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Pink, Grey, White",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/heels,Pink/all?lock=1173",
+                "color": "Pink"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Grey/all?lock=1174",
+                "color": "Grey"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,White/all?lock=1175",
+                "color": "White"
+            }
+        ]
+    },
+    {
+        "id": "561d7183-08cb-49a2-8ab1-a3925de7db73",
+        "name": "Puma Jacket Premium",
+        "description": "Premium jacket by Puma. Designed for comfort and style.",
+        "price": 291.53,
+        "productType": "Clothing",
+        "brand": "Puma",
+        "material": "Polyester",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Brown",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Brown/all?lock=1176",
+                "color": "Brown"
+            }
+        ]
+    },
+    {
+        "id": "bb102e98-062b-4897-8d59-d51669ff91f3",
+        "name": "Casio Sneakers Premium",
+        "description": "Premium sneakers by Casio. Designed for comfort and style.",
+        "price": 192.32,
+        "productType": "Footwear",
+        "brand": "Casio",
+        "material": "Canvas",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Grey, Red, Blue",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Grey/all?lock=1177",
+                "color": "Grey"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Red/all?lock=1178",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Blue/all?lock=1179",
+                "color": "Blue"
+            }
+        ]
+    },
+    {
+        "id": "c0dda72a-d6e7-4669-a537-b430d5b89cc2",
+        "name": "Vans Sunglasses Premium",
+        "description": "Premium sunglasses by Vans. Designed for comfort and style.",
+        "price": 255.83,
+        "productType": "Accessory",
+        "brand": "Vans",
+        "material": "Metal",
+        "availableSizes": "One Size",
+        "availableColors": "Green",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sunglasses,Green/all?lock=1180",
+                "color": "Green"
+            }
+        ]
+    },
+    {
+        "id": "ad233631-5780-4b06-b422-8e71b01ac058",
+        "name": "Vans Jeans Premium",
+        "description": "Premium jeans by Vans. Designed for comfort and style.",
+        "price": 274.58,
+        "productType": "Clothing",
+        "brand": "Vans",
+        "material": "Wool",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Blue, White, Yellow, Black",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Blue/all?lock=1181",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,White/all?lock=1182",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Yellow/all?lock=1183",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Black/all?lock=1184",
+                "color": "Black"
+            }
+        ]
+    },
+    {
+        "id": "f94d1036-79de-4b63-bb3f-df9cf59ac96f",
+        "name": "Adidas Heels Premium",
+        "description": "Premium heels by Adidas. Designed for comfort and style.",
+        "price": 240.48,
+        "productType": "Footwear",
+        "brand": "Adidas",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Blue, Pink",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/heels,Blue/all?lock=1185",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Pink/all?lock=1186",
+                "color": "Pink"
+            }
+        ]
+    },
+    {
+        "id": "50375380-7a61-4354-b3c0-6ea5aae1995d",
+        "name": "Gucci Heels Premium",
+        "description": "Premium heels by Gucci. Designed for comfort and style.",
+        "price": 289.06,
+        "productType": "Footwear",
+        "brand": "Gucci",
+        "material": "Canvas",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Black, Brown, Red, Blue",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/heels,Black/all?lock=1187",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Brown/all?lock=1188",
+                "color": "Brown"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Red/all?lock=1189",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Blue/all?lock=1190",
+                "color": "Blue"
+            }
+        ]
+    },
+    {
+        "id": "be07e1e0-36e4-405d-8f63-3c3c2fab67c1",
+        "name": "Casio Sunglasses Premium",
+        "description": "Premium sunglasses by Casio. Designed for comfort and style.",
+        "price": 102.03,
+        "productType": "Accessory",
+        "brand": "Casio",
+        "material": "Plastic",
+        "availableSizes": "One Size",
+        "availableColors": "Yellow, Pink",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sunglasses,Yellow/all?lock=1191",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sunglasses,Pink/all?lock=1192",
+                "color": "Pink"
+            }
+        ]
+    },
+    {
+        "id": "f4eca4f2-fc03-4ec6-ab75-6e665619f4ec",
+        "name": "Levi's Hoodie Premium",
+        "description": "Premium hoodie by Levi's. Designed for comfort and style.",
+        "price": 42.39,
+        "productType": "Clothing",
+        "brand": "Levi's",
+        "material": "Denim",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Brown, Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Brown/all?lock=1193",
+                "color": "Brown"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Grey/all?lock=1194",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "31634b4a-623b-40a0-9898-dbcc0da3c69d",
+        "name": "H&M Hoodie Premium",
+        "description": "Premium hoodie by H&M. Designed for comfort and style.",
+        "price": 205.7,
+        "productType": "Clothing",
+        "brand": "H&M",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Yellow/all?lock=1195",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "a4909010-8fc2-4235-989e-28870c7280cf",
+        "name": "Vans Boots Premium",
+        "description": "Premium boots by Vans. Designed for comfort and style.",
+        "price": 237.37,
+        "productType": "Footwear",
+        "brand": "Vans",
+        "material": "Canvas",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Red, White",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/boots,Red/all?lock=1196",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,White/all?lock=1197",
+                "color": "White"
+            }
+        ]
+    },
+    {
+        "id": "8722205d-c5bf-40ce-a1ae-a577a601228f",
+        "name": "H&M Heels Premium",
+        "description": "Premium heels by H&M. Designed for comfort and style.",
+        "price": 235.19,
+        "productType": "Footwear",
+        "brand": "H&M",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/heels,Yellow/all?lock=1198",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "7309e724-314f-44e2-8c9a-38f69fd8bc35",
+        "name": "Puma Hoodie Premium",
+        "description": "Premium hoodie by Puma. Designed for comfort and style.",
+        "price": 139.42,
+        "productType": "Clothing",
+        "brand": "Puma",
+        "material": "Denim",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Pink",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Pink/all?lock=1199",
+                "color": "Pink"
+            }
+        ]
+    },
+    {
+        "id": "c970e7eb-2284-4ece-8e1f-23a4f0eb1587",
+        "name": "Vans Dress Premium",
+        "description": "Premium dress by Vans. Designed for comfort and style.",
+        "price": 282.52,
+        "productType": "Clothing",
+        "brand": "Vans",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Grey, Blue, Red, Black",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/dress,Grey/all?lock=1200",
+                "color": "Grey"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/dress,Blue/all?lock=1201",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/dress,Red/all?lock=1202",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/dress,Black/all?lock=1203",
+                "color": "Black"
+            }
+        ]
+    },
+    {
+        "id": "02fa5154-8672-41b1-b2e4-8018f8b77743",
+        "name": "Converse Boots Premium",
+        "description": "Premium boots by Converse. Designed for comfort and style.",
+        "price": 222.89,
+        "productType": "Footwear",
+        "brand": "Converse",
+        "material": "Leather",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Black",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/boots,Black/all?lock=1204",
+                "color": "Black"
+            }
+        ]
+    },
+    {
+        "id": "0eb914ba-a894-47df-b11a-906ba95eda7e",
+        "name": "Levi's Bag Premium",
+        "description": "Premium bag by Levi's. Designed for comfort and style.",
+        "price": 274.27,
+        "productType": "Accessory",
+        "brand": "Levi's",
+        "material": "Metal",
+        "availableSizes": "One Size",
+        "availableColors": "Pink",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/bag,Pink/all?lock=1205",
+                "color": "Pink"
+            }
+        ]
+    },
+    {
+        "id": "72630d75-a2a8-4464-ab40-1f3efdf38938",
+        "name": "Adidas Jacket Premium",
+        "description": "Premium jacket by Adidas. Designed for comfort and style.",
+        "price": 85.37,
+        "productType": "Clothing",
+        "brand": "Adidas",
+        "material": "Wool",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Blue, Black, Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Blue/all?lock=1206",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Black/all?lock=1207",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Grey/all?lock=1208",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "e963c144-b1b3-4029-aee0-7d2781299357",
+        "name": "H&M Hoodie Premium",
+        "description": "Premium hoodie by H&M. Designed for comfort and style.",
+        "price": 87.78,
+        "productType": "Clothing",
+        "brand": "H&M",
+        "material": "Denim",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Brown",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Brown/all?lock=1209",
+                "color": "Brown"
+            }
+        ]
+    },
+    {
+        "id": "e25a054b-e49e-41aa-90ba-5efe4959590d",
+        "name": "Vans Jacket Premium",
+        "description": "Premium jacket by Vans. Designed for comfort and style.",
+        "price": 289.22,
+        "productType": "Clothing",
+        "brand": "Vans",
+        "material": "Denim",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Grey/all?lock=1210",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "8f961c93-222c-4f60-a68e-2e72b61c81f7",
+        "name": "Casio Hoodie Premium",
+        "description": "Premium hoodie by Casio. Designed for comfort and style.",
+        "price": 52.76,
+        "productType": "Clothing",
+        "brand": "Casio",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Yellow, White",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Yellow/all?lock=1211",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,White/all?lock=1212",
+                "color": "White"
+            }
+        ]
+    },
+    {
+        "id": "95c35ae3-0318-4ea0-9b88-5a6afc1069cd",
+        "name": "Zara Boots Premium",
+        "description": "Premium boots by Zara. Designed for comfort and style.",
+        "price": 35.62,
+        "productType": "Footwear",
+        "brand": "Zara",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "White, Yellow, Green, Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/boots,White/all?lock=1213",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Yellow/all?lock=1214",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Green/all?lock=1215",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Grey/all?lock=1216",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "eb38ae0a-236e-4453-9b92-5b4186325cca",
+        "name": "Ray-Ban Belt Premium",
+        "description": "Premium belt by Ray-Ban. Designed for comfort and style.",
+        "price": 78.36,
+        "productType": "Accessory",
+        "brand": "Ray-Ban",
+        "material": "Leather",
+        "availableSizes": "One Size",
+        "availableColors": "Yellow, Green, Blue",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/belt,Yellow/all?lock=1217",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/belt,Green/all?lock=1218",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/belt,Blue/all?lock=1219",
+                "color": "Blue"
+            }
+        ]
+    },
+    {
+        "id": "cb23c5f4-8f8f-4078-82c7-cc3a17691100",
+        "name": "Prada Tshirt Premium",
+        "description": "Premium tshirt by Prada. Designed for comfort and style.",
+        "price": 297.42,
+        "productType": "Clothing",
+        "brand": "Prada",
+        "material": "Cotton",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Blue, White, Brown, Pink",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Blue/all?lock=1220",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,White/all?lock=1221",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Brown/all?lock=1222",
+                "color": "Brown"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Pink/all?lock=1223",
+                "color": "Pink"
+            }
+        ]
+    },
+    {
+        "id": "cf1ad8d0-2412-4a19-b95b-c6a4b5832f4c",
+        "name": "H&M Jeans Premium",
+        "description": "Premium jeans by H&M. Designed for comfort and style.",
+        "price": 229.88,
+        "productType": "Clothing",
+        "brand": "H&M",
+        "material": "Denim",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Yellow, Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Yellow/all?lock=1224",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Grey/all?lock=1225",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "572034a2-31db-4861-bd83-0014abfc3460",
+        "name": "H&M Jacket Premium",
+        "description": "Premium jacket by H&M. Designed for comfort and style.",
+        "price": 220.08,
+        "productType": "Clothing",
+        "brand": "H&M",
+        "material": "Polyester",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Green, Red, Black, Blue",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Green/all?lock=1226",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Red/all?lock=1227",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Black/all?lock=1228",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jacket,Blue/all?lock=1229",
+                "color": "Blue"
+            }
+        ]
+    },
+    {
+        "id": "bff5368a-cee8-4f13-9f74-7d61c3dee42b",
+        "name": "H&M Jeans Premium",
+        "description": "Premium jeans by H&M. Designed for comfort and style.",
+        "price": 247.59,
+        "productType": "Clothing",
+        "brand": "H&M",
+        "material": "Polyester",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Pink, Blue, Brown, White",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Pink/all?lock=1230",
+                "color": "Pink"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Blue/all?lock=1231",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,Brown/all?lock=1232",
+                "color": "Brown"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/jeans,White/all?lock=1233",
+                "color": "White"
+            }
+        ]
+    },
+    {
+        "id": "0d5b6d78-c32d-44b1-a09d-0b7ec2122e89",
+        "name": "Prada Tshirt Premium",
+        "description": "Premium tshirt by Prada. Designed for comfort and style.",
+        "price": 269.05,
+        "productType": "Clothing",
+        "brand": "Prada",
+        "material": "Denim",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Black, Yellow, Pink, Brown",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Black/all?lock=1234",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Yellow/all?lock=1235",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Pink/all?lock=1236",
+                "color": "Pink"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/tshirt,Brown/all?lock=1237",
+                "color": "Brown"
+            }
+        ]
+    },
+    {
+        "id": "ffc52e84-0679-45e4-8929-16cfcbb168c7",
+        "name": "Adidas Hoodie Premium",
+        "description": "Premium hoodie by Adidas. Designed for comfort and style.",
+        "price": 144.99,
+        "productType": "Clothing",
+        "brand": "Adidas",
+        "material": "Wool",
+        "availableSizes": "XS, S, M, L, XL, XXL",
+        "availableColors": "Grey, Blue, Yellow",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Grey/all?lock=1238",
+                "color": "Grey"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Blue/all?lock=1239",
+                "color": "Blue"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/hoodie,Yellow/all?lock=1240",
+                "color": "Yellow"
+            }
+        ]
+    },
+    {
+        "id": "2728ceb1-38cc-4efe-843f-d3ddc6e49316",
+        "name": "Prada Sneakers Premium",
+        "description": "Premium sneakers by Prada. Designed for comfort and style.",
+        "price": 229.46,
+        "productType": "Footwear",
+        "brand": "Prada",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Black, Green, Grey, Pink",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Black/all?lock=1241",
+                "color": "Black"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Green/all?lock=1242",
+                "color": "Green"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Grey/all?lock=1243",
+                "color": "Grey"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/sneakers,Pink/all?lock=1244",
+                "color": "Pink"
+            }
+        ]
+    },
+    {
+        "id": "8ff526ca-759c-4fb3-b5e5-7820d120d589",
+        "name": "Prada Heels Premium",
+        "description": "Premium heels by Prada. Designed for comfort and style.",
+        "price": 154.71,
+        "productType": "Footwear",
+        "brand": "Prada",
+        "material": "Leather",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Grey",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/heels,Grey/all?lock=1245",
+                "color": "Grey"
+            }
+        ]
+    },
+    {
+        "id": "8157f183-73c4-4835-aa84-634c765740a0",
+        "name": "Ray-Ban Boots Premium",
+        "description": "Premium boots by Ray-Ban. Designed for comfort and style.",
+        "price": 218.68,
+        "productType": "Footwear",
+        "brand": "Ray-Ban",
+        "material": "Canvas",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Red, Grey, Black",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/boots,Red/all?lock=1246",
+                "color": "Red"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Grey/all?lock=1247",
+                "color": "Grey"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/boots,Black/all?lock=1248",
+                "color": "Black"
+            }
+        ]
+    },
+    {
+        "id": "fe14191f-bee2-42d8-8d89-6849d02e1502",
+        "name": "Adidas Heels Premium",
+        "description": "Premium heels by Adidas. Designed for comfort and style.",
+        "price": 132.55,
+        "productType": "Footwear",
+        "brand": "Adidas",
+        "material": "Suede",
+        "availableSizes": "36, 37, 38, 39, 40, 41, 42, 43, 44",
+        "availableColors": "Yellow, White, Red",
+        "images": [
+            {
+                "url": "https://loremflickr.com/800/800/heels,Yellow/all?lock=1249",
+                "color": "Yellow"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,White/all?lock=1250",
+                "color": "White"
+            },
+            {
+                "url": "https://loremflickr.com/800/800/heels,Red/all?lock=1251",
+                "color": "Red"
+            }
+        ]
+    }
+]

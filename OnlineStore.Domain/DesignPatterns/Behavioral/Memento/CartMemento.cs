@@ -11,7 +11,7 @@ namespace OnlineStore.Domain.DesignPatterns.Behavioral.Memento
         public List<CartItem> ItemsSnapshot { get; }
 
         [JsonConstructor]
-        public CartMemento(IEnumerable<CartItem> itemsSnapshot)
+        public CartMemento(List<CartItem> itemsSnapshot)
         {
             // Create a deep copy of the items to preserve state
             ItemsSnapshot = itemsSnapshot.Select(i => new CartItem(i.ProductId, i.Quantity, i.Size, i.Color)).ToList();

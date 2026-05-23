@@ -10,17 +10,17 @@
 
     var emoji = typeName switch
     {
-        "Electronic" => "🔌",
-        "Clothing" => "🏠",
-        "Vehicle" => "🚲",
+        "Electronic" => "👜",
+        "Clothing" => "👕",
+        "Vehicle" => "👟",
         _ => "📦"
     };
 
     var typeNameRo = typeName switch
     {
-        "Electronic" => "Electronice",
+        "Electronic" => "Accesorii",
         "Clothing" => "Îmbrăcăminte",
-        "Vehicle" => "Vehicul",
+        "Vehicle" => "Încălțăminte",
         _ => typeName
     };
 
@@ -73,11 +73,11 @@
 
     <div class="info-container">
         <a asp-action="Details" asp-controller="Home" asp-route-id="@Model.Id" style="text-decoration: none;">
-            <h2 class="product-name" style="font-size: 1rem; font-weight: 500;">@Model.Name</h2>
+            <h2 class="product-name" style="font-size: 0.875rem; font-weight: 500;">@Model.Name</h2>
         </a>
 
         <div class="card-footer" style="justify-content: center; margin-top: 0.5rem;">
-            <span class="price-tag" style="font-size: 1.125rem; font-weight: 600;">@CurrencyService.FormatPrice(Model.Price)</span>
+            <span class="price-tag" style="font-size: 1rem; font-weight: 600;">@CurrencyService.FormatPrice(Model.Price)</span>
         </div>
     </div>
 </div>

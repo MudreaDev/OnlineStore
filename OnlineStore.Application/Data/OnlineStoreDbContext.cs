@@ -38,14 +38,15 @@ namespace OnlineStore.Application.Data
 
                 entity.Property(pi => pi.ImageUrl).IsRequired();
                 entity.Property(pi => pi.PublicId).IsRequired();
+                entity.Property(pi => pi.AssociatedColor).HasMaxLength(10);
             });
 
             // Configure Product Hierarchy (TPH)
             modelBuilder.Entity<Product>()
                 .HasDiscriminator<string>("ProductType")
-                .HasValue<ElectronicProduct>("Electronic")
+                .HasValue<FootwearProduct>("Footwear")
                 .HasValue<ClothingProduct>("Clothing")
-                .HasValue<VehicleProduct>("Vehicle")
+                .HasValue<AccessoryProduct>("Accessory")
                 .HasValue<DynamicProduct>("Dynamic");
 
             // Configure DynamicProduct JSON storage

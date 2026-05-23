@@ -30,7 +30,7 @@ namespace OnlineStore.Tests.DesignPatterns.Behavioral
             var order = new Order(user, new List<OrderItem>(), 100, "Addr", "123");
 
             mockStockService.Setup(s => s.IsInStock(It.IsAny<Guid>(), It.IsAny<int>())).Returns(true);
-            mockProductRepo.Setup(r => r.GetById(It.IsAny<Guid>())).Returns(new ElectronicProduct("Test", 100));
+            mockProductRepo.Setup(r => r.GetById(It.IsAny<Guid>())).Returns(new AccessoryProduct("Test", 100));
 
             mockOrderService.Setup(s => s.PlaceOrder(
                 It.IsAny<User>(), 

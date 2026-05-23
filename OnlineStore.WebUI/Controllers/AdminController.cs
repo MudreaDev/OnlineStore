@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using OnlineStore.Application.Repositories;
 using OnlineStore.Application.Data;
 using OnlineStore.Application.Services;
@@ -123,8 +124,109 @@ namespace OnlineStore.WebUI.Controllers
 
             var orders = _orderRepo.GetAll();
             return View(orders);
-        }
+        }        public IActionResult SalesStatistics()
+        {
+            var accessCheck = CheckAccess();
+            if (accessCheck != null) return accessCheck;
 
+            var orders = _orderRepo.GetAll().ToList();
+            
+            // Calculate key metrics
+            var activeOrders = orders.Where(o => o.Status != OrderStatus.Cancelled).ToList();
+            
+            ViewBag.TotalSales = activeOrders.Sum(o => o.Total);
+            ViewBag.TotalOrdersCount = orders.Count;
+            ViewBag.ActiveOrdersCount = activeOrders.Count;
+            ViewBag.AverageOrderValue = activeOrders.Any() ? activeOrders.Average(o => o.Total) : 0;
+            ViewBag.TotalUnitsSold = activeOrders.SelectMany(o => o.Items).Sum(i => i.Quantity);
+            
+            // Sales by Status
+            var salesByStatus = orders.GroupBy(o => o.Status)
+                .Select(g => new { Status = g.Key, Count = g.Count(), Revenue = g.Sum(o => o.Total) })
+                .ToList();
+            
+            ViewBag.SalesByStatusPendingCount = salesByStatus.FirstOrDefault(s => s.Status == OrderStatus.Pending)?.Count ?? 0;
+            ViewBag.SalesByStatusPendingRevenue = salesByStatus.FirstOrDefault(s => s.Status == OrderStatus.Pending)?.Revenue ?? 0;
+            
+            ViewBag.SalesByStatusPaidCount = salesByStatus.FirstOrDefault(s => s.Status == OrderStatus.Paid)?.Count ?? 0;
+            ViewBag.SalesByStatusPaidRevenue = salesByStatus.FirstOrDefault(s => s.Status == OrderStatus.Paid)?.Revenue ?? 0;
+            
+            ViewBag.SalesByStatusShippedCount = salesByStatus.FirstOrDefault(s => s.Status == OrderStatus.Shipped)?.Count ?? 0;
+            ViewBag.SalesByStatusShippedRevenue = salesByStatus.FirstOrDefault(s => s.Status == OrderStatus.Shipped)?.Revenue ?? 0;
+            
+            ViewBag.SalesByStatusDeliveredCount = salesByStatus.FirstOrDefault(s => s.Status == OrderStatus.Delivered)?.Count ?? 0;
+            ViewBag.SalesByStatusDeliveredRevenue = salesByStatus.FirstOrDefault(s => s.Status == OrderStatus.Delivered)?.Revenue ?? 0;
+            
+            ViewBag.SalesByStatusCanceledCount = salesByStatus.FirstOrDefault(s => s.Status == OrderStatus.Cancelled)?.Count ?? 0;
+            ViewBag.SalesByStatusCanceledRevenue = salesByStatus.FirstOrDefault(s => s.Status == OrderStatus.Cancelled)?.Revenue ?? 0;
+
+            // Top Selling Products
+            var topProducts = activeOrders.SelectMany(o => o.Items)
+                .GroupBy(i => new { i.ProductId, i.ProductName })
+                .Select(g => new { 
+                    ProductId = g.Key.ProductId, 
+                    ProductName = g.Key.ProductName, 
+                    UnitsSold = g.Sum(i => i.Quantity), 
+                    Revenue = g.Sum(i => i.Quantity * i.UnitPrice) 
+                })
+                .OrderByDescending(p => p.UnitsSold)
+                .Take(5)
+                .ToList();
+            
+            var topProductsList = new List<Tuple<string, int, decimal>>();
+            foreach (var p in topProducts)
+            {
+                topProductsList.Add(Tuple.Create(p.ProductName, p.UnitsSold, p.Revenue));
+            }
+            ViewBag.TopProducts = topProductsList;
+
+            // Sales by Product Category
+            var productsDict = _context.Products
+                .Include(p => p.SubCategory)
+                .ThenInclude(sc => sc!.Category)
+                .Select(p => new { p.Id, CategoryName = p.SubCategory != null && p.SubCategory.Category != null ? p.SubCategory.Category.Name : "Altele" })
+                .ToDictionary(p => p.Id, p => p.CategoryName);
+
+            var categorySales = activeOrders.SelectMany(o => o.Items)
+                .Select(i => new { 
+                    CategoryName = productsDict.TryGetValue(i.ProductId, out var cat) ? cat : "Altele", 
+                    Quantity = i.Quantity, 
+                    Revenue = i.Quantity * i.UnitPrice 
+                })
+                .GroupBy(i => i.CategoryName)
+                .Select(g => new { 
+                    CategoryName = g.Key, 
+                    UnitsSold = g.Sum(i => i.Quantity), 
+                    Revenue = g.Sum(i => i.Revenue) 
+                })
+                .OrderByDescending(c => c.Revenue)
+                .ToList();
+
+            var categorySalesList = new List<Tuple<string, int, decimal>>();
+            foreach (var c in categorySales)
+            {
+                categorySalesList.Add(Tuple.Create(c.CategoryName, c.UnitsSold, c.Revenue));
+            }
+            ViewBag.CategorySales = categorySalesList;
+
+            // Sales trends over time (Group by date)
+            var dailySales = activeOrders
+                .GroupBy(o => o.OrderDate.Date)
+                .Select(g => new { Date = g.Key, Revenue = g.Sum(o => o.Total), Count = g.Count() })
+                .OrderByDescending(d => d.Date)
+                .Take(10)
+                .OrderBy(d => d.Date)
+                .ToList();
+
+            var dailySalesList = new List<Tuple<string, int, decimal>>();
+            foreach (var d in dailySales)
+            {
+                dailySalesList.Add(Tuple.Create(d.Date.ToString("dd MMM"), d.Count, d.Revenue));
+            }
+            ViewBag.DailySales = dailySalesList;
+
+            return View();
+        }
         [HttpGet]
         public IActionResult AddProduct()
         {
@@ -135,16 +237,16 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddProduct(string type, string name, decimal price, int? stock, int? warrantyMonths, string size, string material, string availableSizes, string availableColors, string make, string model, int? year, List<IFormFile>? images, int mainImageIndex = 0)
+        public async Task<IActionResult> AddProduct(string type, string name, decimal price, int? stock, string size, string material, string availableSizes, string availableColors, string brand, List<IFormFile>? images, int mainImageIndex = 0, List<string>? newImageColors = null)
         {
             var accessCheck = CheckAccess();
             if (accessCheck != null) return accessCheck;
 
             ProductFactory? factory = type switch
             {
-                "Electronic" => new ElectronicProductFactory(),
+                "Footwear" => new FootwearProductFactory(),
                 "Clothing" => new ClothingProductFactory(),
-                "Vehicle" => new VehicleProductFactory(),
+                "Accessory" => new AccessoryProductFactory(),
                 "Dynamic" => new DynamicProductFactory(),
                 _ => null
             };
@@ -156,9 +258,11 @@ namespace OnlineStore.WebUI.Controllers
 
                 newProduct.AvailableColors = availableColors;
 
-                if (newProduct is ElectronicProduct electronic)
+                if (newProduct is FootwearProduct footwear)
                 {
-                    if (warrantyMonths.HasValue) electronic.WarrantyMonths = warrantyMonths.Value;
+                    if (!string.IsNullOrEmpty(size)) footwear.Size = size;
+                    if (!string.IsNullOrEmpty(material)) footwear.Material = material;
+                    footwear.AvailableSizes = availableSizes;
                 }
                 else if (newProduct is ClothingProduct clothing)
                 {
@@ -166,11 +270,10 @@ namespace OnlineStore.WebUI.Controllers
                     if (!string.IsNullOrEmpty(material)) clothing.Material = material;
                     clothing.AvailableSizes = availableSizes;
                 }
-                else if (newProduct is VehicleProduct vehicle)
+                else if (newProduct is AccessoryProduct accessory)
                 {
-                    if (!string.IsNullOrEmpty(make)) vehicle.Make = make;
-                    if (!string.IsNullOrEmpty(model)) vehicle.Model = model;
-                    if (year.HasValue) vehicle.Year = year.Value;
+                    if (!string.IsNullOrEmpty(brand)) accessory.Brand = brand;
+                    if (!string.IsNullOrEmpty(material)) accessory.Material = material;
                 }
                 else if (newProduct is DynamicProduct dynamicProduct)
                 {
@@ -203,7 +306,8 @@ namespace OnlineStore.WebUI.Controllers
                                 ImageUrl = uploadResult.Url,
                                 PublicId = uploadResult.PublicId,
                                 IsMain = (i == mainImageIndex),
-                                DisplayOrder = i
+                                DisplayOrder = i,
+                                AssociatedColor = newImageColors != null && newImageColors.Count > i ? newImageColors[i] : null
                             };
                             
                             _context.ProductImages.Add(productImage);
@@ -360,7 +464,7 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditProduct(Guid id, string name, decimal price, int? stock, int? warrantyMonths, string size, string material, string availableSizes, string availableColors, string make, string model, int? year, List<IFormFile>? newImages, List<string>? deletePublicIds, string? mainImagePublicId, int? mainNewImageIndex)
+        public async Task<IActionResult> EditProduct(Guid id, string name, decimal price, int? stock, string size, string material, string availableSizes, string availableColors, string brand, List<IFormFile>? newImages, List<string>? deletePublicIds, string? mainImagePublicId, int? mainNewImageIndex, List<string>? imagePublicIds, List<string>? imageColors, List<string>? newImageColors)
         {
             var accessCheck = CheckAccess();
             if (accessCheck != null) return accessCheck;
@@ -374,9 +478,11 @@ namespace OnlineStore.WebUI.Controllers
             product.Stock = stock ?? product.Stock;
             product.AvailableColors = availableColors;
 
-            if (product is ElectronicProduct electroUpdate)
+            if (product is FootwearProduct footwearUpdate)
             {
-                if (warrantyMonths.HasValue) electroUpdate.WarrantyMonths = warrantyMonths.Value;
+                footwearUpdate.Size = size;
+                footwearUpdate.Material = material;
+                footwearUpdate.AvailableSizes = availableSizes;
             }
             else if (product is ClothingProduct clothingUpdate)
             {
@@ -384,11 +490,10 @@ namespace OnlineStore.WebUI.Controllers
                 clothingUpdate.Material = material;
                 clothingUpdate.AvailableSizes = availableSizes;
             }
-            else if (product is VehicleProduct vehicleUpdate)
+            else if (product is AccessoryProduct accessoryUpdate)
             {
-                vehicleUpdate.Make = make;
-                vehicleUpdate.Model = model;
-                if (year.HasValue) vehicleUpdate.Year = year.Value;
+                accessoryUpdate.Brand = brand;
+                accessoryUpdate.Material = material;
             }
 
             // Notification: Back in stock logic
@@ -423,6 +528,22 @@ namespace OnlineStore.WebUI.Controllers
                 await _context.SaveChangesAsync();
             }
 
+            // Update existing image colors
+            if (imagePublicIds != null && imageColors != null)
+            {
+                for (int i = 0; i < Math.Min(imagePublicIds.Count, imageColors.Count); i++)
+                {
+                    var pubId = imagePublicIds[i];
+                    var col = imageColors[i];
+                    var img = _context.ProductImages.FirstOrDefault(pi => pi.ProductId == id && pi.PublicId == pubId);
+                    if (img != null)
+                    {
+                        img.AssociatedColor = col;
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+
             // Handle new uploads
             if (newImages != null && newImages.Any())
             {
@@ -445,7 +566,8 @@ namespace OnlineStore.WebUI.Controllers
                                 ImageUrl = uploadResult.Url,
                                 PublicId = uploadResult.PublicId,
                                 IsMain = (i == mainNewImageIndex && string.IsNullOrEmpty(mainImagePublicId)),
-                                DisplayOrder = existingCount + i
+                                DisplayOrder = existingCount + i,
+                                AssociatedColor = newImageColors != null && newImageColors.Count > i ? newImageColors[i] : null
                             };
                             
                             _context.ProductImages.Add(productImage);
@@ -507,9 +629,9 @@ namespace OnlineStore.WebUI.Controllers
 
             Product clone = product switch
             {
-                ElectronicProduct ep => ep.Clone(),
+                FootwearProduct fp => fp.Clone(),
                 ClothingProduct cp => cp.Clone(),
-                VehicleProduct vp => vp.Clone(),
+                AccessoryProduct ap => ap.Clone(),
                 _ => throw new NotSupportedException("Product type not supported for cloning.")
             };
 

@@ -64,14 +64,13 @@ namespace OnlineStore.ConsoleUI
         static void SeedData()
         {
             // Add some products using factories
-            var electronicsFactory = new ElectronicProductFactory();
-            productRepo.Add(electronicsFactory.CreateProduct("Laptop", 2500m));
-            productRepo.Add(electronicsFactory.CreateProduct("Smartphone", 1200m));
+            var electronicsFactory = new AccessoryProductFactory();
+            productRepo.Add(electronicsFactory.CreateProduct("Ceas de Lux", 2500m));
+            productRepo.Add(electronicsFactory.CreateProduct("Ochelari", 1200m));
 
-            // Add vehicle products
-            var vehicleFactory = new VehicleProductFactory();
-            productRepo.Add(vehicleFactory.CreateProduct("Electric Scooter", 500m));
-            productRepo.Add(vehicleFactory.CreateProduct("Mountain Bike", 300m));
+            var footwearFactory = new FootwearProductFactory();
+            productRepo.Add(footwearFactory.CreateProduct("Pantofi Sport", 500m));
+            productRepo.Add(footwearFactory.CreateProduct("Ghete", 300m));
 
             // Add users with hashed passwords
             var admin = new Admin("admin", "admin@store.com", "SuperAdmin");
@@ -262,7 +261,7 @@ namespace OnlineStore.ConsoleUI
             decimal price = decimal.TryParse(priceInput, out decimal pVal) ? pVal : 0;
 
             // Use Factory
-            ProductFactory factory = new ElectronicProductFactory(); // Standardizing electronics for demo
+            ProductFactory factory = new AccessoryProductFactory(); // Standardizing accessories for demo
             var p = factory.CreateProduct(name, price);
             productRepo.Add(p);
             Console.WriteLine("Product added.");

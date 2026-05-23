@@ -22,16 +22,16 @@ namespace OnlineStore.Domain.Entities
             Items = new List<CartItem>();
         }
 
-        public void AddProduct(Guid productId, string? size = null, string? color = null)
+        public void AddProduct(Guid productId, string? size = null, string? color = null, int quantity = 1)
         {
             var existingItem = Items.FirstOrDefault(i => i.ProductId == productId && i.Size == size && i.Color == color);
             if (existingItem != null)
             {
-                existingItem.Quantity++;
+                existingItem.Quantity += quantity;
             }
             else
             {
-                Items.Add(new CartItem(productId, 1, size, color));
+                Items.Add(new CartItem(productId, quantity, size, color));
             }
         }
 

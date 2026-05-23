@@ -65,8 +65,9 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Add(Guid id, string? size, string? color)
+        public IActionResult Add(Guid id, string? size, string? color, int quantity = 1)
         {
+            if (quantity < 1) quantity = 1;
             // Verify product exists and has stock
             var product = _productRepo.GetById(id);
             if (product != null)
@@ -75,16 +76,16 @@ namespace OnlineStore.WebUI.Controllers
                 var itemInCart = cart.Items.FirstOrDefault(i => i.ProductId == id && i.Size == size && i.Color == color);
                 int currentQty = itemInCart?.Quantity ?? 0;
 
-                if (product.Stock <= currentQty)
+                if (product.Stock < currentQty + quantity)
                 {
-                    TempData["Error"] = "Nu mai există unități disponibile în stoc.";
-                    return RedirectToAction("Index", "Home");
+                    TempData["Error"] = $"Nu se pot adăuga {quantity} unități. Sunt disponibile doar {product.Stock - currentQty} unități în stoc.";
+                    return RedirectToAction("Details", "Home", new { id = id });
                 }
 
                 var caretaker = GetCaretaker();
                 var invoker = new CartActionInvoker(caretaker);
                 
-                var command = new AddProductCommand(cart, id, size, color);
+                var command = new AddProductCommand(cart, id, quantity, size, color);
                 invoker.ExecuteCommand(command, cart);
                 
                 SaveCart(cart);
@@ -96,8 +97,9 @@ namespace OnlineStore.WebUI.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddAjax(Guid id, string? size, string? color)
+        public IActionResult AddAjax(Guid id, string? size, string? color, int quantity = 1)
         {
+            if (quantity < 1) quantity = 1;
             var product = _productRepo.GetById(id);
             if (product != null)
             {
@@ -105,15 +107,15 @@ namespace OnlineStore.WebUI.Controllers
                 var itemInCart = cart.Items.FirstOrDefault(i => i.ProductId == id && i.Size == size && i.Color == color);
                 int currentQty = itemInCart?.Quantity ?? 0;
 
-                if (product.Stock <= currentQty)
+                if (product.Stock < currentQty + quantity)
                 {
-                    return Json(new { success = false, message = "Nu mai există unități în stoc." });
+                    return Json(new { success = false, message = $"Nu se pot adăuga {quantity} unități. Sunt disponibile doar {product.Stock - currentQty} unități în stoc." });
                 }
 
                 var caretaker = GetCaretaker();
                 var invoker = new CartActionInvoker(caretaker);
                 
-                var command = new AddProductCommand(cart, id, size, color);
+                var command = new AddProductCommand(cart, id, quantity, size, color);
                 invoker.ExecuteCommand(command, cart);
                 
                 SaveCart(cart);

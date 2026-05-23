@@ -1,6 +1,7 @@
 @model OnlineStore.Domain.Entities.Product
 @using OnlineStore.Domain.Entities
 @using OnlineStore.Domain.Singleton
+@inject OnlineStore.Application.Services.CurrencyService CurrencyService
 
 @{
     ViewData["Title"] = Model.Name;
@@ -10,1131 +11,1056 @@
     var typeName = Model.GetType().Name.Replace("Product", "");
     var emoji = typeName switch
     {
-        "Electronic" => "🔌",
+        "Accessory" => "👜",
         "Clothing" => "👕",
-        "Vehicle" => "🚗",
+        "Footwear" => "👟",
         _ => "📦"
+    };
+    var typeNameRo = typeName switch
+    {
+        "Accessory" => "Accesorii",
+        "Clothing" => "Îmbrăcăminte",
+        "Footwear" => "Încălțăminte",
+        _ => typeName
     };
 
     var priceSymbol = ApplicationConfigurationManager.Instance.CurrencySymbol;
-    
     var clothingModel = Model as ClothingProduct;
-    var availableSizes = clothingModel?.AvailableSizes;
+    var footwearModel = Model as FootwearProduct;
+    var dynamicModel = Model as DynamicProduct;
+    var accessoryModel = Model as AccessoryProduct;
+    var availableSizes = clothingModel?.AvailableSizes ?? footwearModel?.AvailableSizes;
+    var hasSpecs = dynamicModel?.CustomAttributes != null && dynamicModel.CustomAttributes.Any();
+    var reviewsList = (ViewBag.Reviews as IEnumerable<ProductReview>)?.ToList() ?? new List<ProductReview>();
+    var avgRating = reviewsList.Any() ? reviewsList.Average(r => r.Rating) : 0.0;
+    var recsList = (ViewBag.Recommendations as IEnumerable<Product>)?.ToList() ?? new List<Product>();
 }
 
 <style>
-    .details-page {
-        padding-top: 0.25rem;
-        padding-bottom: 2.5rem;
-    }
+    /* ── Details page (compact redesign) ── */
+    .pd-page { padding: 1rem 0 4rem; }
 
-    .details-grid {
-        display: flex;
+    .pd-breadcrumbs {
+        display: flex; align-items: center; gap: 0.5rem;
+        font-size: 0.75rem; color: var(--text-muted);
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+    }
+    .pd-breadcrumbs a { color: var(--text-muted); text-decoration: none; transition: var(--transition-smooth); }
+    .pd-breadcrumbs a:hover { color: var(--midnight); }
+    .pd-breadcrumbs .sep { opacity: 0.5; }
+    .pd-breadcrumbs .current { color: var(--midnight); font-weight: 500; }
+
+    /* Compact split: 440px image + dense right column, centered */
+    .pd-grid {
+        display: grid;
+        grid-template-columns: 440px minmax(0, 1fr);
         gap: 2.5rem;
         align-items: start;
+        max-width: 960px;
+        margin: 0 auto;
     }
 
-    .gallery-stack {
-        width: 40%;
-        display: flex;
-        flex-direction: column;
-        gap: 0.875rem;
+    .pd-gallery {
         position: sticky;
-        top: 90px;
-    }
-
-    .editorial-side {
-        flex: 1;
+        top: calc(var(--navbar-height) + 1.5rem);
         display: flex;
         flex-direction: column;
-        gap: 1.25rem;
+        gap: 0.75rem;
     }
 
-    .product-header {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .product-badge {
-        display: inline-block;
-        font-size: 0.7rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: var(--accent-primary, #6366f1);
-        background: rgba(99, 102, 241, 0.07);
-        border: 1px solid rgba(99, 102, 241, 0.15);
-        border-radius: 99px;
-        padding: 0.25rem 0.75rem;
-    }
-
-    .product-title {
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: var(--midnight, #1a1a1a);
-        line-height: 1.2;
-        letter-spacing: -0.02em;
-        font-family: var(--font-display, 'Inter', sans-serif);
-        margin: 0;
-    }
-
-    .product-price {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--accent-primary, #6366f1);
-        letter-spacing: -0.01em;
-    }
-
-    .back-nav {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.8125rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        text-decoration: none;
-        transition: var(--transition-smooth);
-        margin-bottom: 1.5rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-    }
-
-    .back-nav:hover {
-        color: var(--midnight);
-        transform: translateX(-5px);
-    }
-
-    .back-nav svg {
-        transition: transform 0.3s ease;
-    }
-    
-    .back-nav:hover svg {
-        transform: translateX(-2px);
-    }
-
-    .main-visual-container {
+    .pd-main-visual {
         position: relative;
         width: 100%;
-        aspect-ratio: 4/3;
+        aspect-ratio: 1 / 1;
         background: #fff;
         border: 1px solid var(--border-subtle);
-        border-radius: 24px;
+        border-radius: 18px;
         overflow: hidden;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
         cursor: zoom-in;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: var(--transition-smooth);
     }
-
-    .main-visual-container:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 30px 60px rgba(45, 41, 38, 0.08);
-    }
-
-    .main-img-show {
-        width: 100%;
-        height: 100%;
+    .pd-main-visual:hover { box-shadow: var(--shadow-md); }
+    .pd-hero-img {
+        width: 100%; height: 100%;
         object-fit: cover;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.25s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
     }
+    .pd-main-visual:hover .pd-hero-img { transform: scale(1.02); }
 
-    .slider-nav {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
+    .pd-stock-pill {
+        position: absolute; bottom: 0.85rem; left: 0.85rem;
+        display: flex; gap: 0.4rem; align-items: center;
         background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--border-subtle);
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        z-index: 10;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(6px);
+        padding: 0.3rem 0.7rem;
+        border-radius: 99px;
+        font-size: 0.6875rem;
+        font-weight: 600;
         color: var(--midnight);
+        letter-spacing: 0.04em;
+        border: 1px solid var(--border-subtle);
+    }
+    .pd-stock-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; }
+    .pd-stock-pill.empty .dot { background: #ef4444; }
+
+    .pd-nav-arrow {
+        position: absolute; top: 50%; transform: translateY(-50%);
+        width: 38px; height: 38px; border-radius: 50%;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--border-subtle);
+        color: var(--midnight);
+        display: inline-flex; align-items: center; justify-content: center;
+        cursor: pointer;
         opacity: 0;
+        transition: var(--transition-smooth);
+        z-index: 2;
     }
+    .pd-main-visual:hover .pd-nav-arrow { opacity: 1; }
+    .pd-nav-arrow.prev { left: 0.75rem; }
+    .pd-nav-arrow.next { right: 0.75rem; }
+    .pd-nav-arrow:hover { background: var(--midnight); color: #fff; }
 
-    .main-visual-container:hover .slider-nav {
-        opacity: 1;
-    }
-
-    .slider-nav:hover {
-        background: var(--midnight);
-        color: #fff;
-        transform: translateY(-50%) scale(1.1);
-        box-shadow: 0 8px 24px rgba(45, 41, 38, 0.15);
-    }
-
-    .nav-prev { left: 1rem; }
-    .nav-next { right: 1rem; }
-
-    .thumb-pills {
-        display: flex;
-        gap: 1rem;
+    .pd-thumb-strip {
+        display: flex; gap: 0.5rem;
         overflow-x: auto;
-        padding: 0.25rem 0;
         scrollbar-width: none;
     }
-
-    .thumb-pills::-webkit-scrollbar {
-        display: none;
-    }
-
-    .thumb-pill {
-        width: 56px;
-        height: 56px;
-        border-radius: 12px;
+    .pd-thumb-strip::-webkit-scrollbar { display: none; }
+    .pd-thumb {
+        width: 48px; height: 48px;
+        border-radius: 10px; overflow: hidden;
         cursor: pointer;
-        border: 2px solid transparent;
-        overflow: hidden;
-        flex-shrink: 0;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid var(--border-subtle);
         background: #fff;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+        flex-shrink: 0;
+        transition: var(--transition-smooth);
+        padding: 0;
     }
+    .pd-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .pd-thumb.active { border-color: var(--midnight); box-shadow: inset 0 0 0 1px var(--midnight); }
+    .pd-thumb:hover:not(.active) { border-color: var(--border-bold); }
 
-    .thumb-pill.active {
-        border-color: var(--midnight);
-        transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(45, 41, 38, 0.1);
-    }
-
-    .thumb-pill img {
-        width: 100%;
+    .pd-empty-visual {
+        font-size: 5rem; opacity: 0.18;
+        display: flex; align-items: center; justify-content: center;
         height: 100%;
-        object-fit: cover;
     }
 
-    .variant-section {
-        margin-top: 0;
+    /* Editorial column */
+    .pd-editorial {
+        display: flex; flex-direction: column;
+        gap: 1.1rem;
+    }
+
+    .pd-eyebrow {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        font-size: 0.6875rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.14em;
+        color: var(--text-muted);
+        font-family: var(--font-display);
+    }
+    .pd-eyebrow::before {
+        content: ''; width: 18px; height: 1px; background: currentColor;
+    }
+
+    .pd-title {
+        font-family: var(--font-display);
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--midnight);
+        line-height: 1.1;
+        letter-spacing: -0.015em;
+        margin: 0;
+        text-wrap: balance;
+    }
+
+    .pd-rating-row {
+        display: flex; align-items: center; gap: 0.6rem;
+        font-size: 0.8125rem;
+        color: var(--text-muted);
+    }
+    .pd-rating-row .stars { color: #d97706; letter-spacing: 1.5px; font-size: 0.875rem; }
+    .pd-rating-row a {
+        color: var(--text-muted); text-decoration: underline;
+        text-underline-offset: 3px; text-decoration-color: var(--border-bold);
+        transition: var(--transition-smooth);
+    }
+    .pd-rating-row a:hover { color: var(--midnight); }
+
+    .pd-price-row {
+        display: flex; align-items: baseline; gap: 0.6rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border-subtle);
+        flex-wrap: wrap;
+    }
+    .pd-price {
+        font-family: var(--font-display);
+        font-size: 1.625rem;
+        font-weight: 700;
+        color: var(--midnight);
+        letter-spacing: -0.01em;
+    }
+    .pd-price-tax {
+        margin-left: auto;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+    }
+
+    .pd-description {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        line-height: 1.65;
+        max-width: 56ch;
+    }
+
+    /* Option groups */
+    .pd-opt-group { display: flex; flex-direction: column; gap: 0.625rem; }
+    .pd-opt-head {
+        display: flex; justify-content: space-between; align-items: baseline;
+        font-size: 0.75rem;
+    }
+    .pd-opt-label {
+        font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.1em; color: var(--midnight);
+        font-family: var(--font-display);
+    }
+    .pd-opt-value { color: var(--text-muted); font-weight: 500; }
+
+    .pd-color-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .pd-swatch {
+        width: 30px; height: 30px; border-radius: 50%;
+        cursor: pointer;
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+        transition: var(--transition-smooth);
+        border: none;
+        padding: 0;
+    }
+    .pd-swatch.active {
+        box-shadow: inset 0 0 0 1px var(--midnight),
+                    0 0 0 2px var(--bg-base),
+                    0 0 0 3px var(--midnight);
+    }
+    .pd-swatch:hover:not(.active) { transform: scale(1.08); }
+
+    .pd-size-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .pd-size-chip {
+        min-width: 44px; height: 36px;
+        padding: 0 0.75rem;
+        border: 1px solid var(--border-bold);
+        background: transparent;
+        border-radius: 8px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--midnight);
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        font-family: var(--font-body);
+    }
+    .pd-size-chip:hover:not(.active) { border-color: var(--midnight); }
+    .pd-size-chip.active {
+        background: var(--midnight);
+        color: #fff;
+        border-color: var(--midnight);
+    }
+
+    /* Actions */
+    .pd-actions-row {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.5rem;
+        margin-top: 0.25rem;
+    }
+    .pd-qty-stepper {
+        display: inline-flex; align-items: center;
+        border: 1px solid var(--border-bold);
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff;
+    }
+    .pd-qty-btn {
+        width: 36px; height: 44px;
+        background: transparent; border: none;
+        font-size: 1rem; color: var(--midnight);
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+    .pd-qty-btn:hover { background: var(--bg-base); }
+    .pd-qty-value {
+        min-width: 32px; text-align: center;
+        font-weight: 600; font-size: 0.875rem;
+    }
+
+    .pd-btn-primary {
+        background: var(--midnight); color: #fff;
+        border: none; border-radius: 10px;
+        padding: 0 1.25rem; height: 44px;
+        font-size: 0.8125rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.1em;
+        cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+        transition: var(--transition-smooth);
+        width: 100%;
+        font-family: var(--font-display);
+    }
+    .pd-btn-primary:hover { background: #000; transform: translateY(-1px); }
+
+    .pd-secondary-row {
+        display: flex; gap: 0.5rem;
+        margin-top: 0.25rem;
+    }
+    .pd-btn-ghost {
+        background: transparent;
+        border: 1px solid var(--border-bold);
+        color: var(--midnight);
+        border-radius: 10px;
+        padding: 0 1rem; height: 40px;
+        font-size: 0.75rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.1em;
+        cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+        transition: var(--transition-smooth);
+        flex: 1;
+        text-decoration: none;
+        font-family: var(--font-display);
+    }
+    .pd-btn-ghost:hover { border-color: var(--midnight); }
+    .pd-btn-ghost.saved { border-color: #ef4444; color: #ef4444; }
+
+    /* Notify card (stoc epuizat) — slimmer than original */
+    .pd-notify {
+        margin-top: 0.25rem;
+        padding: 1.25rem;
+        background: rgba(239, 68, 68, 0.03);
+        border: 1px solid rgba(239, 68, 68, 0.18);
+        border-radius: 14px;
+    }
+    .pd-notify-badge {
+        display: inline-block;
+        background: #fef2f2; color: #dc2626;
+        padding: 0.2rem 0.6rem;
+        border-radius: 99px;
+        font-size: 0.625rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.1em;
+        margin-bottom: 0.6rem;
+    }
+    .pd-notify-title {
+        font-size: 0.95rem; font-weight: 700;
+        color: var(--midnight);
+        margin-bottom: 0.3rem;
+        font-family: var(--font-display);
+    }
+    .pd-notify-desc {
+        font-size: 0.8125rem; color: var(--text-muted);
+        line-height: 1.55; margin-bottom: 0.85rem;
+    }
+    .pd-notify-input-group {
+        display: flex; gap: 0.4rem;
+    }
+    .pd-notify-input {
+        flex: 1;
+        background: #fff;
+        border: 1px solid var(--border-bold);
+        border-radius: 8px;
+        padding: 0 0.85rem; height: 40px;
+        font-size: 0.8125rem;
+        font-family: var(--font-body);
+        outline: none;
+        transition: var(--transition-smooth);
+    }
+    .pd-notify-input:focus { border-color: var(--midnight); }
+    .pd-notify-submit {
+        background: var(--midnight); color: #fff;
+        border: none; border-radius: 8px;
+        padding: 0 1rem; height: 40px;
+        font-size: 0.75rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.08em;
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        font-family: var(--font-display);
+    }
+    .pd-notify-submit:hover { background: #000; }
+
+    /* Meta strip */
+    .pd-meta-strip {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.6rem 1.25rem;
+        margin-top: 1rem;
         padding-top: 1rem;
         border-top: 1px solid var(--border-subtle);
     }
-
-    .variant-label {
-        font-size: 0.8125rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: var(--midnight);
-        margin-bottom: 1rem;
-        display: block;
+    .pd-meta-item {
+        display: flex; gap: 0.625rem; align-items: flex-start;
+        font-size: 0.75rem; color: var(--text-muted);
+        line-height: 1.45;
+    }
+    .pd-meta-item svg { flex-shrink: 0; color: var(--midnight); margin-top: 1px; }
+    .pd-meta-item b {
+        color: var(--midnight); font-weight: 600; display: block;
         font-family: var(--font-display);
     }
 
-    .color-grid {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
+    /* Lower tabs */
+    .pd-lower {
+        margin-top: 4rem;
+        max-width: 1080px;
+        margin-left: auto;
+        margin-right: auto;
+        border-top: 1px solid var(--border-subtle);
+        padding-top: 2rem;
     }
-
-    .color-circle {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
+    .pd-tabs {
+        display: flex; gap: 2rem;
+        border-bottom: 1px solid var(--border-subtle);
+        margin-bottom: 2rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .pd-tabs::-webkit-scrollbar { display: none; }
+    .pd-tab {
+        background: transparent; border: none;
+        padding: 0.625rem 0;
+        font-family: var(--font-display);
+        font-size: 0.8125rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.12em;
+        color: var(--text-muted);
         cursor: pointer;
-        border: 3px solid var(--bg-base);
-        outline: 1px solid var(--border-subtle);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
+        transition: color 0.2s ease;
+        white-space: nowrap;
     }
-    
-    .color-circle::after {
-        content: '';
-        position: absolute;
-        inset: -6px;
-        border: 1.5px solid transparent;
-        border-radius: 50%;
-        transition: all 0.3s ease;
-        opacity: 0;
-        transform: scale(0.8);
+    .pd-tab:hover { color: var(--midnight); }
+    .pd-tab.active { color: var(--midnight); }
+    .pd-tab.active::after {
+        content: ''; position: absolute;
+        left: 0; right: 0; bottom: -1px;
+        height: 2px; background: var(--midnight);
     }
+    .pd-tab-count {
+        font-family: var(--font-body);
+        font-size: 0.6875rem; font-weight: 600;
+        color: var(--text-muted);
+        margin-left: 0.35rem;
+        letter-spacing: 0;
+        text-transform: none;
+    }
+    .pd-tab-panel[hidden] { display: none; }
 
-    .color-circle:hover {
-        transform: scale(1.1);
-        outline-color: var(--midnight);
+    .pd-desc-long {
+        max-width: 64ch;
+        color: var(--text-muted);
+        font-size: 0.9375rem;
+        line-height: 1.75;
     }
-
-    .color-circle.active {
-        transform: scale(1.1);
-        outline-color: var(--midnight);
-    }
-
-    .color-circle.active::after {
-        border-color: var(--midnight);
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    .size-grid {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-    }
-
-    .size-box {
-        padding: 0.625rem 1.25rem;
-        min-width: 56px;
-        height: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid var(--border-subtle);
-        border-radius: 30px;
-        font-size: 0.8125rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        background: rgba(255, 255, 255, 0.5);
-        backdrop-filter: blur(5px);
-        color: var(--midnight);
-        letter-spacing: 0.05em;
-    }
-
-    .size-box.active {
-        background: var(--midnight);
-        color: #fff;
-        border-color: var(--midnight);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(45, 41, 38, 0.2);
-    }
-
-    .size-box:hover:not(.active) {
-        border-color: var(--midnight);
-        color: var(--midnight);
-        background: var(--bg-base);
-        transform: translateY(-1px);
-    }
-
-    .bag-action-bar {
-        margin-top: 0.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .btn-bag-primary {
-        background: var(--midnight);
-        color: #fff;
-        border: none;
-        border-radius: 14px;
-        padding: 0.875rem;
-        font-size: 0.875rem;
+    .pd-desc-long h4 {
         font-family: var(--font-display);
-        font-weight: 800;
+        font-size: 0.75rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.12em;
+        color: var(--midnight);
+        margin: 1.25rem 0 0.5rem;
+    }
+
+    .pd-specs-list {
+        list-style: none; padding: 0; margin: 0;
+        column-count: 2; column-gap: 3rem;
+        max-width: 760px;
+    }
+    .pd-specs-list li {
+        display: flex; justify-content: space-between;
+        padding: 0.625rem 0;
+        border-bottom: 1px dashed var(--border-subtle);
+        font-size: 0.8125rem;
+        break-inside: avoid;
+        gap: 1rem;
+    }
+    .pd-specs-list .k { color: var(--text-muted); }
+    .pd-specs-list .v { color: var(--midnight); font-weight: 600; text-align: right; }
+
+    /* Reviews */
+    .pd-reviews-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 3rem;
+        align-items: start;
+    }
+    .pd-reviews-summary {
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid var(--border-subtle);
+        border-radius: 16px;
+        padding: 1.25rem;
+    }
+    .pd-summary-score {
+        font-family: var(--font-display);
+        font-size: 2.5rem; font-weight: 700;
+        color: var(--midnight); line-height: 1;
+    }
+    .pd-summary-stars {
+        color: #d97706; font-size: 1rem;
+        letter-spacing: 2px; margin: 0.4rem 0;
+    }
+    .pd-summary-count { font-size: 0.75rem; color: var(--text-muted); }
+    .pd-summary-bars {
+        margin-top: 1rem;
+        display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    .pd-bar-row {
+        display: grid; grid-template-columns: 16px 1fr 32px;
+        gap: 0.5rem; align-items: center;
+        font-size: 0.6875rem; color: var(--text-muted);
+    }
+    .pd-bar-track {
+        height: 4px; background: var(--border-subtle);
+        border-radius: 99px; overflow: hidden;
+    }
+    .pd-bar-fill { height: 100%; background: var(--midnight); border-radius: 99px; }
+
+    .pd-review-form {
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid var(--border-subtle);
+        border-radius: 14px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .pd-review-form select,
+    .pd-review-form textarea {
+        width: 100%;
+        padding: 0.625rem 0.85rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-subtle);
+        font-size: 0.8125rem;
+        background: #fff;
+        margin-bottom: 0.5rem;
+        outline: none;
+        font-family: var(--font-body);
+        color: var(--midnight);
+    }
+    .pd-review-form textarea { min-height: 80px; resize: vertical; }
+    .pd-review-form select:focus,
+    .pd-review-form textarea:focus { border-color: var(--midnight); }
+    .pd-review-submit {
+        background: var(--midnight); color: #fff;
+        border: none; border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.1em;
         cursor: pointer;
         transition: var(--transition-smooth);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.75rem;
-        box-shadow: 0 8px 20px rgba(45, 41, 38, 0.12);
-        width: 100%;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .btn-bag-primary:hover {
-        background: #000;
-        transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .notify-card {
-        background: rgba(239, 68, 68, 0.02);
-        border: 1px solid rgba(239, 68, 68, 0.15);
-        border-radius: 20px;
-        padding: 1.75rem;
-        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.02);
-        margin-top: 1.5rem;
-        backdrop-filter: blur(5px);
-    }
-
-    .notify-badge {
-        display: inline-block;
-        background: #fef2f2;
-        color: #dc2626;
-        padding: 0.25rem 0.75rem;
-        border-radius: 99px;
-        font-size: 0.7rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        margin-bottom: 0.75rem;
-        border: 1px solid rgba(239, 68, 68, 0.1);
-    }
-
-    .notify-title {
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: var(--midnight);
-        margin-bottom: 0.5rem;
         font-family: var(--font-display);
     }
+    .pd-review-submit:hover { background: #000; }
 
-    .notify-desc {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        line-height: 1.6;
-        margin-bottom: 1.25rem;
+    .pd-review-list { display: flex; flex-direction: column; gap: 1.25rem; }
+    .pd-review {
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+    .pd-review:last-child { border-bottom: none; }
+    .pd-review-head {
+        display: flex; justify-content: space-between;
+        align-items: center; margin-bottom: 0.5rem;
+        gap: 0.5rem; flex-wrap: wrap;
+    }
+    .pd-review-name {
+        font-weight: 600; color: var(--midnight);
+        font-size: 0.875rem;
+        font-family: var(--font-display);
+    }
+    .pd-review-stars { color: #d97706; font-size: 0.8125rem; letter-spacing: 1.5px; }
+    .pd-review-text {
+        font-size: 0.875rem; color: var(--text-muted);
+        line-height: 1.65;
+    }
+    .pd-empty-state {
+        color: var(--text-muted); font-size: 0.875rem;
+        font-style: italic; padding: 2rem 0;
     }
 
-    .notify-input-group {
-        display: flex;
+    /* Related */
+    .pd-related {
+        max-width: 1080px;
+        margin: 4rem auto 0;
+        border-top: 1px solid var(--border-subtle);
+        padding-top: 2.5rem;
+    }
+    .pd-related-head {
+        display: flex; justify-content: space-between; align-items: baseline;
+        margin-bottom: 1.5rem;
+    }
+    .pd-related-head h3 {
+        font-family: var(--font-display);
+        font-size: 1.25rem; font-weight: 700;
+        letter-spacing: -0.01em;
+        color: var(--midnight); margin: 0;
+    }
+    .pd-related-head a {
+        font-size: 0.75rem; color: var(--text-muted);
+        text-transform: uppercase; letter-spacing: 0.1em;
+        text-decoration: none; font-weight: 600;
+        transition: var(--transition-smooth);
+        font-family: var(--font-display);
+    }
+    .pd-related-head a:hover { color: var(--midnight); }
+    .pd-related-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
+    }
+    .pd-rel-card {
+        text-decoration: none; color: inherit;
+        display: flex; flex-direction: column; gap: 0.5rem;
+        transition: var(--transition-smooth);
+    }
+    .pd-rel-img-wrap {
+        aspect-ratio: 1 / 1;
         background: #fff;
         border: 1px solid var(--border-subtle);
-        border-radius: 14px;
+        border-radius: 12px;
         overflow: hidden;
         transition: var(--transition-smooth);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
-
-    .notify-input-group:focus-within {
-        border-color: var(--midnight);
-        box-shadow: 0 0 0 4px rgba(45, 41, 38, 0.05);
+    .pd-rel-card:hover .pd-rel-img-wrap { border-color: var(--border-bold); }
+    .pd-rel-img-wrap img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: transform 0.6s ease;
     }
-
-    .notify-input {
-        flex: 1;
-        background: transparent;
-        border: none;
-        padding: 1rem 1.25rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: var(--text-main);
-    }
-
-    .notify-input:focus { outline: none; }
-
-    .btn-notify-submit {
-        background: var(--midnight);
-        color: #fff;
-        border: none;
-        padding: 0 1.5rem;
-        font-weight: 700;
-        font-size: 0.8125rem;
-        cursor: pointer;
-        transition: var(--transition-smooth);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .btn-notify-submit:hover {
-        background: #000;
-    }
-
-    .logistics-card {
-        padding: 1.25rem 1.5rem;
-        background: rgba(45, 41, 38, 0.02);
-        border-radius: 18px;
-        border: 1px solid var(--border-subtle);
-        margin-top: 1rem;
-        transition: all 0.3s ease;
-    }
-    
-    .logistics-card:hover {
-        background: rgba(45, 41, 38, 0.04);
-    }
-
-    .logistics-header {
-        display: flex;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-
-    .logistics-title {
-        font-weight: 700;
-        color: var(--midnight);
-        font-size: 0.875rem;
-        display: block;
-        margin-bottom: 0.25rem;
+    .pd-rel-card:hover .pd-rel-img-wrap img { transform: scale(1.04); }
+    .pd-rel-name {
+        font-size: 0.8125rem; font-weight: 500;
+        color: var(--midnight); margin-top: 0.25rem;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         font-family: var(--font-display);
     }
-
-    .logistics-desc {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        line-height: 1.5;
+    .pd-rel-price {
+        font-size: 0.8125rem; font-weight: 700;
+        color: var(--midnight); font-family: var(--font-display);
     }
 
-    .tech-specs-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        background: rgba(255, 255, 255, 0.4);
-        border-radius: 20px;
-        border: 1px solid var(--border-subtle);
-        overflow: hidden;
-        backdrop-filter: blur(5px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.01);
-    }
-
-    .tech-specs-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--border-subtle);
-        font-size: 0.875rem;
-        transition: background 0.2s ease;
-    }
-
-    .tech-specs-item:last-child {
-        border-bottom: none;
-    }
-
-    .tech-specs-item:hover {
-        background: rgba(255, 255, 255, 0.7);
-    }
-
-    .tech-key {
-        font-weight: 700;
-        color: var(--midnight);
-        font-family: var(--font-display);
-    }
-
-    .tech-val {
-        color: var(--text-muted);
-        font-weight: 500;
-    }
-
-    .zoom-modal {
+    /* Zoom modal (kept from original) */
+    .pd-zoom-modal {
         display: none;
-        position: fixed;
-        inset: 0;
+        position: fixed; inset: 0;
         background: rgba(14, 18, 27, 0.98);
         backdrop-filter: blur(15px);
         z-index: 2500;
-        align-items: center;
-        justify-content: center;
+        align-items: center; justify-content: center;
         padding: 2rem;
     }
-
-    .zoom-inner {
-        position: relative;
-        max-width: 90vw;
-        max-height: 90vh;
+    .pd-zoom-inner { position: relative; max-width: 90vw; max-height: 90vh; }
+    .pd-zoom-content {
+        max-width: 100%; max-height: 85vh;
+        border-radius: 18px; object-fit: contain;
+        box-shadow: 0 50px 100px rgba(0, 0, 0, 0.8);
     }
-
-    .zoom-content {
-        max-width: 100%;
-        max-height: 85vh;
-        border-radius: 24px;
-        object-fit: contain;
-        box-shadow: 0 50px 100px rgba(0,0,0,0.8);
-    }
-
-    .zoom-nav {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background: rgba(255,255,255,0.1);
+    .pd-zoom-nav {
+        position: absolute; top: 50%; transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.1);
         border: none;
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        color: #fff;
-        cursor: pointer;
-        transition: var(--transition-smooth);
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        width: 56px; height: 56px;
+        border-radius: 50%; color: #fff;
+        cursor: pointer; transition: var(--transition-smooth);
+        display: flex; align-items: center; justify-content: center;
     }
-
-    .zoom-nav:hover { background: var(--midnight); transform: translateY(-50%) scale(1.1); }
-    .zoom-prev { left: -80px; }
-    .zoom-next { right: -80px; }
-
-    .zoom-close {
-        position: absolute;
-        top: -60px;
-        right: 0;
+    .pd-zoom-nav:hover { background: var(--midnight); }
+    .pd-zoom-prev { left: -72px; }
+    .pd-zoom-next { right: -72px; }
+    .pd-zoom-close {
+        position: absolute; top: -56px; right: 0;
         background: none;
-        border: 1px solid rgba(255,255,255,0.2);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         color: #fff;
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        cursor: pointer;
+        width: 40px; height: 40px;
+        border-radius: 50%; cursor: pointer;
         transition: var(--transition-smooth);
     }
+    .pd-zoom-close:hover { background: #fff; color: #000; }
 
-    .zoom-close:hover { background: #fff; color: #000; }
-
-    @@media (max-width: 1024px) {
-        .zoom-nav { width: 44px; height: 44px; }
-        .zoom-prev { left: 10px; }
-        .zoom-next { right: 10px; }
-    }
-
-    @@media (max-width: 1024px) {
-        .details-grid {
-            gap: 1.75rem;
-        }
-        .gallery-stack {
-            width: 42%;
-        }
-    }
-
-    @@media (max-width: 768px) {
-        .details-grid {
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .gallery-stack {
-            width: 100%;
-            position: static;
-        }
-
-        .editorial-side {
-            width: 100%;
-        }
-
-        .bottom-wrap {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-    }
-
-    /* ── Bottom sections ── */
-    .bottom-wrap {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 3rem;
-        align-items: start;
-        border-top: 1px solid var(--border-subtle);
-        padding-top: 2rem;
-        margin-top: 2.5rem;
-        padding-bottom: 2.5rem;
-    }
-
-    .bottom-section-title {
-        font-family: var(--font-display);
-        font-size: 0.875rem;
-        font-weight: 800;
-        color: var(--midnight);
-        margin-bottom: 1.5rem;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-    }
-
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-
-    /* Reviews premium */
-    .rv-form-box {
-        background: rgba(255, 255, 255, 0.4);
-        padding: 1.5rem;
-        border-radius: 20px;
-        border: 1px solid var(--border-subtle);
-        margin-bottom: 1.5rem;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
-    }
-
-    .rv-select {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border-radius: 12px;
-        border: 1px solid var(--border-subtle);
-        font-size: 0.85rem;
-        margin-bottom: 0.75rem;
-        background: rgba(255, 255, 255, 0.8);
-        color: var(--midnight);
-        font-weight: 600;
-        outline: none;
-        transition: all 0.3s ease;
-    }
-
-    .rv-select:focus {
-        border-color: var(--midnight);
-        background: #fff;
-    }
-
-    .rv-textarea {
-        width: 100%;
-        min-height: 80px;
-        padding: 0.875rem 1rem;
-        border-radius: 12px;
-        border: 1px solid var(--border-subtle);
-        font-size: 0.85rem;
-        background: rgba(255, 255, 255, 0.8);
-        margin-bottom: 0.75rem;
-        outline: none;
-        resize: vertical;
-        font-family: inherit;
-        color: var(--midnight);
-        transition: all 0.3s ease;
-    }
-
-    .rv-textarea:focus {
-        border-color: var(--midnight);
-        background: #fff;
-    }
-
-    .rv-submit {
-        background: var(--midnight);
-        color: #fff;
-        border: none;
-        border-radius: 12px;
-        padding: 0.75rem 1.5rem;
-        font-size: 0.8125rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: var(--transition-smooth);
-        font-family: var(--font-display);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .rv-submit:hover {
-        background: #000;
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-    }
-
-    .rv-item {
-        border-bottom: 1px solid var(--border-subtle);
-        padding: 1.25rem 0.5rem;
-        transition: background 0.2s ease;
-    }
-
-    .rv-item:last-child {
-        border-bottom: none;
-    }
-
-    .rv-item-name {
-        font-weight: 700;
-        font-size: 0.875rem;
-        color: var(--midnight);
-        font-family: var(--font-display);
-    }
-
-    .rv-item-stars {
-        color: #fbbf24;
-        font-size: 0.875rem;
-        letter-spacing: 2px;
-    }
-
-    .rv-item-text {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        line-height: 1.6;
-        margin: 0.5rem 0 0 0;
-    }
-
-    /* Recommendations carousel */
-    .rec-carousel-wrap {
-        position: relative;
-    }
-
-    .rec-carousel {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-    }
-
-    .rec-card {
-        background: rgba(255, 255, 255, 0.6);
-        border-radius: 20px;
-        border: 1px solid var(--border-subtle);
-        padding: 0.75rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        text-decoration: none;
-        color: inherit;
-        display: block;
-        backdrop-filter: blur(5px);
-    }
-
-    .rec-card:hover {
-        border-color: var(--midnight);
-        transform: translateY(-4px);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
-        background: #fff;
-    }
-
-    .rec-card img {
-        width: 100%;
-        aspect-ratio: 1;
-        object-fit: cover;
-        border-radius: 14px;
-        margin-bottom: 0.75rem;
-        transition: transform 0.5s ease;
-    }
-
-    .rec-card:hover img {
-        transform: scale(1.02);
-    }
-
-    .rec-card-title {
-        font-size: 0.8125rem;
-        font-weight: 700;
-        margin: 0.25rem 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        color: var(--midnight);
-        font-family: var(--font-display);
-    }
-
-    .rec-card-price {
-        font-size: 0.8125rem;
-        color: var(--accent-primary);
-        font-weight: 800;
-        margin: 0;
-    }
-
-    .rec-arrow-row {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .rec-arrow {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        border: 1px solid var(--border-subtle);
-        background: #fff;
-        color: var(--midnight);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: var(--transition-smooth);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-    }
-
-    .rec-arrow:hover {
-        background: var(--midnight);
-        color: #fff;
-        border-color: var(--midnight);
-        transform: scale(1.08);
-    }
-
-    .rec-arrow:disabled {
-        opacity: 0.3;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    .rec-dots {
-        display: flex;
-        gap: 0.5rem;
-        justify-content: center;
-        margin-top: 1.5rem;
-    }
-
-    .rec-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--border-bold);
-        transition: var(--transition-smooth);
-        cursor: pointer;
-    }
-
-    .rec-dot.active {
-        background: var(--midnight);
-        width: 24px;
-        border-radius: 4px;
+    /* Responsive */
+    @@media (max-width: 960px) {
+        .pd-grid { grid-template-columns: 1fr; gap: 2rem; max-width: 600px; }
+        .pd-gallery { position: static; }
+        .pd-specs-list { column-count: 1; }
+        .pd-reviews-grid { grid-template-columns: 1fr; gap: 2rem; }
+        .pd-related-grid { grid-template-columns: repeat(2, 1fr); }
+        .pd-zoom-prev { left: 8px; }
+        .pd-zoom-next { right: 8px; }
+        .pd-zoom-nav { width: 44px; height: 44px; }
     }
 </style>
 
-<div class="container details-page fade-in">
-    <a asp-action="Index" class="back-nav">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-        </svg>
-        Înapoi la colecție
-    </a>
+<div class="container pd-page fade-in">
 
-    <div class="details-grid">
-        <div class="gallery-stack">
-            <div class="main-visual-container" onclick="openZoom()">
+    <!-- Breadcrumbs (replaces big back-nav) -->
+    <nav class="pd-breadcrumbs">
+        <a asp-controller="Home" asp-action="Index">Magazin</a>
+        <span class="sep">/</span>
+        <a asp-controller="Home" asp-action="Index">@typeNameRo</a>
+        <span class="sep">/</span>
+        <span class="current">@Model.Name</span>
+    </nav>
+
+    <!-- Top: gallery + editorial -->
+    <section class="pd-grid">
+
+        <!-- Gallery -->
+        <div class="pd-gallery">
+            <div class="pd-main-visual" onclick="pdOpenZoom()">
                 @if (images.Any())
                 {
-                    <img src="@mainImage!.ImageUrl" id="heroImage" class="main-img-show" alt="@Model.Name">
+                    <img src="@mainImage!.ImageUrl" id="pdHeroImage" class="pd-hero-img" alt="@Model.Name">
                     @if (images.Count > 1)
                     {
-                        <button class="slider-nav nav-prev" onclick="event.stopPropagation(); moveSlider(-1)">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        <button type="button" class="pd-nav-arrow prev" onclick="event.stopPropagation(); pdMove(-1)" aria-label="Imagine anterioară">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
                         </button>
-                        <button class="slider-nav nav-next" onclick="event.stopPropagation(); moveSlider(1)">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        <button type="button" class="pd-nav-arrow next" onclick="event.stopPropagation(); pdMove(1)" aria-label="Imagine următoare">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
                         </button>
                     }
                 }
                 else
                 {
-                    <div style="font-size: 5rem; opacity: 0.2; padding: 3rem;">@emoji</div>
+                    <div class="pd-empty-visual">@emoji</div>
+                }
+                @if (Model.Stock > 0)
+                {
+                    <div class="pd-stock-pill"><span class="dot"></span> În stoc · expediere rapidă</div>
+                }
+                else
+                {
+                    <div class="pd-stock-pill empty"><span class="dot"></span> Stoc epuizat</div>
                 }
             </div>
 
             @if (images.Count > 1)
             {
-                <div class="thumb-pills">
+                <div class="pd-thumb-strip">
                     @for (int i = 0; i < images.Count; i++)
                     {
-                        <div class="thumb-pill @(images[i] == mainImage ? "active" : "")" 
-                             onclick="updateHero('@images[i].ImageUrl', this, @i)">
-                            <img src="@images[i].ImageUrl" alt="Detail View">
-                        </div>
+                        <button type="button" class="pd-thumb @(images[i] == mainImage ? "active" : "")"
+                                data-color="@images[i].AssociatedColor"
+                                onclick="pdUpdateHero('@images[i].ImageUrl', this, @i)">
+                            <img src="@images[i].ImageUrl" alt="Detaliu @(i + 1)">
+                        </button>
                     }
                 </div>
             }
         </div>
 
-        <div class="editorial-side">
-            @{
-                var typeNameRo = typeName switch
-                {
-                    "Electronic" => "Electronice",
-                    "Clothing" => "Îmbrăcăminte",
-                    "Vehicle" => "Vehicul",
-                    _ => typeName
-                };
-            }
-            <div class="product-header">
-                <span class="product-badge">
-                    Selecție @(typeNameRo) Premium
-                </span>
-                <h1 class="product-title">
-                    @Model.Name
-                </h1>
-@inject OnlineStore.Application.Services.CurrencyService CurrencyService
-                <div class="product-price">
-                    @CurrencyService.FormatPrice(Model.Price)
-                </div>
-            </div>
+        <!-- Editorial -->
+        <div class="pd-editorial">
+            <span class="pd-eyebrow">Selecție @typeNameRo Premium</span>
+            <h1 class="pd-title">@Model.Name</h1>
 
-            <div style="margin-top: 0.25rem;">
-                <h3 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--midnight); margin-bottom: 0.35rem; font-family: var(--font-display); letter-spacing: 0.05em;">Conceptul</h3>
-                <p style="font-size: 0.8125rem; color: var(--text-muted); line-height: 1.6; max-width: 480px;">
-                    Experimentează o calitate excepțională cu modelul nostru selectat @Model.Name. Creat special pentru cei care apreciază măiestria detaliilor și designul atemporal.
-                    @if(Model is ElectronicProduct electro) {
-                        <span> Performanță garantată cu o garanție de @electro.WarrantyMonths luni.</span>
-                    }
-                </p>
-            </div>
-
-            @if (Model is DynamicProduct dyn && dyn.CustomAttributes != null && dyn.CustomAttributes.Any())
+            @if (reviewsList.Any())
             {
-                <div class="variant-section">
-                    <span class="variant-label">Prezentare Tehnică</span>
-                    <ul class="tech-specs-list">
-                        @foreach(var attr in dyn.CustomAttributes)
-                        {
-                            <li class="tech-specs-item">
-                                <span class="tech-key">@attr.Key</span>
-                                <span class="tech-val">@attr.Value</span>
-                            </li>
-                        }
-                    </ul>
+                <div class="pd-rating-row">
+                    <span class="stars">@string.Concat(Enumerable.Repeat("★", (int)Math.Round(avgRating)))@string.Concat(Enumerable.Repeat("☆", 5 - (int)Math.Round(avgRating)))</span>
+                    <span>@avgRating.ToString("0.0")</span>
+                    <span style="opacity:.5">·</span>
+                    <a href="#pd-reviews" onclick="pdShowTab('reviews'); return true;">@reviewsList.Count @(reviewsList.Count == 1 ? "recenzie" : "recenzii")</a>
                 </div>
             }
+
+            <div class="pd-price-row">
+                <div class="pd-price">@CurrencyService.FormatPrice(Model.Price)</div>
+                <div class="pd-price-tax">TVA inclus</div>
+            </div>
+
+            <p class="pd-description">
+                Experimentează o calitate excepțională cu modelul nostru selectat @Model.Name.
+                Creat pentru cei care apreciază măiestria detaliilor și designul atemporal.
+                @if (accessoryModel != null)
+                {
+                    <span>Material premium: @accessoryModel.Material.</span>
+                }
+            </p>
 
             @if (!string.IsNullOrEmpty(Model.AvailableColors))
             {
-                <div class="variant-section">
-                    <span class="variant-label">Selectează Culoarea</span>
-                    <div class="color-grid">
-                        @foreach (var color in Model.AvailableColors.Split(','))
+                <div class="pd-opt-group">
+                    <div class="pd-opt-head">
+                        <span class="pd-opt-label">Culoare</span>
+                        <span class="pd-opt-value" id="pdColorValue">Selectează</span>
+                    </div>
+                    <div class="pd-color-row" id="pdColorRow">
+                        @{
+                            var colorsList = Model.AvailableColors.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                        }
+                        @for (int idx = 0; idx < colorsList.Length; idx++)
                         {
-                            <div class="color-circle" style="background-color: @color.Trim()" 
-                                 title="@color.Trim()" onclick="selectColor('@color.Trim()', this)"></div>
+                            var color = colorsList[idx];
+                            <button type="button" class="pd-swatch"
+                                    style="background-color: @color"
+                                    title="@color"
+                                    onclick="pdSelectColor('@color', this, @idx)"></button>
                         }
                     </div>
                 </div>
             }
 
-            @if (clothingModel != null && !string.IsNullOrEmpty(clothingModel.AvailableSizes))
+            @if (!string.IsNullOrEmpty(availableSizes))
             {
-                <div class="variant-section">
-                    <span class="variant-label">Selectează Mărimea</span>
-                    <div class="size-grid">
-                        @foreach (var size in clothingModel.AvailableSizes.Split(','))
+                <div class="pd-opt-group">
+                    <div class="pd-opt-head">
+                        <span class="pd-opt-label">Mărime</span>
+                        <span class="pd-opt-value" id="pdSizeValue">Selectează</span>
+                    </div>
+                    <div class="pd-size-row" id="pdSizeRow">
+                        @foreach (var size in availableSizes.Split(','))
                         {
-                            <div class="size-box" onclick="selectSize('@size.Trim()', this)">@size.Trim()</div>
+                            <button type="button" class="pd-size-chip"
+                                    onclick="pdSelectSize('@size.Trim()', this)">@size.Trim()</button>
                         }
                     </div>
                 </div>
             }
 
-            <div class="bag-action-bar">
-                @if (Model.Stock > 0)
-                {
-                    <form asp-controller="Cart" asp-action="Add" asp-route-id="@Model.Id" method="post" id="addToCartForm">
-                        <input type="hidden" name="id" value="@Model.Id" />
-                        <input type="hidden" name="size" id="selectedSize">
-                        <input type="hidden" name="color" id="selectedColor">
-                        <button type="submit" class="btn-bag-primary">
-                            <span>Adaugă în Coș</span>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <path d="M16 10a4 4 0 0 1-8 0"></path>
-                            </svg>
+            @if (Model.Stock > 0)
+            {
+                <form asp-controller="Cart" asp-action="Add" asp-route-id="@Model.Id" method="post" id="pdAddToCartForm">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <input type="hidden" name="size" id="pdSelectedSize" />
+                    <input type="hidden" name="color" id="pdSelectedColor" />
+                    <input type="hidden" name="quantity" id="pdSelectedQty" value="1" />
+
+                    <div class="pd-actions-row">
+                        <div class="pd-qty-stepper" role="group" aria-label="Cantitate">
+                            <button type="button" class="pd-qty-btn" onclick="pdQty(-1)" aria-label="Scade">−</button>
+                            <span class="pd-qty-value" id="pdQtyValue">1</span>
+                            <button type="button" class="pd-qty-btn" onclick="pdQty(1)" aria-label="Crește">+</button>
+                        </div>
+                        <button type="submit" class="pd-btn-primary">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                            Adaugă în coș
+                        </button>
+                    </div>
+                </form>
+
+                <div class="pd-secondary-row">
+                    <form asp-controller="Wishlist" asp-action="Toggle" method="post" style="flex:1; display:flex;">
+                        <input type="hidden" name="productId" value="@Model.Id" />
+                        <button type="submit" class="pd-btn-ghost">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                            Salvează
                         </button>
                     </form>
-                }
-                else
-                {
-                    <div class="notify-card">
-                        <span class="notify-badge">Stoc Epuizat</span>
-                        <h4 class="notify-title">Alătură-te listei de așteptare</h4>
-                        <p class="notify-desc">Stocul nostru este selectat cu atenție și în ediții limitate. Lasă-ne adresa de e-mail pentru a fi notificat în momentul în care acest produs revine în stoc.</p>
-                        
-                        <form asp-controller="Cart" asp-action="NotifyMe" method="post">
-                            <input type="hidden" name="productId" value="@Model.Id">
-                            <div class="notify-input-group">
-                                <input type="email" name="email" class="notify-input" placeholder="Introdu adresa ta de e-mail" required>
-                                <button type="submit" class="btn-notify-submit">Notifică-mă</button>
-                            </div>
-                        </form>
-                    </div>
-                }
-
-                <div class="logistics-card">
-                    <div class="logistics-header">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2.5" style="margin-top: 2px; flex-shrink: 0;">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle>
-                        </svg>
-                        <div>
-                            <span class="logistics-title">Livrare și Retur Asigurate</span>
-                            <span class="logistics-desc">Transport gratuit în toată țara la comenzi de peste @priceSymbol@ApplicationConfigurationManager.Instance.FreeShippingThreshold. Livrare standard: 3-5 zile lucrătoare.</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Reviews & Recommendations -->
-<div class="container">
-    <div class="bottom-wrap">
-
-        <!-- ── Reviews ── -->
-        <div>
-            <p class="bottom-section-title">Recenzii</p>
-            
-            <div class="rv-form-box">
-                <form asp-action="AddReview" method="post">
-                    <input type="hidden" name="productId" value="@Model.Id" />
-                    <select name="rating" class="rv-select">
-                        <option value="5">★★★★★ 5 Stele</option>
-                        <option value="4">★★★★ 4 Stele</option>
-                        <option value="3">★★★ 3 Stele</option>
-                        <option value="2">★★ 2 Stele</option>
-                        <option value="1">★ 1 Stea</option>
-                    </select>
-                    <textarea name="content" required placeholder="Scrie o scurtă recenzie..." class="rv-textarea"></textarea>
-                    <button type="submit" class="rv-submit">Adăugă Recenzia</button>
-                </form>
-            </div>
-
-            <div>
-                @if (ViewBag.Reviews != null && ((IEnumerable<OnlineStore.Domain.Entities.ProductReview>)ViewBag.Reviews).Any())
-                {
-                    foreach (var review in (IEnumerable<OnlineStore.Domain.Entities.ProductReview>)ViewBag.Reviews)
-                    {
-                        <div class="rv-item">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span class="rv-item-name">@review.UserName</span>
-                                <span class="rv-item-stars">@string.Concat(Enumerable.Repeat("★", review.Rating))</span>
-                            </div>
-                            <p class="rv-item-text">@review.Content</p>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p style="color:var(--text-muted); font-size:0.875rem; font-style:italic;">Nu există recenzii încă. Fii primul care își spune părerea!</p>
-                }
-            </div>
-        </div>
-
-        <!-- ── Recommendations carousel ── -->
-        <div>
-            @if (ViewBag.Recommendations != null && ((IEnumerable<OnlineStore.Domain.Entities.Product>)ViewBag.Recommendations).Any())
-            {
-                var recs = ((IEnumerable<OnlineStore.Domain.Entities.Product>)ViewBag.Recommendations).ToList();
-                
-                <div class="section-header">
-                    <p class="bottom-section-title">Descoperă mai multe</p>
-                    <div class="rec-arrow-row">
-                        <button class="rec-arrow" id="recPrev" onclick="recMove(-1)">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                        </button>
-                        <button class="rec-arrow" id="recNext" onclick="recMove(1)">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="rec-carousel-wrap">
-                    <div id="recCarousel" class="rec-carousel">
-                        @foreach (var rec in recs)
-                        {
-                            <a href="@Url.Action("Details", new { id = rec.Id })" class="rec-card" data-rec>
-                                <img src="@(rec.Images?.FirstOrDefault(i => i.IsMain)?.ImageUrl ?? "/images/placeholder.jpg")" alt="@rec.Name">
-                                <p class="rec-card-title">@rec.Name</p>
-                                <p class="rec-card-price">@CurrencyService.FormatPrice(rec.Price)</p>
-                            </a>
-                        }
-                    </div>
-
-                    <div class="rec-dots" id="recDots"></div>
+                    <button type="button" class="pd-btn-ghost" onclick="pdShare()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                        Distribuie
+                    </button>
                 </div>
             }
             else
             {
-                <p class="bottom-section-title">Descoperă mai multe</p>
-                <p style="color:var(--text-muted); font-size:0.875rem; font-style:italic; margin-top: 1rem;">Nu există recomandări disponibile.</p>
+                <div class="pd-notify">
+                    <span class="pd-notify-badge">Stoc Epuizat</span>
+                    <h4 class="pd-notify-title">Alătură-te listei de așteptare</h4>
+                    <p class="pd-notify-desc">Stocul nostru este selectat cu atenție. Lasă-ne adresa de e-mail pentru a fi notificat în momentul în care produsul revine.</p>
+                    <form asp-controller="Cart" asp-action="NotifyMe" method="post">
+                        <input type="hidden" name="productId" value="@Model.Id" />
+                        <div class="pd-notify-input-group">
+                            <input type="email" name="email" class="pd-notify-input" placeholder="adresa.ta@email.com" required />
+                            <button type="submit" class="pd-notify-submit">Notifică-mă</button>
+                        </div>
+                    </form>
+                </div>
             }
+
+            <!-- Beneficii inline (înlocuiește logistics-card) -->
+            <div class="pd-meta-strip">
+                <div class="pd-meta-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    <div><b>Livrare gratuită</b>peste @priceSymbol@ApplicationConfigurationManager.Instance.FreeShippingThreshold · 3–5 zile</div>
+                </div>
+                <div class="pd-meta-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                    <div><b>Retur 30 zile</b>returnare fără justificare</div>
+                </div>
+                <div class="pd-meta-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <div><b>@(accessoryModel != null ? "24" : "12") luni garanție</b>service autorizat</div>
+                </div>
+                <div class="pd-meta-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <div><b>Plată securizată</b>3DS · rate fără dobândă</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Tabs (descriere / specs / reviews) ── -->
+    <section class="pd-lower" id="pd-reviews">
+        <div class="pd-tabs" role="tablist">
+            <button class="pd-tab active" data-pdtab="overview" onclick="pdShowTab('overview')">Descriere</button>
+            @if (hasSpecs)
+            {
+                <button class="pd-tab" data-pdtab="specs" onclick="pdShowTab('specs')">Specificații</button>
+            }
+            <button class="pd-tab" data-pdtab="reviews" onclick="pdShowTab('reviews')">
+                Recenzii <span class="pd-tab-count">@reviewsList.Count</span>
+            </button>
         </div>
 
-    </div>
+        <!-- Overview -->
+        <div class="pd-tab-panel" data-pdpanel="overview">
+            <div class="pd-desc-long">
+                <p>
+                    @Model.Name este o piesă atent selectată din colecția noastră @typeNameRo.
+                    Fiecare detaliu reflectă atenția acordată calității materialelor și execuției,
+                    pentru o experiență durabilă în timp.
+                </p>
+                @if (accessoryModel != null)
+                {
+                    <h4>Garanție</h4>
+                    <p>Acoperire de 24 luni prin service autorizat, cu intervenții rapide și piese originale.</p>
+                }
+                @if (!string.IsNullOrEmpty(Model.AvailableColors))
+                {
+                    <h4>Variante disponibile</h4>
+                    <p>Culori: @Model.AvailableColors</p>
+                }
+            </div>
+        </div>
+
+        <!-- Specs -->
+        @if (hasSpecs)
+        {
+            <div class="pd-tab-panel" data-pdpanel="specs" hidden>
+                <ul class="pd-specs-list">
+                    @foreach (var attr in dynamicModel!.CustomAttributes)
+                    {
+                        <li>
+                            <span class="k">@attr.Key</span>
+                            <span class="v">@attr.Value</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <!-- Reviews -->
+        <div class="pd-tab-panel" data-pdpanel="reviews" hidden>
+            <div class="pd-reviews-grid">
+                <aside class="pd-reviews-summary">
+                    @if (reviewsList.Any())
+                    {
+                        var fullStars = (int)Math.Round(avgRating);
+                        <div class="pd-summary-score">@avgRating.ToString("0.0")</div>
+                        <div class="pd-summary-stars">@string.Concat(Enumerable.Repeat("★", fullStars))@string.Concat(Enumerable.Repeat("☆", 5 - fullStars))</div>
+                        <div class="pd-summary-count">Bazat pe @reviewsList.Count @(reviewsList.Count == 1 ? "recenzie verificată" : "recenzii verificate")</div>
+                        <div class="pd-summary-bars">
+                            @for (int s = 5; s >= 1; s--)
+                            {
+                                var count = reviewsList.Count(r => r.Rating == s);
+                                var pct = reviewsList.Count > 0 ? (count * 100 / reviewsList.Count) : 0;
+                                <div class="pd-bar-row">
+                                    <span>@s</span>
+                                    <div class="pd-bar-track"><div class="pd-bar-fill" style="width:@(pct)%"></div></div>
+                                    <span>@pct%</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="pd-summary-score">—</div>
+                        <div class="pd-summary-count" style="margin-top:0.5rem;">Niciuna încă</div>
+                    }
+                </aside>
+
+                <div>
+                    <div class="pd-review-form">
+                        <form asp-action="AddReview" method="post">
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <select name="rating">
+                                <option value="5">★★★★★ 5 Stele</option>
+                                <option value="4">★★★★ 4 Stele</option>
+                                <option value="3">★★★ 3 Stele</option>
+                                <option value="2">★★ 2 Stele</option>
+                                <option value="1">★ 1 Stea</option>
+                            </select>
+                            <textarea name="content" required placeholder="Scrie o scurtă recenzie..."></textarea>
+                            <button type="submit" class="pd-review-submit">Adaugă recenzia</button>
+                        </form>
+                    </div>
+
+                    @if (reviewsList.Any())
+                    {
+                        <div class="pd-review-list">
+                            @foreach (var review in reviewsList)
+                            {
+                                <article class="pd-review">
+                                    <div class="pd-review-head">
+                                        <span class="pd-review-name">@review.UserName</span>
+                                        <span class="pd-review-stars">@string.Concat(Enumerable.Repeat("★", review.Rating))@string.Concat(Enumerable.Repeat("☆", 5 - review.Rating))</span>
+                                    </div>
+                                    <p class="pd-review-text">@review.Content</p>
+                                </article>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="pd-empty-state">Nu există recenzii încă. Fii primul care își spune părerea!</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Recommendations ── -->
+    @if (recsList.Any())
+    {
+        <section class="pd-related">
+            <div class="pd-related-head">
+                <h3>Descoperă mai multe</h3>
+                <a asp-controller="Home" asp-action="Index">Vezi toate →</a>
+            </div>
+            <div class="pd-related-grid">
+                @foreach (var rec in recsList.Take(4))
+                {
+                    <a href="@Url.Action("Details", new { id = rec.Id })" class="pd-rel-card">
+                        <div class="pd-rel-img-wrap">
+                            <img src="@(rec.Images?.FirstOrDefault(i => i.IsMain)?.ImageUrl ?? "/images/placeholder.jpg")" alt="@rec.Name">
+                        </div>
+                        <span class="pd-rel-name">@rec.Name</span>
+                        <span class="pd-rel-price">@CurrencyService.FormatPrice(rec.Price)</span>
+                    </a>
+                }
+            </div>
+        </section>
+    }
 </div>
 
-<!-- Modal Zoom -->
-<div id="zoomModal" class="zoom-modal" onclick="closeZoom()">
-    <button class="zoom-close" onclick="closeZoom()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+<!-- Zoom modal -->
+<div id="pdZoomModal" class="pd-zoom-modal" onclick="pdCloseZoom()">
+    <button type="button" class="pd-zoom-close" onclick="pdCloseZoom()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
-    <div class="zoom-inner">
-        <img id="zoomImg" class="zoom-content" src="" onclick="event.stopPropagation()">
+    <div class="pd-zoom-inner">
+        <img id="pdZoomImg" class="pd-zoom-content" src="" onclick="event.stopPropagation()">
         @if (images.Count > 1)
         {
-            <button class="zoom-nav zoom-prev" onclick="event.stopPropagation(); moveSlider(-1)">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            <button type="button" class="pd-zoom-nav pd-zoom-prev" onclick="event.stopPropagation(); pdMove(-1)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
             </button>
-            <button class="zoom-nav zoom-next" onclick="event.stopPropagation(); moveSlider(1)">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            <button type="button" class="pd-zoom-nav pd-zoom-next" onclick="event.stopPropagation(); pdMove(1)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </button>
         }
     </div>
 </div>
 
 <script>
-    const imagesArray = @Html.Raw(Json.Serialize(images.Select(i => i.ImageUrl)));
-    let currentIdx = 0;
+    // ── Gallery ──
+    const pdImages = @Html.Raw(Json.Serialize(images.Select(i => i.ImageUrl)));
+    let pdIdx = 0;
 
-    function updateHero(src, el, idx) {
-        currentIdx = idx;
-        const hero = document.getElementById('heroImage');
-        const zoom = document.getElementById('zoomImg');
-        
+    function pdUpdateHero(src, el, idx) {
+        pdIdx = idx;
+        const hero = document.getElementById('pdHeroImage');
+        const zoom = document.getElementById('pdZoomImg');
         if (hero) {
             hero.style.opacity = '0.4';
             setTimeout(() => {
@@ -1143,91 +1069,130 @@
                 if (zoom) zoom.src = src;
             }, 100);
         }
-        document.querySelectorAll('.thumb-pill').forEach(tp => tp.classList.remove('active'));
-        if(el) el.classList.add('active');
-        else {
-             const thumbs = document.querySelectorAll('.thumb-pill');
-             if(thumbs[idx]) thumbs[idx].classList.add('active');
+        document.querySelectorAll('.pd-thumb').forEach(t => t.classList.remove('active'));
+        
+        let activeThumb = null;
+        if (el) {
+            el.classList.add('active');
+            activeThumb = el;
+        } else {
+            const thumbs = document.querySelectorAll('.pd-thumb');
+            if (thumbs[idx]) {
+                thumbs[idx].classList.add('active');
+                activeThumb = thumbs[idx];
+            }
+        }
+
+        // Auto-select corresponding color dot if it exists
+        if (activeThumb) {
+            const associatedColor = activeThumb.getAttribute('data-color');
+            if (associatedColor) {
+                const swatch = Array.from(document.querySelectorAll('.pd-swatch')).find(s => {
+                    const title = s.getAttribute('title');
+                    return title && title.toLowerCase() === associatedColor.toLowerCase();
+                });
+                if (swatch) {
+                    const selColorInput = document.getElementById('pdSelectedColor');
+                    const colorValSpan = document.getElementById('pdColorValue');
+                    if (selColorInput) selColorInput.value = associatedColor;
+                    if (colorValSpan) colorValSpan.textContent = associatedColor;
+                    document.querySelectorAll('.pd-swatch').forEach(s => s.classList.remove('active'));
+                    swatch.classList.add('active');
+                }
+            }
         }
     }
-
-    function moveSlider(dir) {
-        if (!imagesArray.length) return;
-        currentIdx = (currentIdx + dir + imagesArray.length) % imagesArray.length;
-        updateHero(imagesArray[currentIdx], null, currentIdx);
+    function pdMove(dir) {
+        if (!pdImages.length) return;
+        pdIdx = (pdIdx + dir + pdImages.length) % pdImages.length;
+        pdUpdateHero(pdImages[pdIdx], null, pdIdx);
     }
 
-    function openZoom() {
-        const modal = document.getElementById('zoomModal');
-        const zoomImg = document.getElementById('zoomImg');
-        const heroImg = document.getElementById('heroImage');
-        if(heroImg) {
+    function pdOpenZoom() {
+        const modal = document.getElementById('pdZoomModal');
+        const zoomImg = document.getElementById('pdZoomImg');
+        const heroImg = document.getElementById('pdHeroImage');
+        if (heroImg && modal) {
             zoomImg.src = heroImg.src;
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
     }
-
-    function closeZoom() {
-        document.getElementById('zoomModal').style.display = 'none';
-        document.body.style.overflow = 'auto';
+    function pdCloseZoom() {
+        const modal = document.getElementById('pdZoomModal');
+        if (modal) modal.style.display = 'none';
+        document.body.style.overflow = '';
     }
 
-    function selectSize(size, el) {
-        document.getElementById('selectedSize').value = size;
-        document.querySelectorAll('.size-box').forEach(b => b.classList.remove('active'));
+    // ── Color & size ──
+    function pdSelectColor(color, el, idx) {
+        document.getElementById('pdSelectedColor').value = color;
+        const colorValSpan = document.getElementById('pdColorValue');
+        if (colorValSpan) colorValSpan.textContent = color;
+        document.querySelectorAll('.pd-swatch').forEach(s => s.classList.remove('active'));
+        el.classList.add('active');
+        
+        // Căutăm thumbnail-ul care are culoarea asociată cu cea selectată!
+        const matchingThumb = Array.from(document.querySelectorAll('.pd-thumb')).find(t => {
+            const thumbColor = t.getAttribute('data-color');
+            return thumbColor && thumbColor.toLowerCase() === color.toLowerCase();
+        });
+        
+        if (matchingThumb) {
+            matchingThumb.click();
+        } else {
+            // Fallback: dacă nu există o imagine specifică culorii respective, dăm click pe cea de la index-ul culorii
+            const thumbs = document.querySelectorAll('.pd-thumb');
+            if (thumbs && thumbs[idx]) {
+                thumbs[idx].click();
+            }
+        }
+    }
+    function pdSelectSize(size, el) {
+        document.getElementById('pdSelectedSize').value = size;
+        const lbl = document.getElementById('pdSizeValue');
+        if (lbl) lbl.textContent = size;
+        document.querySelectorAll('.pd-size-chip').forEach(s => s.classList.remove('active'));
         el.classList.add('active');
     }
 
-    function selectColor(color, el) {
-        document.getElementById('selectedColor').value = color;
-        document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
+    // ── Qty ──
+    let pdQ = 1;
+    const maxStock = @Model.Stock;
+    function pdQty(d) {
+        pdQ = Math.max(1, Math.min(maxStock, pdQ + d));
+        document.getElementById('pdQtyValue').textContent = pdQ;
+        const hidden = document.getElementById('pdSelectedQty');
+        if (hidden) hidden.value = pdQ;
     }
 
+    // ── Tabs ──
+    function pdShowTab(key) {
+        document.querySelectorAll('.pd-tab').forEach(t => {
+            t.classList.toggle('active', t.dataset.pdtab === key);
+        });
+        document.querySelectorAll('.pd-tab-panel').forEach(p => {
+            p.hidden = p.dataset.pdpanel !== key;
+        });
+    }
+
+    // ── Share ──
+    function pdShare() {
+        if (navigator.share) {
+            navigator.share({ title: document.title, url: window.location.href }).catch(() => {});
+        } else if (navigator.clipboard) {
+            navigator.clipboard.writeText(window.location.href);
+            if (window.showToast) window.showToast('Link copiat', 'success');
+        }
+    }
+
+    // ── Keyboard nav in zoom ──
     document.addEventListener('keydown', (e) => {
-        if (document.getElementById('zoomModal').style.display === 'flex') {
-            if (e.key === 'ArrowLeft') moveSlider(-1);
-            if (e.key === 'ArrowRight') moveSlider(1);
-            if (e.key === 'Escape') closeZoom();
+        const modal = document.getElementById('pdZoomModal');
+        if (modal && modal.style.display === 'flex') {
+            if (e.key === 'ArrowLeft') pdMove(-1);
+            if (e.key === 'ArrowRight') pdMove(1);
+            if (e.key === 'Escape') pdCloseZoom();
         }
     });
-
-    // ── Recommendations carousel ──
-    (function() {
-        const cards = Array.from(document.querySelectorAll('[data-rec]'));
-        if (!cards.length) return;
-
-        const perPage = 4;
-        let page = 0;
-        const totalPages = Math.ceil(cards.length / perPage);
-
-        const dotsEl = document.getElementById('recDots');
-        const prevBtn = document.getElementById('recPrev');
-        const nextBtn = document.getElementById('recNext');
-
-        // Build dots
-        for (let i = 0; i < totalPages; i++) {
-            const d = document.createElement('div');
-            d.className = 'rec-dot' + (i === 0 ? ' active' : '');
-            d.onclick = () => goPage(i);
-            dotsEl.appendChild(d);
-        }
-
-        function render() {
-            cards.forEach((c, i) => {
-                c.style.display = (i >= page * perPage && i < (page + 1) * perPage) ? 'block' : 'none';
-            });
-            document.querySelectorAll('.rec-dot').forEach((d, i) => {
-                d.classList.toggle('active', i === page);
-            });
-            prevBtn.disabled = page === 0;
-            nextBtn.disabled = page === totalPages - 1;
-        }
-
-        function goPage(p) { page = p; render(); }
-        window.recMove = function(dir) { goPage(Math.max(0, Math.min(totalPages - 1, page + dir))); };
-
-        render();
-    })();
 </script>

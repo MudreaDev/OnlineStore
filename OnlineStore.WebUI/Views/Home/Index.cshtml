@@ -4,10 +4,10 @@
     var categoryDisplayNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
         { "All", "Toate Colecțiile" },
-        { "Vehicle", "Vehicule" },
+        { "Footwear", "Încălțăminte" },
+        { "Accessory", "Accesorii" },
         { "Main Collection", "Colecția Principală" },
-        { "Clothing", "Îmbrăcăminte" },
-        { "Shoes", "Încălțăminte" }
+        { "Clothing", "Îmbrăcăminte" }
     };
 }
 
@@ -850,43 +850,6 @@
                     </div>
                 </div>
             }
-            else if (currentCategory.Equals("Vehicles", StringComparison.OrdinalIgnoreCase) || currentCategory.Equals("Vehicle", StringComparison.OrdinalIgnoreCase))
-            {
-                <div class="filter-group">
-                    <h4 class="filter-title">Combustibil</h4>
-                    <div class="filter-content">
-                        @{
-                            string[] fuels = { "Petrol", "Diesel", "Electric", "Hybrid" };
-                            var selectedFuelsList = Context.Request.Query["selectedFuelTypes"].ToList();
-                            var fuelDisplayNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                            {
-                                { "Petrol", "Benzină" },
-                                { "Diesel", "Motorină" },
-                                { "Electric", "Electric" },
-                                { "Hybrid", "Hibrid" }
-                            };
-                        }
-                        @foreach (var fuel in fuels)
-                        {
-                            <label class="filter-checkbox-label">
-                                <input type="checkbox" name="selectedFuelTypes" value="@fuel" @(selectedFuelsList.Contains(fuel, StringComparer.OrdinalIgnoreCase) ? "checked" : "") onchange="this.form.submit()">
-                                @(fuelDisplayNames.TryGetValue(fuel, out var name) ? name : fuel)
-                            </label>
-                        }
-                    </div>
-                </div>
-
-                <div class="filter-group">
-                    <h4 class="filter-title">An Fabricație</h4>
-                    <div class="filter-content">
-                        <div class="price-range-inputs">
-                            <input type="number" name="minYear" placeholder="De la" class="price-input" value="@Context.Request.Query["minYear"]">
-                            <span style="color: var(--border-bold)">-</span>
-                            <input type="number" name="maxYear" placeholder="Până la" class="price-input" value="@Context.Request.Query["maxYear"]">
-                        </div>
-                    </div>
-                </div>
-            }
 
             <div class="filter-group">
                 <h4 class="filter-title">Sortează după</h4>
@@ -940,9 +903,6 @@
                        asp-route-maxPrice="@ViewBag.MaxPrice"
                        asp-route-selectedSizes="@ViewBag.SelectedSizes"
                        asp-route-selectedColors="@ViewBag.SelectedColors"
-                       asp-route-selectedFuelTypes="@ViewBag.SelectedFuelTypes"
-                       asp-route-minYear="@ViewBag.MinYear"
-                       asp-route-maxYear="@ViewBag.MaxYear"
                        class="page-link @(ViewBag.CurrentPage == i ? "active" : "")">@i</a>
                 }
             </div>

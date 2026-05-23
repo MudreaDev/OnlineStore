@@ -1,614 +1,1013 @@
 @using OnlineStore.Domain.Singleton
 @using OnlineStore.Domain.Entities
 @{
-    ViewData["Title"] = "Admin Dashboard";
+    ViewData["Title"] = "Admin Dashboard | Control Center";
     var settings = ApplicationConfigurationManager.Instance;
     var categories = ViewBag.Categories as List<Category> ?? new List<Category>();
 }
 
 <style>
     :root {
-        --admin-bg: #f8fafc;
-        --admin-card-bg: #ffffff;
-        --admin-border: #e2e8f0;
-        --admin-accent: #0f172a;
-        --admin-success: #10b981;
-        --admin-text-main: #1e293b;
-        --admin-text-muted: #64748b;
+        --dash-bg: #f9f7f2;
+        --dash-card-bg: #ffffff;
+        --dash-card-border: #eeebe6;
+        --dash-border: #d6d2cc;
+        --dash-accent: #2d2926;
+        --dash-accent-glow: rgba(45, 41, 38, 0.05);
+        --dash-accent-hover: #4a443f;
+        --dash-success: #2b7a5a;
+        --dash-success-glow: rgba(43, 122, 90, 0.08);
+        --dash-warning: #c28b57;
+        --dash-warning-glow: rgba(194, 139, 87, 0.08);
+        --dash-danger: #b33939;
+        --dash-text-main: #2d2926;
+        --dash-text-muted: #8c867e;
+        --dash-sidebar: #ffffff;
     }
 
+    /* Override body for admin panel to look unified & luxurious */
     body {
-        background-color: var(--admin-bg);
+        background-color: var(--dash-bg);
+        color: var(--dash-text-main);
+        font-family: 'Outfit', 'Inter', sans-serif;
     }
 
-    .admin-container {
-        width: 100%;
-        padding: 1.5rem 2.5rem;
-        box-sizing: border-box;
+    .admin-wrapper {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
     }
 
-    .dashboard-grid {
+    .dash-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--dash-card-border);
+    }
+
+    .dash-title-area h1 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin: 0;
+        background: linear-gradient(135deg, var(--dash-accent) 40%, var(--dash-text-muted) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .dash-title-area p {
+        font-size: 0.875rem;
+        color: var(--dash-text-muted);
+        margin: 0.25rem 0 0 0;
+    }
+
+    .dash-layout {
         display: grid;
         grid-template-columns: 280px 1fr;
-        gap: 2rem;
+        gap: 2.5rem;
         align-items: start;
     }
 
-    /* Sidebar / Navigation */
-    .admin-sidebar {
+    /* Sidebar Design */
+    .dash-sidebar {
         position: sticky;
         top: 2rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .side-card {
-        background: var(--admin-card-bg);
-        border: 1px solid var(--admin-border);
-        border-radius: 12px;
-        padding: 1.25rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-
-    .nav-btn {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        text-decoration: none;
-        color: var(--admin-text-main);
-        font-size: 0.875rem;
-        font-weight: 600;
-        transition: 0.2s;
-        border: 1px solid transparent;
-    }
-
-    .nav-btn:hover {
-        background: #f1f5f9;
-        color: var(--admin-accent);
-    }
-
-    .nav-btn.active {
-        background: var(--admin-accent);
-        color: #fff;
-    }
-
-    /* Main Content Area */
-    .admin-main {
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
     }
 
-    .compact-header {
+    .glass-card {
+        background: var(--dash-card-bg);
+        border: 1px solid var(--dash-card-border);
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(45, 41, 38, 0.04);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sidebar-menu {
+        padding: 1.25rem;
         display: flex;
-        justify-content: space-between;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .menu-btn {
+        display: flex;
         align-items: center;
-        margin-bottom: 0.5rem;
+        gap: 0.875rem;
+        padding: 0.8rem 1rem;
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--dash-text-muted);
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid transparent;
     }
 
-    .compact-header h1 {
-        font-size: 1.5rem;
+    .menu-btn svg {
+        transition: transform 0.2s ease;
+    }
+
+    .menu-btn:hover {
+        background: rgba(45, 41, 38, 0.03);
+        color: var(--dash-text-main);
+    }
+
+    .menu-btn:hover svg {
+        transform: translateX(2px);
+    }
+
+    .menu-btn.active {
+        background: var(--dash-accent);
+        color: #ffffff;
+        box-shadow: 0 4px 15px rgba(45, 41, 38, 0.15);
+    }
+
+    .sidebar-divider {
+        height: 1px;
+        background: var(--dash-card-border);
+        margin: 0.5rem 0;
+    }
+
+    /* Overview KPI Cards */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 100%);
+        pointer-events: none;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(45, 41, 38, 0.06);
+    }
+
+    .kpi-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .kpi-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--dash-text-muted);
+        letter-spacing: 0.08em;
+    }
+
+    .kpi-value {
+        font-size: 1.85rem;
         font-weight: 800;
+        color: var(--dash-text-main);
         letter-spacing: -0.02em;
-        margin: 0;
     }
 
-    /* Stats bar */
-    .stats-row {
+    .kpi-icon-wrap {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    /* Colors and Glows for KPI Cards */
+    .kpi-blue {
+        border-left: 4px solid var(--dash-accent);
+    }
+    .kpi-blue .kpi-icon-wrap {
+        background: var(--dash-accent-glow);
+        color: var(--dash-accent);
+    }
+
+    .kpi-purple {
+        border-left: 4px solid var(--dash-accent);
+    }
+    .kpi-purple .kpi-icon-wrap {
+        background: var(--dash-accent-glow);
+        color: var(--dash-accent);
+    }
+
+    .kpi-emerald {
+        border-left: 4px solid var(--dash-success);
+    }
+    .kpi-emerald .kpi-icon-wrap {
+        background: var(--dash-success-glow);
+        color: var(--dash-success);
+    }
+
+    .kpi-amber {
+        border-left: 4px solid var(--dash-warning);
+    }
+    .kpi-amber .kpi-icon-wrap {
+        background: var(--dash-warning-glow);
+        color: var(--dash-warning);
+    }
+
+    /* Smart Actions Hub */
+    .smart-actions-panel {
+        margin-bottom: 2.5rem;
+        padding: 1.5rem;
+    }
+
+    .panel-header {
+        margin-bottom: 1.25rem;
+        border-bottom: 1px solid var(--dash-card-border);
+        padding-bottom: 0.75rem;
+    }
+
+    .panel-header h3 {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--dash-text-main);
+    }
+
+    .smart-deck {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 1rem;
     }
 
-    .mini-stat {
-        background: var(--admin-card-bg);
-        border: 1px solid var(--admin-border);
-        padding: 1rem;
+    .deck-btn {
+        background: #ffffff;
+        border: 1px solid var(--dash-card-border);
         border-radius: 12px;
+        padding: 1rem;
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 0.5rem;
+        text-decoration: none;
+        color: var(--dash-text-main);
+        transition: all 0.2s ease;
     }
 
-    .mini-stat label {
-        font-size: 0.7rem;
+    .deck-btn:hover {
+        background: rgba(45, 41, 38, 0.02);
+        border-color: var(--dash-border);
+        transform: translateY(-2px);
+    }
+
+    .deck-icon-wrap {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: var(--dash-accent-glow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--dash-accent);
+        font-size: 1.1rem;
+    }
+
+    .deck-btn:hover .deck-icon-wrap {
+        background: var(--dash-accent);
+        color: #ffffff;
+    }
+
+    .deck-btn span {
+        font-size: 0.85rem;
         font-weight: 700;
-        text-transform: uppercase;
-        color: var(--admin-text-muted);
-        letter-spacing: 0.05em;
     }
 
-    .mini-stat span {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: var(--admin-text-main);
+    .deck-btn p {
+        margin: 0;
+        font-size: 0.725rem;
+        color: var(--dash-text-muted);
+        line-height: 1.3;
     }
 
-    /* Sections */
-    .admin-section {
-        background: var(--admin-card-bg);
-        border: 1px solid var(--admin-border);
-        border-radius: 16px;
+    /* Section Cards */
+    .dash-section {
+        margin-bottom: 2.5rem;
         overflow: hidden;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
 
-    .section-head {
-        padding: 1rem 1.5rem;
-        background: #fdfdfd;
-        border-bottom: 1px solid var(--admin-border);
+    .section-title-bar {
+        padding: 1.25rem 1.75rem;
+        background: rgba(45, 41, 38, 0.01);
+        border-bottom: 1px solid var(--dash-card-border);
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
-    .section-head h2 {
-        font-size: 0.95rem;
+    .section-title-bar h2 {
+        font-size: 1.1rem;
         font-weight: 700;
         margin: 0;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.6rem;
+        color: var(--dash-text-main);
     }
 
-    .section-body {
-        padding: 1.25rem 1.5rem;
+    .section-content {
+        padding: 1.75rem;
     }
 
-    /* Form controls */
-    .input-grid {
+    /* Visual Category Manager Layout */
+    .category-manager-split {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
+        grid-template-columns: 320px 1fr;
+        gap: 2rem;
     }
 
-    .input-group {
+    /* Custom Category Card Grid */
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .category-visual-card {
+        background: #ffffff;
+        border: 1px solid var(--dash-card-border);
+        border-radius: 14px;
+        overflow: hidden;
+        position: relative;
         display: flex;
         flex-direction: column;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .category-visual-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--dash-border);
+        box-shadow: 0 12px 25px rgba(45, 41, 38, 0.05);
+    }
+
+    .card-banner-wrap {
+        height: 140px;
+        position: relative;
+        overflow: hidden;
+        background: #eeebe6;
+    }
+
+    .card-banner-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .category-visual-card:hover .card-banner-img {
+        transform: scale(1.08);
+    }
+
+    .card-badge-overlay {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        z-index: 10;
+    }
+
+    .status-pill {
+        font-size: 0.65rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 0.25rem 0.6rem;
+        border-radius: 20px;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        letter-spacing: 0.03em;
+    }
+
+    .status-pill.featured {
+        background: rgba(43, 122, 90, 0.15);
+        color: var(--dash-success);
+        border: 1px solid rgba(43, 122, 90, 0.25);
+    }
+
+    .status-pill.hidden {
+        background: rgba(140, 134, 126, 0.15);
+        color: var(--dash-text-muted);
+        border: 1px solid rgba(140, 134, 126, 0.25);
+    }
+
+    .card-body-details {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        flex-grow: 1;
+        justify-content: space-between;
+    }
+
+    .card-body-details h4 {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--dash-text-main);
+    }
+
+    .card-actions-wrap {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        border-top: 1px solid var(--dash-card-border);
+        padding-top: 0.75rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Sleek buttons */
+    .btn-glow {
+        background: var(--dash-accent);
+        color: #ffffff;
+        border: none;
+        padding: 0.6rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 10px rgba(45, 41, 38, 0.15);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         gap: 0.4rem;
     }
 
-    .input-group label {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--admin-text-main);
-    }
-
-    .compact-input {
-        background: #f8fafc;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        padding: 0.5rem 0.75rem;
-        font-size: 0.875rem;
-        outline: none;
-        transition: 0.2s;
-    }
-
-    .compact-input:focus {
-        border-color: var(--admin-accent);
-        background: #fff;
-        box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05);
-    }
-
-    .btn-action {
-        background: var(--admin-accent);
-        color: #fff;
-        border: none;
-        padding: 0.5rem 1.25rem;
-        border-radius: 8px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .btn-action:hover {
-        opacity: 0.9;
+    .btn-glow:hover {
+        background: var(--dash-accent-hover);
         transform: translateY(-1px);
+        box-shadow: 0 6px 15px rgba(45, 41, 38, 0.25);
     }
 
-    /* List Table */
-    .compact-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.8rem;
-    }
-
-    .compact-table th {
-        text-align: left;
-        padding: 0.75rem;
-        color: var(--admin-text-muted);
-        border-bottom: 1px solid var(--admin-border);
-    }
-
-    .compact-table td {
-        padding: 0.75rem;
-        border-bottom: 1px solid #f1f5f9;
-        color: var(--admin-text-main);
-    }
-
-    .cat-badge {
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        object-fit: cover;
-        background: #eee;
-    }
-
-    /* Tab links */
-    .tab-link {
-        cursor: pointer;
-        padding: 0.25rem 0.5rem;
+    .btn-muted {
+        background: rgba(45, 41, 38, 0.03);
+        border: 1px solid var(--dash-card-border);
+        color: var(--dash-text-main);
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
         font-size: 0.75rem;
         font-weight: 700;
-        color: var(--admin-text-muted);
-        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
     }
 
-    .tab-link.active {
-        background: #f1f5f9;
-        color: var(--admin-accent);
+    .btn-muted:hover {
+        background: rgba(45, 41, 38, 0.06);
+        border-color: var(--dash-border);
     }
 
-    /* Modal Styles */
-    .edit-modal {
-        display: none; 
-        position: fixed; 
-        z-index: 1000; 
+    /* Styled inputs */
+    .group-input {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        margin-bottom: 1rem;
+    }
+
+    .group-input label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--dash-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .field-input {
+        background: #ffffff;
+        border: 1px solid var(--dash-border);
+        border-radius: 10px;
+        padding: 0.7rem 0.9rem;
+        font-size: 0.875rem;
+        color: var(--dash-text-main);
+        outline: none;
+        transition: all 0.2s ease;
+    }
+
+    .field-input:focus {
+        background: #ffffff;
+        border-color: var(--dash-accent);
+        box-shadow: 0 0 0 3px var(--dash-accent-glow);
+    }
+
+    /* Live Preview container */
+    .live-upload-box {
+        border: 2px dashed var(--dash-border);
+        background: rgba(45, 41, 38, 0.01);
+        border-radius: 10px;
+        padding: 1.25rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .live-upload-box:hover {
+        border-color: var(--dash-accent);
+        background: rgba(45, 41, 38, 0.03);
+    }
+
+    .live-upload-box input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    /* Modal Backdrop-Blur */
+    .blur-modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
         left: 0;
         top: 0;
-        width: 100%; 
-        height: 100%; 
-        overflow: auto; 
-        background-color: rgba(15, 23, 42, 0.4); 
-        backdrop-filter: blur(8px);
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(45, 41, 38, 0.4);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         align-items: center;
         justify-content: center;
         opacity: 0;
         transition: opacity 0.3s ease;
     }
 
-    .edit-modal.show {
+    .blur-modal.show {
         display: flex;
         opacity: 1;
     }
 
-    .edit-modal-content {
-        background-color: var(--admin-card-bg);
-        border: 1px solid var(--admin-border);
-        border-radius: 16px;
+    .blur-modal-content {
+        background-color: #ffffff;
+        border: 1px solid var(--dash-card-border);
+        border-radius: 20px;
         width: 100%;
-        max-width: 480px;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        max-width: 500px;
+        box-shadow: 0 25px 50px -12px rgba(45, 41, 38, 0.15);
         transform: scale(0.95);
-        transition: transform 0.3s ease;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         overflow: hidden;
     }
 
-    .edit-modal.show .edit-modal-content {
+    .blur-modal.show .blur-modal-content {
         transform: scale(1);
     }
 
-    .edit-modal-header {
-        padding: 1.25rem 1.5rem;
-        background: #fdfdfd;
-        border-bottom: 1px solid var(--admin-border);
+    .blur-modal-header {
+        padding: 1.25rem 1.75rem;
+        background: rgba(45, 41, 38, 0.01);
+        border-bottom: 1px solid var(--dash-card-border);
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
-    .edit-modal-header h3 {
+    .blur-modal-header h3 {
         margin: 0;
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         font-weight: 700;
-        color: var(--admin-text-main);
+        color: var(--dash-text-main);
     }
 
-    .edit-modal-close {
+    .blur-modal-close {
         background: none;
         border: none;
-        font-size: 1.5rem;
-        font-weight: 600;
+        font-size: 1.75rem;
+        line-height: 1;
         cursor: pointer;
-        color: var(--admin-text-muted);
-        transition: 0.2s;
+        color: var(--dash-text-muted);
+        transition: color 0.2s ease;
     }
 
-    .edit-modal-close:hover {
-        color: var(--admin-text-main);
+    .blur-modal-close:hover {
+        color: var(--dash-text-main);
     }
 
-    .edit-modal-body {
-        padding: 1.5rem;
+    .blur-modal-body {
+        padding: 1.75rem;
     }
 
-    .preview-container {
+    .img-preview-deck {
         display: flex;
         align-items: center;
         gap: 1rem;
-        margin-top: 0.5rem;
-        margin-bottom: 1rem;
         padding: 0.75rem;
-        border: 1px solid var(--admin-border);
-        border-radius: 8px;
-        background: #f8fafc;
+        background: var(--dash-bg);
+        border: 1px solid var(--dash-card-border);
+        border-radius: 10px;
+        margin-top: 0.25rem;
     }
 
-    .preview-img {
-        width: 60px;
-        height: 60px;
-        border-radius: 6px;
+    .modal-preview-img {
+        width: 64px;
+        height: 64px;
+        border-radius: 8px;
         object-fit: cover;
-        background: #eee;
-        border: 1px solid var(--admin-border);
+        background: #eeebe6;
+        border: 1px solid var(--dash-card-border);
+    }
+
+    /* Store config grid layout */
+    .config-grid-layout {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
     }
 </style>
 
-<div class="admin-container">
-    <div class="compact-header">
-        <h1>Admin <span style="color:var(--admin-success)">Dashboard</span></h1>
-        <div style="font-size: 0.75rem; color: var(--admin-text-muted)">
-            @DateTime.Now.ToString("dd MMM yyyy") · <span style="font-weight: 700">Full Width Workspace</span>
+<div class="admin-wrapper">
+    <!-- Header -->
+    <div class="dash-header">
+        <div class="dash-title-area">
+            <h1>Admin <span style="color:var(--dash-accent)">Control Center</span></h1>
+            <p>Boutique Premium de Modă · Gestionare inteligentă magazin</p>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--dash-text-muted); letter-spacing: 0.05em;">Status Server</div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem; font-size: 0.85rem; font-weight: 700;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--dash-success); box-shadow: 0 0 8px var(--dash-success)"></span>
+                Operațional
+            </div>
         </div>
     </div>
 
-
-    <div class="dashboard-grid">
+    <!-- Main Grid -->
+    <div class="dash-layout">
         <!-- Sidebar Navigation -->
-        <div class="admin-sidebar">
-            <div class="side-card">
-                <nav style="display: flex; flex-direction: column; gap: 0.4rem;">
-                    <a href="#stats" class="nav-btn active">📊 Overview</a>
-                    <a asp-action="Products" class="nav-btn">📦 Product Inventory</a>
-                    <a asp-action="Orders" class="nav-btn">📋 Order Stream</a>
-                    <hr style="border: 0; border-top: 1px solid var(--admin-border); margin: 0.5rem 0;" />
-                    <a href="#visual" class="nav-btn">🖼 Visual Categories</a>
-                    <a href="#tech" class="nav-btn">⚡ Technical Taxonomy</a>
-                    <a href="#config" class="nav-btn">⚙ Store Config</a>
-                    <hr style="border: 0; border-top: 1px solid var(--admin-border); margin: 0.5rem 0;" />
-                    <a asp-action="ExportInventory" class="nav-btn" style="background: #f1f5f9; color: var(--admin-accent); border: 1px solid var(--admin-border);">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 4px;">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
-                        </svg>
-                        Export Inventory (Visitor)
-                    </a>
-                </nav>
+        <div class="dash-sidebar">
+            <div class="glass-card sidebar-menu">
+                <a href="#overview" class="menu-btn active">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <rect x="3" y="3" width="7" height="9" rx="1"></rect>
+                        <rect x="14" y="3" width="7" height="5" rx="1"></rect>
+                        <rect x="14" y="12" width="7" height="9" rx="1"></rect>
+                        <rect x="3" y="16" width="7" height="5" rx="1"></rect>
+                    </svg>
+                    Panou Principal
+                </a>
+                <a asp-action="Products" class="menu-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    Stoc Produse
+                </a>
+                <a asp-action="Orders" class="menu-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    Comenzi Flux
+                </a>
+                <a asp-action="SalesStatistics" class="menu-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    Statistici Vânzări
+                </a>
+                <div class="sidebar-divider"></div>
+                <a href="#visual" class="menu-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    Categorii Vizuale
+                </a>
+                <a href="#config" class="menu-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    Setări Magazin
+                </a>
+                <div class="sidebar-divider"></div>
+                <a asp-action="ExportInventory" class="menu-btn" style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); color: #ffffff;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--dash-accent)">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Exportă Raport
+                </a>
             </div>
 
-            <div class="side-card" style="background: var(--admin-accent); color: #fff;">
-                <p style="font-size: 0.7rem; font-weight: 700; margin: 0; text-transform: uppercase; opacity: 0.6">Quick Stats</p>
-                <div style="margin-top: 0.75rem;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
-                        <span style="font-size: 0.8rem; opacity: 0.8">Revenue</span>
-                        <span style="font-weight: 800; font-size: 0.8rem;">@ViewBag.TotalRevenue.ToString("C0")</span>
-                    </div>
-                    <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px;">
-                        <div style="width: 75%; height: 100%; background: var(--admin-success); border-radius: 2px;"></div>
-                    </div>
+            <!-- Tiny Sales Target Indicator -->
+            <div class="glass-card" style="padding: 1.25rem; background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)">
+                <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--dash-text-muted); letter-spacing: 0.05em;">Venituri Totale</div>
+                <div style="font-size: 1.35rem; font-weight: 800; color: #ffffff; margin-top: 0.25rem;">@ViewBag.TotalRevenue.ToString("C0")</div>
+                <div style="width: 100%; height: 5px; background: rgba(255,255,255,0.06); border-radius: 4px; margin-top: 0.75rem; overflow: hidden;">
+                    <div style="width: 82%; height: 100%; background: var(--dash-success); border-radius: 4px; box-shadow: 0 0 6px var(--dash-success)"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--dash-text-muted); margin-top: 0.35rem;">
+                    <span>Target 82%</span>
+                    <span>T1 Realizat</span>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content area -->
-        <div class="admin-main">
-            <!-- Stats -->
-            <div id="stats" class="stats-row">
-                <div class="mini-stat">
-                    <label>Products</label>
-                    <span>@ViewBag.TotalProducts</span>
+        <!-- Main Content Area -->
+        <div id="overview" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <!-- Stats KPIs -->
+            <div class="kpi-grid">
+                <div class="glass-card kpi-card kpi-purple">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Produse Totale</span>
+                        <span class="kpi-value">@ViewBag.TotalProducts</span>
+                    </div>
+                    <div class="kpi-icon-wrap">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                    </div>
                 </div>
-                <div class="mini-stat">
-                    <label>Orders</label>
-                    <span>@ViewBag.TotalOrders</span>
+
+                <div class="glass-card kpi-card kpi-blue">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Comenzi Primite</span>
+                        <span class="kpi-value">@ViewBag.TotalOrders</span>
+                    </div>
+                    <div class="kpi-icon-wrap">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                    </div>
                 </div>
-                <div class="mini-stat">
-                    <label>Inventory Alerts</label>
-                    <span style="color: @(ViewBag.LowStock > 0 ? "#ef4444" : "inherit")">@ViewBag.LowStock</span>
+
+                <div class="glass-card kpi-card kpi-amber">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Stoc Critic (<5)</span>
+                        <span class="kpi-value" style="color: @(ViewBag.LowStock > 0 ? "var(--dash-danger)" : "inherit")">@ViewBag.LowStock</span>
+                    </div>
+                    <div class="kpi-icon-wrap">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </div>
                 </div>
-                <div class="mini-stat">
-                    <label>Active Categories</label>
-                    <span>@categories.Count</span>
+
+                <div class="glass-card kpi-card kpi-emerald">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Categorii Active</span>
+                        <span class="kpi-value">@categories.Count</span>
+                    </div>
+                    <div class="kpi-icon-wrap">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                            <polyline points="2 12 12 17 22 12"></polyline>
+                        </svg>
+                    </div>
                 </div>
             </div>
 
-            <!-- Group: Visual Categories -->
-            <div id="visual" class="admin-section">
-                <div class="section-head">
-                    <h2>🖼 Visual Category Manager</h2>
-                    <span style="font-size: 0.7rem; color: var(--admin-text-muted)">Featured on Home Page</span>
+            <!-- Smart Actions Deck -->
+            <div class="glass-card smart-actions-panel">
+                <div class="panel-header">
+                    <h3>
+                        <span style="font-size: 1.25rem;">⚡</span>
+                        Panou de Comenzi Rapide (Smart Actions)
+                    </h3>
                 </div>
-                <div class="section-body">
-                    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem;">
-                        <!-- Create Form -->
-                        <form asp-action="CreateCategory" method="post" enctype="multipart/form-data">
-                            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                                <div class="input-group">
-                                    <label>Category Display Name</label>
-                                    <input type="text" name="categoryName" class="compact-input" placeholder="e.g. Home, Sports, Accessories" required />
+                <div class="smart-deck">
+                    <a asp-action="AddProduct" class="deck-btn">
+                        <div class="deck-icon-wrap">➕</div>
+                        <span>Adaugă Produs</span>
+                        <p>Creare produs de îmbrăcăminte sau accesoriu nou.</p>
+                    </a>
+                    <a asp-action="Products" class="deck-btn">
+                        <div class="deck-icon-wrap">📦</div>
+                        <span>Gestionează Stoc</span>
+                        <p>Actualizează cantitățile și prețurile produselor.</p>
+                    </a>
+                    <a asp-action="Orders" class="deck-btn">
+                        <div class="deck-icon-wrap">📋</div>
+                        <span>Flux Comenzi</span>
+                        <p>Procesează plățile și expediază comenzile clienților.</p>
+                    </a>
+                    <a asp-action="SalesStatistics" class="deck-btn">
+                        <div class="deck-icon-wrap">📈</div>
+                        <span>Statistici Vânzări</span>
+                        <p>Vezi evoluția zilnică, top produse și performanța.</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Visual Category Manager -->
+            <div id="visual" class="glass-card dash-section">
+                <div class="section-title-bar">
+                    <h2>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--dash-accent)">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        Manager Categorii Vizuale
+                    </h2>
+                    <span style="font-size: 0.725rem; font-weight: 700; color: var(--dash-text-muted)">Afișate cu imagine de copertă în prima pagină</span>
+                </div>
+                <div class="section-content">
+                    <div class="category-manager-split">
+                        <!-- Create Visual Category Form -->
+                        <div style="background: rgba(255, 255, 255, 0.015); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 12px; padding: 1.25rem;">
+                            <h3 style="font-size: 0.95rem; font-weight: 700; margin-top: 0; margin-bottom: 1rem; color: #ffffff; display: flex; align-items: center; gap: 0.4rem;">
+                                <span>➕</span> Creare Categorie Nouă
+                            </h3>
+                            <form asp-action="CreateCategory" method="post" enctype="multipart/form-data">
+                                <div class="group-input">
+                                    <label>Nume Categorie</label>
+                                    <input type="text" name="categoryName" class="field-input" placeholder="ex: Pantofi Sport, Rochii de Seară" required />
                                 </div>
-                                <div class="input-group">
-                                    <label>Cover Image (Banners)</label>
-                                    <div style="border: 2px dashed var(--admin-border); padding: 1rem; border-radius: 8px; text-align: center; background: #fcfcfc;">
-                                        <input type="file" name="categoryImage" style="font-size: 0.75rem;" required />
-                                        <p style="font-size: 0.65rem; color: var(--admin-text-muted); margin-top: 0.5rem;">Recommended: 16:9 Aspect Ratio</p>
+                                <div class="group-input">
+                                    <label>Imagine Copertă (Banner)</label>
+                                    <div class="live-upload-box">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--dash-text-muted); margin-bottom: 0.5rem; display: inline-block;">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                                        </svg>
+                                        <p style="margin: 0; font-size: 0.75rem; font-weight: 700;">Alege fișierul imagine</p>
+                                        <p style="margin: 0.25rem 0 0 0; font-size: 0.65rem; color: var(--dash-text-muted)">Aspect optim: 16:9</p>
+                                        <input type="file" name="categoryImage" required />
                                     </div>
                                 </div>
-                                <button type="submit" class="btn-action">Create Visual Category</button>
-                            </div>
-                        </form>
+                                <button type="submit" class="btn-glow" style="width: 100%; margin-top: 0.5rem;">Creează Categoria</button>
+                            </form>
+                        </div>
 
-                        <!-- List -->
-                        <div style="max-height: 250px; overflow-y: auto;">
-                            <table class="compact-table">
-                                <thead>
-                                    <tr>
-                                        <th>Icon</th>
-                                        <th>Name</th>
-                                        <th style="text-align: right;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var cat in categories)
-                                    {
-                                        <tr>
-                                            <td>
-                                                @if (!string.IsNullOrEmpty(cat.ImageUrl)) {
-                                                    <img src="@cat.ImageUrl" class="cat-badge" />
-                                                } else {
-                                                    <div class="cat-badge" style="display: flex; align-items: center; justify-content: center; font-size: 0.6rem;">N/A</div>
-                                                }
-                                            </td>
-                                            <td style="font-weight: 700;">@cat.Name</td>
-                                            <td style="text-align: right;">
-                                                <div style="display: inline-flex; gap: 0.4rem; justify-content: flex-end; align-items: center;">
-                                                    <form asp-action="ToggleCategoryFeatured" method="post" style="display:inline; margin: 0;">
-                                                        <input type="hidden" name="id" value="@cat.Id" />
-                                                        <button type="submit" class="btn-action" style="background: @(cat.IsFeatured ? "var(--admin-success)" : "var(--admin-text-muted)"); padding: 0.25rem 0.6rem; font-size: 0.7rem;">
-                                                            @(cat.IsFeatured ? "Featured" : "Hidden")
-                                                        </button>
-                                                    </form>
-                                                    <button type="button" class="btn-action" style="background: #3b82f6; padding: 0.25rem 0.6rem; font-size: 0.7rem;" onclick="openEditCategoryModal('@cat.Id', '@cat.Name', '@cat.ImageUrl')">
-                                                        ✏️ Edit
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+                        <!-- Beautiful Category Cards Grid -->
+                        <div class="category-grid">
+                            @foreach (var cat in categories)
+                            {
+                                <div class="category-visual-card">
+                                    <!-- Banner Image -->
+                                    <div class="card-banner-wrap">
+                                        @if (!string.IsNullOrEmpty(cat.ImageUrl))
+                                        {
+                                            <img src="@cat.ImageUrl" class="card-banner-img" alt="@cat.Name" />
+                                        }
+                                        else
+                                        {
+                                            <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.15); font-size:0.75rem; background:#111;">Fără Copertă</div>
+                                        }
+                                        <!-- Featured Pill Overlay -->
+                                        <div class="card-badge-overlay">
+                                            @if (cat.IsFeatured)
+                                            {
+                                                <span class="status-pill featured">Vizibil</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-pill hidden">Ascuns</span>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Card Details -->
+                                    <div class="card-body-details">
+                                        <h4>@cat.Name</h4>
+                                        <div class="card-actions-wrap">
+                                            <form asp-action="ToggleCategoryFeatured" method="post" style="display:inline; margin:0;">
+                                                <input type="hidden" name="id" value="@cat.Id" />
+                                                <button type="submit" class="btn-muted" style="border-radius:6px; font-size:0.7rem; color: @(cat.IsFeatured ? "var(--dash-success)" : "var(--dash-text-muted)")">
+                                                    👁️ @(cat.IsFeatured ? "Ascunde" : "Afișează")
+                                                </button>
+                                            </form>
+                                            <button type="button" class="btn-muted" style="border-radius:6px; font-size:0.7rem;" onclick="openEditCategoryModal('@cat.Id', '@cat.Name', '@cat.ImageUrl')">
+                                                ✏️ Editează
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Group: Technical Taxonomy -->
-            <div id="tech" class="admin-section">
-                <div class="section-head">
-                    <h2>⚡ Technical Sub-Category Manager</h2>
-                    <span style="font-size: 0.7rem; color: var(--admin-text-muted)">Define Product Attributes</span>
+            <!-- Global Store Config -->
+            <div id="config" class="glass-card dash-section">
+                <div class="section-title-bar">
+                    <h2>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--dash-accent)">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        Configurații Globale Magazin
+                    </h2>
+                    <button type="submit" form="master-settings" class="btn-glow" style="padding: 0.45rem 1rem; font-size: 0.75rem;">Actualizează Setări</button>
                 </div>
-                <div class="section-body">
-                    <form asp-action="CreateTaxonomy" method="post">
-                        <div class="input-grid">
-                            <div class="input-group">
-                                <label>Parent Category</label>
-                                <select name="parentCategoryId" class="compact-input">
-                                    @foreach (var cat in categories)
-                                    {
-                                        <option value="@cat.Id">@cat.Name</option>
-                                    }
-                                </select>
-                            </div>
-                            <div class="input-group">
-                                <label>Sub-Category Name</label>
-                                <input type="text" name="taxonomyName" class="compact-input" placeholder="e.g. Laptops, Mountain Bikes" required />
-                            </div>
-                            <div class="input-group" style="grid-column: span 2;">
-                                <label>Required Attributes (CSV)</label>
-                                <input type="text" name="attributesCsv" class="compact-input" placeholder="RAM, CPU, Material, Size" required />
-                            </div>
+                <div class="section-content">
+                    <form asp-action="UpdateSettings" id="master-settings" method="post" class="config-grid-layout">
+                        <div class="group-input">
+                            <label>Numele Global al Magazinului</label>
+                            <input type="text" name="storeName" class="field-input" value="@settings.StoreName" required />
                         </div>
-                        <button type="submit" class="btn-action" style="margin-top: 1rem; width: 100%;">Map Product Attributes</button>
-                    </form>
-
-                    <div style="margin-top: 1.5rem; border-top: 1px solid var(--admin-border); padding-top: 1rem;">
-                         <table class="compact-table">
-                                <thead>
-                                    <tr>
-                                        <th>Parent</th>
-                                        <th>Sub-Category</th>
-                                        <th>Expected Specs</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var sub in ViewBag.SubCategories)
-                                    {
-                                        <tr>
-                                            <td style="color: var(--admin-text-muted)">@sub.ParentName</td>
-                                            <td style="font-weight: 700;">@sub.Name</td>
-                                            <td>
-                                                <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #475569;">@sub.Attributes</code>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Group: Store Config -->
-            <div id="config" class="admin-section">
-                <div class="section-head">
-                    <h2>⚙ Store Configuration (Singleton)</h2>
-                    <button type="submit" form="master-settings" class="btn-action" style="padding: 0.35rem 0.75rem; font-size: 0.7rem;">Update Config</button>
-                </div>
-                <div class="section-body">
-                    <form asp-action="UpdateSettings" id="master-settings" method="post" class="input-grid">
-                        <div class="input-group">
-                            <label>Store Global Name</label>
-                            <input type="text" name="storeName" class="compact-input" value="@settings.StoreName" required />
+                        <div class="group-input">
+                            <label>Rată TVA (%)</label>
+                            <input type="number" step="0.01" name="vatPercentage" class="field-input" value="@settings.VatPercentage" required />
                         </div>
-                        <div class="input-group">
-                            <label>VAT Rate (%)</label>
-                            <input type="number" step="0.01" name="vatPercentage" class="compact-input" value="@settings.VatPercentage" required />
+                        <div class="group-input">
+                            <label>Prag Transport Gratuit</label>
+                            <input type="number" step="0.01" name="freeShippingThreshold" class="field-input" value="@settings.FreeShippingThreshold" required />
                         </div>
-                        <div class="input-group">
-                            <label>Free Shipping threshold</label>
-                            <input type="number" step="0.01" name="freeShippingThreshold" class="compact-input" value="@settings.FreeShippingThreshold" required />
-                        </div>
-                        <div class="input-group">
-                            <label>Currency Symbol</label>
-                            <input type="text" name="currencySymbol" class="compact-input" value="@settings.CurrencySymbol" />
+                        <div class="group-input">
+                            <label>Simbol Monedă</label>
+                            <input type="text" name="currencySymbol" class="field-input" value="@settings.CurrencySymbol" style="opacity: 0.8; cursor: not-allowed;" readonly />
                         </div>
                     </form>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
-<!-- Edit Category Modal -->
-<div id="editCategoryModal" class="edit-modal">
-    <div class="edit-modal-content">
-        <div class="edit-modal-header">
-            <h3>✏️ Editează Categoria</h3>
-            <button class="edit-modal-close" onclick="closeEditCategoryModal()">&times;</button>
+<!-- Premium Blur Edit Modal -->
+<div id="editCategoryModal" class="blur-modal">
+    <div class="blur-modal-content">
+        <div class="blur-modal-header">
+            <h3>✏️ Modifică Categoria</h3>
+            <button class="blur-modal-close" onclick="closeEditCategoryModal()">&times;</button>
         </div>
-        <div class="edit-modal-body">
+        <div class="blur-modal-body">
             <form id="editCategoryForm" asp-action="EditCategory" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="categoryId" id="editCategoryId" />
+                
                 <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-                    <div class="input-group">
-                        <label>Category Display Name</label>
-                        <input type="text" name="categoryName" id="editCategoryName" class="compact-input" placeholder="e.g. Home, Sports, Accessories" required />
+                    <div class="group-input">
+                        <label>Nume Categorie</label>
+                        <input type="text" name="categoryName" id="editCategoryName" class="field-input" placeholder="ex: Pantofi de lux" required />
                     </div>
                     
-                    <div class="input-group">
-                        <label>Imagine Curentă</label>
-                        <div class="preview-container">
-                            <img id="editCategoryPreview" src="" class="preview-img" alt="Preview" onerror="this.style.display='none';" />
-                            <span id="noPreviewText" style="font-size: 0.75rem; color: var(--admin-text-muted)">Nicio imagine încărcată</span>
+                    <div class="group-input">
+                        <label>Copertă Activă</label>
+                        <div class="img-preview-deck">
+                            <img id="editCategoryPreview" src="" class="modal-preview-img" alt="Preview" onerror="this.style.display='none';" />
+                            <span id="noPreviewText" style="font-size: 0.8rem; color: var(--dash-text-muted)">Nicio imagine încărcată</span>
                         </div>
                     </div>
 
-                    <div class="input-group">
-                        <label>Schimbă Copertă (Banner)</label>
-                        <div style="border: 2px dashed var(--admin-border); padding: 1rem; border-radius: 8px; text-align: center; background: #fcfcfc;">
-                            <input type="file" name="categoryImage" id="editCategoryImageFile" style="font-size: 0.75rem;" onchange="previewNewImage(this)" />
-                            <p style="font-size: 0.65rem; color: var(--admin-text-muted); margin-top: 0.5rem;">Recomandat: Aspect Ratio 16:9</p>
+                    <div class="group-input">
+                        <label>Schimbă Copertă (Banner Nou)</label>
+                        <div class="live-upload-box">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--dash-text-muted); margin-bottom: 0.5rem; display: inline-block;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <p style="margin: 0; font-size: 0.75rem; font-weight: 700;">Alege copertă nouă</p>
+                            <p style="margin: 0.25rem 0 0 0; font-size: 0.65rem; color: var(--dash-text-muted)">Rezoluție recomandată: 16:9 ratio</p>
+                            <input type="file" name="categoryImage" id="editCategoryImageFile" onchange="previewNewImage(this)" />
                         </div>
                     </div>
 
-                    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem;">
-                        <button type="button" class="btn-action" style="background: #64748b;" onclick="closeEditCategoryModal()">Anulează</button>
-                        <button type="submit" class="btn-action" style="background: var(--admin-success)">Salvează Modificările</button>
+                    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1.25rem;">
+                        <button type="button" class="btn-muted" style="padding: 0.6rem 1.25rem;" onclick="closeEditCategoryModal()">Anulează</button>
+                        <button type="submit" class="btn-glow">Salvează Modificările</button>
                     </div>
                 </div>
             </form>
@@ -665,6 +1064,18 @@
         const modal = document.getElementById('editCategoryModal');
         if (event.target === modal) {
             closeEditCategoryModal();
+        }
+    });
+
+    // Make Sidebar buttons active dynamically on load based on hash/route
+    document.addEventListener("DOMContentLoaded", function() {
+        const hash = window.location.hash;
+        if (hash) {
+            const activeBtn = document.querySelector(`.menu-btn[href="${hash}"]`);
+            if (activeBtn) {
+                document.querySelectorAll(".menu-btn").forEach(btn => btn.classList.remove("active"));
+                activeBtn.classList.add("active");
+            }
         }
     });
 </script>

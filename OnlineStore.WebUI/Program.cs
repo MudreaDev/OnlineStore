@@ -77,106 +77,56 @@ app.MapControllerRoute(
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    SeedData(services);
+    await SeedDataAsync(services);
 }
 
 app.Run();
 
-static void SeedData(IServiceProvider services)
-{
-    var productRepo = services.GetRequiredService<DbProductRepository>();
-    var userRepo = services.GetRequiredService<DbUserRepository>();
 
-    var existing = productRepo.GetAll().ToList();
-    if (existing.Any())
+    static async Task SeedDataAsync(IServiceProvider services)
     {
-        foreach (var p in existing)
+        using var scope = services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<OnlineStoreDbContext>();
+        var userRepo = scope.ServiceProvider.GetRequiredService<DbUserRepository>();
+
+        // Clear and re-seed every time
+        context.Database.ExecuteSqlRaw("DELETE FROM ProductImages");
+        context.Database.ExecuteSqlRaw("DELETE FROM Products");
+        context.Database.ExecuteSqlRaw("DELETE FROM SubCategories");
+        context.Database.ExecuteSqlRaw("DELETE FROM Categories");
+
+        // Recreate users if needed
+        var existingUsers = userRepo.GetAll().ToList();
+        if (!existingUsers.Any())
         {
-            if (p.Name.Contains("Laptop") && string.IsNullOrEmpty(p.AvailableColors)) p.AvailableColors = "Black, Silver";
-            if (p.Name.Contains("Smartphone") && string.IsNullOrEmpty(p.AvailableColors)) p.AvailableColors = "Black, White, Blue";
-            if (p.Name.Contains("Headphones") && string.IsNullOrEmpty(p.AvailableColors)) p.AvailableColors = "Black, Charcoal";
-            if (p.Name.Contains("T-Shirt")) 
-            { 
-                if (string.IsNullOrEmpty(p.AvailableColors)) p.AvailableColors = "White, Beige, Sage"; 
-                if (p is ClothingProduct cp && string.IsNullOrEmpty(cp.AvailableSizes)) cp.AvailableSizes = "S, M, L, XL"; 
-            }
-            if (p.Name.Contains("Jeans")) 
-            { 
-                if (string.IsNullOrEmpty(p.AvailableColors)) p.AvailableColors = "Navy, Charcoal"; 
-                if (p is ClothingProduct cp && string.IsNullOrEmpty(cp.AvailableSizes)) cp.AvailableSizes = "M, L, XL, XXL"; 
-            }
-            if (p.Name.Contains("Car")) 
-            { 
-                if (string.IsNullOrEmpty(p.AvailableColors)) p.AvailableColors = "White, Silver, Black"; 
-                if (p is VehicleProduct vp && string.IsNullOrEmpty(vp.FuelType)) { vp.FuelType = "Petrol"; vp.Year = 2022; } 
-            }
-            if (p.Name.Contains("SUV")) 
-            { 
-                if (string.IsNullOrEmpty(p.AvailableColors)) p.AvailableColors = "Black, Navy"; 
-                if (p is VehicleProduct vp && string.IsNullOrEmpty(vp.FuelType)) { vp.FuelType = "Diesel"; vp.Year = 2023; } 
-            }
-            if (p.Stock <= 0) p.Stock = 50;
-            productRepo.Update(p);
+            var customer = new Customer("testuser", "test@test.com", "123 Demo St");
+            customer.PasswordHash = OnlineStore.Domain.Utils.PasswordHasher.Hash("test123");
+            userRepo.Add(customer);
+
+            var admin = new Admin("admin", "admin@store.com", "SuperAdmin");
+            admin.PasswordHash = OnlineStore.Domain.Utils.PasswordHasher.Hash("admin123");
+            admin.Permissions.AddRange(new[] { "ManageProducts", "ManageOrders", "ManageUsers" });
+            userRepo.Add(admin);
         }
-        return;
+
+        // Seed Categories with Unsplash Images
+        var catClothing = new Category { Name = "Îmbrăcăminte", ImageUrl = "https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" };
+        var catFootwear = new Category { Name = "Încălțăminte", ImageUrl = "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" };
+        var catAccessories = new Category { Name = "Accesorii", ImageUrl = "https://images.unsplash.com/photo-1511499767150-a48a237f0083?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" };
+        
+        context.Categories.AddRange(catClothing, catFootwear, catAccessories);
+        context.SaveChanges();
+
+        // Optional: seed some empty subcategories to keep the structure
+        var subMensClothing = new SubCategory { Name = "Haine Bărbați", CategoryId = catClothing.Id };
+        var subWomensClothing = new SubCategory { Name = "Haine Femei", CategoryId = catClothing.Id };
+        var subSneakers = new SubCategory { Name = "Sneakers", CategoryId = catFootwear.Id };
+        var subBoots = new SubCategory { Name = "Ghete", CategoryId = catFootwear.Id };
+        var subWatches = new SubCategory { Name = "Ceasuri", CategoryId = catAccessories.Id };
+        var subBags = new SubCategory { Name = "Genți", CategoryId = catAccessories.Id };
+        
+        context.SubCategories.AddRange(subMensClothing, subWomensClothing, subSneakers, subBoots, subWatches, subBags);
+        context.SaveChanges();
+
+        // No products are added, store is completely empty!
     }
-
-    // Seed Products
-    // Using factories just like in ConsoleUI, but manually here for simplicity or could inject factories
-    // Let's manually instantiate for now as factories are simple classes
-    // Seed Products
-    var electronicsFactory = new ElectronicProductFactory();
-    var laptop = electronicsFactory.CreateProduct("Gaming Laptop", 1500);
-    laptop.AvailableColors = "Black, Silver";
-    laptop.Stock = 50;
-    productRepo.Add(laptop);
-
-    var phone = electronicsFactory.CreateProduct("Smartphone", 800);
-    phone.AvailableColors = "Black, White, Blue";
-    phone.Stock = 50;
-    productRepo.Add(phone);
-
-    var headphones = electronicsFactory.CreateProduct("Headphones", 200);
-    headphones.AvailableColors = "Black, Charcoal";
-    headphones.Stock = 50;
-    productRepo.Add(headphones);
-
-    var clothingFactory = new ClothingProductFactory();
-    var tshirt = (ClothingProduct)clothingFactory.CreateProduct("Cotton T-Shirt", 25);
-    tshirt.AvailableSizes = "S, M, L, XL";
-    tshirt.AvailableColors = "Black, White, Beige, Sage";
-    tshirt.Stock = 50;
-    productRepo.Add(tshirt);
-
-    var jeans = (ClothingProduct)clothingFactory.CreateProduct("Jeans", 50);
-    jeans.AvailableSizes = "M, L, XL, XXL";
-    jeans.AvailableColors = "Black, Navy, Charcoal";
-    jeans.Stock = 50;
-    productRepo.Add(jeans);
-
-    var vehicleFactory = new VehicleProductFactory();
-    var car = (VehicleProduct)vehicleFactory.CreateProduct("City Car", 15000);
-    car.FuelType = "Petrol";
-    car.Year = 2022;
-    car.AvailableColors = "White, Silver, Black";
-    car.Stock = 50;
-    productRepo.Add(car);
-
-    var suv = (VehicleProduct)vehicleFactory.CreateProduct("SUV", 25000);
-    suv.FuelType = "Diesel";
-    suv.Year = 2023;
-    suv.AvailableColors = "Black, Navy";
-    suv.Stock = 50;
-    productRepo.Add(suv);
-
-    // Seed Customer
-    var customer = new Customer("testuser", "test@test.com", "123 Demo St");
-    customer.PasswordHash = OnlineStore.Domain.Utils.PasswordHasher.Hash("test123");
-    userRepo.Add(customer);
-
-    // Seed Admin
-    var admin = new Admin("admin", "admin@store.com", "SuperAdmin");
-    admin.PasswordHash = OnlineStore.Domain.Utils.PasswordHasher.Hash("admin123");
-    admin.Permissions.AddRange(new[] { "ManageProducts", "ManageOrders", "ManageUsers" });
-    userRepo.Add(admin);
-}

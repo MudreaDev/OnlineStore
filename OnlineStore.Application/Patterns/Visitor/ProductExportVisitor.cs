@@ -15,14 +15,14 @@ namespace OnlineStore.Application.Patterns.Visitor
 
         public string GetExportResult() => _exportData.ToString();
 
-        public void VisitElectronicProduct(ElectronicProduct product)
+        public void VisitFootwearProduct(FootwearProduct product)
         {
-            _exportData.AppendLine($"--- ELECTRONIC PRODUCT EXPORT ---");
+            _exportData.AppendLine($"--- FOOTWEAR PRODUCT EXPORT ---");
             _exportData.AppendLine($"Name: {product.Name}");
             _exportData.AppendLine($"Price: {product.Price:C}");
-            _exportData.AppendLine($"Brand: {product.Brand}");
-            _exportData.AppendLine($"Model: {product.Model}");
-            _exportData.AppendLine($"Warranty: {product.WarrantyMonths} months");
+            _exportData.AppendLine($"Size: {product.Size}");
+            _exportData.AppendLine($"Material: {product.Material}");
+            _exportData.AppendLine($"Available Sizes: {product.AvailableSizes}");
             _exportData.AppendLine($"Stock Status: {(product.Stock > 0 ? "In Stock" : "Out of Stock")} ({product.Stock} units)");
             _exportData.AppendLine("----------------------------------");
         }
@@ -39,14 +39,13 @@ namespace OnlineStore.Application.Patterns.Visitor
             _exportData.AppendLine("----------------------------------");
         }
 
-        public void VisitVehicleProduct(VehicleProduct product)
+        public void VisitAccessoryProduct(AccessoryProduct product)
         {
-            _exportData.AppendLine($"--- VEHICLE PRODUCT EXPORT ---");
+            _exportData.AppendLine($"--- ACCESSORY PRODUCT EXPORT ---");
             _exportData.AppendLine($"Name: {product.Name}");
             _exportData.AppendLine($"Price: {product.Price:C}");
-            _exportData.AppendLine($"Make: {product.Make}");
-            _exportData.AppendLine($"Year: {product.Year}");
-            _exportData.AppendLine($"Fuel: {product.FuelType}");
+            _exportData.AppendLine($"Brand: {product.Brand}");
+            _exportData.AppendLine($"Material: {product.Material}");
             _exportData.AppendLine($"Stock Status: {(product.Stock > 0 ? "In Stock" : "Out of Stock")} ({product.Stock} units)");
             _exportData.AppendLine("----------------------------------");
         }

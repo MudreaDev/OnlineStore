@@ -1,0 +1,677 @@
+@using OnlineStore.Domain.Enums
+@{
+    ViewData["Title"] = "Statistici Vânzări | Control Center";
+    
+    // Retrieve metrics from ViewBag
+    decimal totalSales = ViewBag.TotalSales ?? 0m;
+    int totalOrdersCount = ViewBag.TotalOrdersCount ?? 0;
+    int activeOrdersCount = ViewBag.ActiveOrdersCount ?? 0;
+    double averageOrderValue = (double)(ViewBag.AverageOrderValue ?? 0m);
+    int totalUnitsSold = ViewBag.TotalUnitsSold ?? 0;
+
+    // Status breakdown
+    int pendingCount = ViewBag.SalesByStatusPendingCount ?? 0;
+    decimal pendingRevenue = ViewBag.SalesByStatusPendingRevenue ?? 0m;
+    int paidCount = ViewBag.SalesByStatusPaidCount ?? 0;
+    decimal paidRevenue = ViewBag.SalesByStatusPaidRevenue ?? 0m;
+    int shippedCount = ViewBag.SalesByStatusShippedCount ?? 0;
+    decimal shippedRevenue = ViewBag.SalesByStatusShippedRevenue ?? 0m;
+    int deliveredCount = ViewBag.SalesByStatusDeliveredCount ?? 0;
+    decimal deliveredRevenue = ViewBag.SalesByStatusDeliveredRevenue ?? 0m;
+    int canceledCount = ViewBag.SalesByStatusCanceledCount ?? 0;
+    decimal canceledRevenue = ViewBag.SalesByStatusCanceledRevenue ?? 0m;
+
+    // Rich Lists
+    var topProducts = ViewBag.TopProducts as List<Tuple<string, int, decimal>> ?? new List<Tuple<string, int, decimal>>();
+    var categorySales = ViewBag.CategorySales as List<Tuple<string, int, decimal>> ?? new List<Tuple<string, int, decimal>>();
+    var dailySales = ViewBag.DailySales as List<Tuple<string, int, decimal>> ?? new List<Tuple<string, int, decimal>>();
+
+    // Helper to calculate percentage of category revenue
+    decimal maxCategoryRevenue = categorySales.Any() ? categorySales.Max(c => c.Item3) : 1m;
+}
+<style>
+    :root {
+        --dash-bg: #f9f7f2;
+        --dash-card-bg: #ffffff;
+        --dash-card-border: #eeebe6;
+        --dash-border: #d6d2cc;
+        --dash-accent: #2d2926;
+        --dash-accent-glow: rgba(45, 41, 38, 0.05);
+        --dash-accent-gradient: linear-gradient(135deg, #2d2926, #4a443f);
+        --dash-success: #2b7a5a;
+        --dash-success-glow: rgba(43, 122, 90, 0.08);
+        --dash-warning: #c28b57;
+        --dash-warning-glow: rgba(194, 139, 87, 0.08);
+        --dash-danger: #b33939;
+        --dash-text-main: #2d2926;
+        --dash-text-muted: #8c867e;
+    }
+
+    body {
+        background-color: var(--dash-bg);
+        color: var(--dash-text-main);
+        font-family: 'Outfit', 'Inter', sans-serif;
+    }
+
+    .admin-wrapper {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .dash-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--dash-card-border);
+    }
+
+    .dash-title-area h1 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin: 0;
+        background: linear-gradient(135deg, var(--dash-accent) 40%, var(--dash-text-muted) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .dash-title-area p {
+        font-size: 0.875rem;
+        color: var(--dash-text-muted);
+        margin: 0.25rem 0 0 0;
+    }
+
+    .dash-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 2.5rem;
+        align-items: start;
+    }
+
+    /* Sidebar Design */
+    .dash-sidebar {
+        position: sticky;
+        top: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .glass-card {
+        background: var(--dash-card-bg);
+        border: 1px solid var(--dash-card-border);
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(45, 41, 38, 0.04);
+    }
+
+    .sidebar-menu {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .menu-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        padding: 0.8rem 1rem;
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--dash-text-muted);
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+    .menu-btn svg {
+        transition: transform 0.2s ease;
+    }
+
+    .menu-btn:hover {
+        background: rgba(45, 41, 38, 0.03);
+        color: var(--dash-text-main);
+    }
+
+    .menu-btn:hover svg {
+        transform: translateX(2px);
+    }
+
+    .menu-btn.active {
+        background: var(--dash-accent);
+        color: #ffffff;
+        box-shadow: 0 4px 15px rgba(45, 41, 38, 0.15);
+    }
+
+    .sidebar-divider {
+        height: 1px;
+        background: var(--dash-card-border);
+        margin: 0.5rem 0;
+    }
+
+    /* KPI grid */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(45, 41, 38, 0.06);
+    }
+
+    .kpi-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+
+    .kpi-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--dash-text-muted);
+        letter-spacing: 0.08em;
+    }
+
+    .kpi-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--dash-text-main);
+    }
+
+    .kpi-icon-wrap {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .kpi-blue { border-left: 4px solid var(--dash-accent); }
+    .kpi-blue .kpi-icon-wrap { background: var(--dash-accent-glow); color: var(--dash-accent); }
+
+    .kpi-purple { border-left: 4px solid var(--dash-accent); }
+    .kpi-purple .kpi-icon-wrap { background: var(--dash-accent-glow); color: var(--dash-accent); }
+
+    .kpi-emerald { border-left: 4px solid var(--dash-success); }
+    .kpi-emerald .kpi-icon-wrap { background: var(--dash-success-glow); color: var(--dash-success); }
+
+    .kpi-amber { border-left: 4px solid var(--dash-warning); }
+    .kpi-amber .kpi-icon-wrap { background: var(--dash-warning-glow); color: var(--dash-warning); }
+
+    /* Analytical Sections */
+    .section-card {
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+
+    .section-title {
+        padding: 1.25rem 1.75rem;
+        background: rgba(45, 41, 38, 0.01);
+        border-bottom: 1px solid var(--dash-card-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .section-title h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        color: var(--dash-text-main);
+    }
+
+    .section-body {
+        padding: 1.75rem;
+    }
+
+    .analytics-split {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Trend Bar Chart Styles (SVG-based native & sleek) */
+    .trend-container {
+        position: relative;
+        height: 240px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid var(--dash-card-border);
+        margin-top: 1rem;
+    }
+
+    .trend-bar-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        justify-content: flex-end;
+        position: relative;
+        group: hover;
+    }
+
+    .trend-bar {
+        width: 60%;
+        max-width: 40px;
+        background: var(--dash-accent-gradient);
+        border-radius: 6px 6px 0 0;
+        transition: all 0.3s ease;
+        position: relative;
+        min-height: 4px;
+        box-shadow: 0 4px 15px rgba(45, 41, 38, 0.1);
+    }
+
+    .trend-bar-wrapper:hover .trend-bar {
+        filter: brightness(1.15);
+        box-shadow: 0 4px 20px rgba(45, 41, 38, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .trend-tooltip {
+        position: absolute;
+        bottom: 100%;
+        background: #ffffff;
+        border: 1px solid var(--dash-card-border);
+        padding: 0.35rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        transform: translateY(5px);
+        white-space: nowrap;
+        z-index: 10;
+        box-shadow: 0 8px 20px rgba(45, 41, 38, 0.08);
+        color: var(--dash-text-main);
+    }
+
+    .trend-bar-wrapper:hover .trend-tooltip {
+        opacity: 1;
+        transform: translateY(-5px);
+    }
+
+    .trend-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--dash-text-muted);
+        margin-top: 0.5rem;
+    }
+
+    /* Category progress bar styles */
+    .category-row {
+        margin-bottom: 1.25rem;
+    }
+
+    .category-row-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.825rem;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+        color: var(--dash-text-main);
+    }
+
+    .category-track {
+        height: 8px;
+        background: rgba(45, 41, 38, 0.05);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .category-fill {
+        height: 100%;
+        background: var(--dash-accent-gradient);
+        border-radius: 4px;
+        box-shadow: 0 0 6px rgba(45,41,38,0.15);
+    }
+
+    /* Top Selling Table */
+    .stats-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+    .stats-table th {
+        text-align: left;
+        padding: 0.9rem 1rem;
+        color: var(--dash-text-muted);
+        font-weight: 700;
+        border-bottom: 1px solid var(--dash-card-border);
+    }
+
+    .stats-table td {
+        padding: 0.9rem 1rem;
+        border-bottom: 1px solid var(--dash-card-border);
+        color: var(--dash-text-main);
+    }
+
+    .stats-table tr:hover td {
+        background: rgba(45, 41, 38, 0.01);
+    }
+
+    .badge-status {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        padding: 0.25rem 0.6rem;
+        border-radius: 20px;
+        letter-spacing: 0.03em;
+        display: inline-block;
+    }
+
+    .badge-status.pending { background: var(--dash-warning-glow); color: var(--dash-warning); border: 1px solid rgba(194, 139, 87, 0.2); }
+    .badge-status.paid { background: var(--dash-accent-glow); color: var(--dash-accent); border: 1px solid rgba(45, 41, 38, 0.2); }
+    .badge-status.shipped { background: rgba(140, 134, 126, 0.1); color: var(--dash-text-muted); border: 1px solid var(--dash-card-border); }
+    .badge-status.delivered { background: var(--dash-success-glow); color: var(--dash-success); border: 1px solid rgba(43, 122, 90, 0.2); }
+    .badge-status.canceled { background: rgba(179, 57, 57, 0.08); color: var(--dash-danger); border: 1px solid rgba(179, 57, 57, 0.2); }
+</style>
+<div class="admin-wrapper">
+    <!-- Header -->
+    <div class="dash-header">
+        <div class="dash-title-area">
+            <h1>Statistici <span style="color:var(--dash-accent)">Vânzări</span></h1>
+            <p>Panou Analitic · Monitorizare performanță financiară magazin</p>
+        </div>
+        <div>
+            <a asp-action="Index" class="btn-muted" style="padding: 0.6rem 1.15rem; font-size: 0.8rem; border-radius: 10px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 4px;">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Înapoi la Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="dash-layout">
+        <!-- Sidebar Navigation -->
+        <div class="dash-sidebar">
+            <div class="glass-card sidebar-menu">
+                <a asp-action="Index" class="menu-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <rect x="3" y="3" width="7" height="9" rx="1"></rect>
+                        <rect x="14" y="3" width="7" height="5" rx="1"></rect>
+                        <rect x="14" y="12" width="7" height="9" rx="1"></rect>
+                        <rect x="3" y="16" width="7" height="5" rx="1"></rect>
+                    </svg>
+                    Panou Principal
+                </a>
+                <a asp-action="Products" class="menu-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    Stoc Produse
+                </a>
+                <a asp-action="Orders" class="menu-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    Comenzi Flux
+                </a>
+                <a asp-action="SalesStatistics" class="menu-btn active">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    Statistici Vânzări
+                </a>
+                <div class="sidebar-divider"></div>
+                <a href="@Url.Action("Index", "Admin")#visual" class="menu-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    Categorii Vizuale
+                </a>
+                <a href="@Url.Action("Index", "Admin")#config" class="menu-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    Setări Magazin
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div style="display: flex; flex-direction: column;">
+            
+            <!-- KPI Grid -->
+            <div class="kpi-grid">
+                <div class="glass-card kpi-card kpi-purple">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Vânzări Totale</span>
+                        <span class="kpi-value">@totalSales.ToString("C0")</span>
+                    </div>
+                    <div class="kpi-icon-wrap">💵</div>
+                </div>
+
+                <div class="glass-card kpi-card kpi-blue">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Nr. Comenzi Active</span>
+                        <span class="kpi-value">@activeOrdersCount <span style="font-size: 0.7rem; color: var(--dash-text-muted); font-weight: 500;">/ @totalOrdersCount tot.</span></span>
+                    </div>
+                    <div class="kpi-icon-wrap">📦</div>
+                </div>
+
+                <div class="glass-card kpi-card kpi-emerald">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Valoare Medie Coș</span>
+                        <span class="kpi-value">@averageOrderValue.ToString("C0")</span>
+                    </div>
+                    <div class="kpi-icon-wrap">🛒</div>
+                </div>
+
+                <div class="glass-card kpi-card kpi-amber">
+                    <div class="kpi-info">
+                        <span class="kpi-label">Piese Vândute</span>
+                        <span class="kpi-value">@totalUnitsSold</span>
+                    </div>
+                    <div class="kpi-icon-wrap">👚</div>
+                </div>
+            </div>
+
+            <!-- Analytics Splitting (Trend and Categories) -->
+            <div class="analytics-split">
+                <!-- Daily Trend Line Chart -->
+                <div class="glass-card section-card">
+                    <div class="section-title">
+                        <h2>📊 Evoluție Vânzări Zilnice</h2>
+                        <span style="font-size: 0.725rem; font-weight: 700; color: var(--dash-success)">Venit net asigurat (active)</span>
+                    </div>
+                    <div class="section-body">
+                        @if (dailySales.Any())
+                        {
+                            var maxDailyRevenue = dailySales.Max(d => d.Item3);
+                            if (maxDailyRevenue == 0m) maxDailyRevenue = 1m;
+                            
+                            <div class="trend-container">
+                                @foreach (var day in dailySales)
+                                {
+                                    // Calculate height as percentage of max daily revenue
+                                    var percentHeight = (int)((day.Item3 / maxDailyRevenue) * 90);
+                                    if (percentHeight < 4) percentHeight = 4; // minimum bar visible
+                                    
+                                    <div class="trend-bar-wrapper">
+                                        <div class="trend-tooltip">
+                                            @day.Item2 Comenzi · @day.Item3.ToString("C0")
+                                        </div>
+                                        <div class="trend-bar" style="height: @percentHeight%;"></div>
+                                        <span class="trend-label">@day.Item1</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div style="height: 240px; display:flex; align-items:center; justify-content:center; color: var(--dash-text-muted);">
+                                Nu există suficiente date de vânzări zilnice înregistrate.
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Sales by Category distribution -->
+                <div class="glass-card section-card">
+                    <div class="section-title">
+                        <h2>👚 Distribuție Categorii</h2>
+                        <span style="font-size: 0.725rem; font-weight: 700; color: var(--dash-text-muted)">După venit generat</span>
+                    </div>
+                    <div class="section-body" style="display:flex; flex-direction:column; justify-content:center; height: 240px; margin-top: 1rem;">
+                        @if (categorySales.Any())
+                        {
+                            foreach (var cat in categorySales)
+                            {
+                                var pct = (int)((cat.Item3 / maxCategoryRevenue) * 100);
+                                if (pct < 1) pct = 1;
+                                
+                                <div class="category-row">
+                                    <div class="category-row-header">
+                                        <span>@cat.Item1 (@cat.Item2 piese)</span>
+                                        <span>@cat.Item3.ToString("C0")</span>
+                                    </div>
+                                    <div class="category-track">
+                                        <div class="category-fill" style="width: @pct%;"></div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div style="text-align: center; color: var(--dash-text-muted);">
+                                Nu există vânzări mapate pe categorii.
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Splits: Top Products & Status Breakdown -->
+            <div class="analytics-split">
+                <!-- Top Products Table Card -->
+                <div class="glass-card section-card" style="margin-bottom: 0;">
+                    <div class="section-title">
+                        <h2>🏆 Top 5 Produse Premium Vândute</h2>
+                        <span style="font-size: 0.725rem; font-weight: 700; color: var(--dash-accent)">După numărul de unități vândute</span>
+                    </div>
+                    <div class="section-body" style="padding: 0.5rem 0.75rem;">
+                        <table class="stats-table">
+                            <thead>
+                                <tr>
+                                    <th>Produs</th>
+                                    <th style="text-align: center;">Unități Vândute</th>
+                                    <th style="text-align: right;">Total Încasat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (topProducts.Any())
+                                {
+                                    foreach (var prod in topProducts)
+                                    {
+                                        <tr>
+                                            <td style="font-weight: 700; color: #ffffff;">@prod.Item1</td>
+                                            <td style="text-align: center; font-weight: 800; color: var(--dash-accent);">@prod.Item2 buc</td>
+                                            <td style="text-align: right; font-weight: 800; color: var(--dash-success);">@prod.Item3.ToString("C0")</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" style="text-align: center; color: var(--dash-text-muted); padding: 2rem;">
+                                            Nu s-au detectat unități vândute încă.
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Status Distribution Breakdown -->
+                <div class="glass-card section-card" style="margin-bottom: 0;">
+                    <div class="section-title">
+                        <h2>📊 Distribuție Comenzi după Status</h2>
+                        <span style="font-size: 0.725rem; font-weight: 700; color: var(--dash-text-muted)">Gestiune stări</span>
+                    </div>
+                    <div class="section-body" style="padding: 0.5rem 0.75rem;">
+                        <table class="stats-table">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th style="text-align: center;">Comenzi</th>
+                                    <th style="text-align: right;">Valoare Totală</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge-status pending">Pending</span></td>
+                                    <td style="text-align: center; font-weight: 700;">@pendingCount</td>
+                                    <td style="text-align: right; font-weight: 700;">@pendingRevenue.ToString("C0")</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge-status paid">Plătită</span></td>
+                                    <td style="text-align: center; font-weight: 700;">@paidCount</td>
+                                    <td style="text-align: right; font-weight: 700;">@paidRevenue.ToString("C0")</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge-status shipped">Expediată</span></td>
+                                    <td style="text-align: center; font-weight: 700;">@shippedCount</td>
+                                    <td style="text-align: right; font-weight: 700;">@shippedRevenue.ToString("C0")</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge-status delivered">Livrată</span></td>
+                                    <td style="text-align: center; font-weight: 700;">@deliveredCount</td>
+                                    <td style="text-align: right; font-weight: 700;">@deliveredRevenue.ToString("C0")</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge-status canceled">Anulată</span></td>
+                                    <td style="text-align: center; font-weight: 700;">@canceledCount</td>
+                                    <td style="text-align: right; font-weight: 700;">@canceledRevenue.ToString("C0")</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineStore.Application.Data;
 
@@ -11,9 +12,11 @@ using OnlineStore.Application.Data;
 namespace OnlineStore.Application.Migrations
 {
     [DbContext(typeof(OnlineStoreDbContext))]
-    partial class OnlineStoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260523152952_AddAssociatedColorToProductImage")]
+    partial class AddAssociatedColorToProductImage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -318,25 +321,6 @@ namespace OnlineStore.Application.Migrations
                     b.ToTable("UserNotifications");
                 });
 
-            modelBuilder.Entity("OnlineStore.Domain.Entities.AccessoryProduct", b =>
-                {
-                    b.HasBaseType("OnlineStore.Domain.Entities.Product");
-
-                    b.Property<string>("Brand")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Material")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.ToTable("Products", t =>
-                        {
-                            t.Property("Material")
-                                .HasColumnName("AccessoryProduct_Material");
-                        });
-
-                    b.HasDiscriminator().HasValue("Accessory");
-                });
-
             modelBuilder.Entity("OnlineStore.Domain.Entities.ClothingProduct", b =>
                 {
                     b.HasBaseType("OnlineStore.Domain.Entities.Product");
@@ -349,18 +333,6 @@ namespace OnlineStore.Application.Migrations
 
                     b.Property<string>("Size")
                         .HasColumnType("nvarchar(max)");
-
-                    b.ToTable("Products", t =>
-                        {
-                            t.Property("AvailableSizes")
-                                .HasColumnName("ClothingProduct_AvailableSizes");
-
-                            t.Property("Material")
-                                .HasColumnName("ClothingProduct_Material");
-
-                            t.Property("Size")
-                                .HasColumnName("ClothingProduct_Size");
-                        });
 
                     b.HasDiscriminator().HasValue("Clothing");
                 });
@@ -376,20 +348,45 @@ namespace OnlineStore.Application.Migrations
                     b.HasDiscriminator().HasValue("Dynamic");
                 });
 
-            modelBuilder.Entity("OnlineStore.Domain.Entities.FootwearProduct", b =>
+            modelBuilder.Entity("OnlineStore.Domain.Entities.ElectronicProduct", b =>
                 {
                     b.HasBaseType("OnlineStore.Domain.Entities.Product");
 
-                    b.Property<string>("AvailableSizes")
+                    b.Property<string>("Brand")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Material")
+                    b.Property<string>("Model")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Size")
+                    b.Property<int>("WarrantyMonths")
+                        .HasColumnType("int");
+
+                    b.HasDiscriminator().HasValue("Electronic");
+                });
+
+            modelBuilder.Entity("OnlineStore.Domain.Entities.VehicleProduct", b =>
+                {
+                    b.HasBaseType("OnlineStore.Domain.Entities.Product");
+
+                    b.Property<string>("FuelType")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasDiscriminator().HasValue("Footwear");
+                    b.Property<string>("Make")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Model")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.ToTable("Products", t =>
+                        {
+                            t.Property("Model")
+                                .HasColumnName("VehicleProduct_Model");
+                        });
+
+                    b.HasDiscriminator().HasValue("Vehicle");
                 });
 
             modelBuilder.Entity("OnlineStore.Domain.Entities.Admin", b =>

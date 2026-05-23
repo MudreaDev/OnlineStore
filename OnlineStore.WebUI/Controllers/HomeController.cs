@@ -32,7 +32,7 @@ namespace OnlineStore.WebUI.Controllers
             _toastService = toastService;
         }
 
-        public IActionResult Index(string? searchQuery, string? categoryFilter, decimal? minPrice, decimal? maxPrice, string? sortStrategy, string[]? selectedSizes, string[]? selectedColors, string[]? selectedFuelTypes, int? minYear, int? maxYear, int page = 1)
+        public IActionResult Index(string? searchQuery, string? categoryFilter, decimal? minPrice, decimal? maxPrice, string? sortStrategy, string[]? selectedSizes, string[]? selectedColors, int page = 1)
         {
             int pageSize = 25; // 5x5 grid
             var allProducts = _productRepo.GetAll().ToList();
@@ -97,23 +97,7 @@ namespace OnlineStore.WebUI.Controllers
                     }));
             }
 
-            // Vehicle filters
-            if (selectedFuelTypes != null && selectedFuelTypes.Any())
-            {
-                productsQuery = productsQuery.Where(p => 
-                    p is VehicleProduct vp && !string.IsNullOrEmpty(vp.FuelType) &&
-                    selectedFuelTypes.Contains(vp.FuelType, StringComparer.OrdinalIgnoreCase));
-            }
 
-            if (minYear.HasValue)
-            {
-                productsQuery = productsQuery.Where(p => p is VehicleProduct vp && vp.Year >= minYear.Value);
-            }
-
-            if (maxYear.HasValue)
-            {
-                productsQuery = productsQuery.Where(p => p is VehicleProduct vp && vp.Year <= maxYear.Value);
-            }
 
             IEnumerable<Product> finalProducts = productsQuery;
 
@@ -170,9 +154,7 @@ namespace OnlineStore.WebUI.Controllers
             ViewBag.SortStrategy = sortStrategy;
             ViewBag.SelectedSizes = selectedSizes;
             ViewBag.SelectedColors = selectedColors;
-            ViewBag.SelectedFuelTypes = selectedFuelTypes;
-            ViewBag.MinYear = minYear;
-            ViewBag.MaxYear = maxYear;
+
 
             // Pattern 3: Singleton - Transmitem setările globale către View
             ViewBag.FreeShippingThreshold = ApplicationConfigurationManager.Instance.FreeShippingThreshold;

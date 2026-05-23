@@ -13,9 +13,9 @@ namespace OnlineStore.Tests.DesignPatterns.Behavioral
             // Arrange
             var products = new List<Product>
             {
-                new ElectronicProduct("Phone", 1000, warrantyMonths: 24),
+                new AccessoryProduct("Phone", 1000, warrantyMonths: 24),
                 new ClothingProduct("Shirt", 50, "M", "Cotton"),
-                new ElectronicProduct("Laptop", 2000, warrantyMonths: 24)
+                new AccessoryProduct("Laptop", 2000, warrantyMonths: 24)
             };
 
             var collection = new ProductCollection(products);

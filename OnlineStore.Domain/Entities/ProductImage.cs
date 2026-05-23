@@ -9,6 +9,7 @@ namespace OnlineStore.Domain.Entities
         public string PublicId { get; set; } = null!;
         public bool IsMain { get; set; }
         public int DisplayOrder { get; set; }
+        public string? AssociatedColor { get; set; }
 
         // Navigation property
         public Product? Product { get; set; }

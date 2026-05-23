@@ -8,10 +8,10 @@ namespace OnlineStore.Tests.DesignPatterns.Behavioral
     public class VisitorTests
     {
         [Fact]
-        public void ProductExportVisitor_ShouldExportElectronicProductCorrectly()
+        public void ProductExportVisitor_ShouldExportAccessoryProductCorrectly()
         {
             // Arrange
-            var product = new ElectronicProduct("Laptop", 1200, "Asus", "ROG", 24) { Stock = 10 };
+            var product = new AccessoryProduct("Laptop", 1200, "Asus", "ROG", 24) { Stock = 10 };
             var visitor = new ProductExportVisitor();
 
             // Act
@@ -44,10 +44,10 @@ namespace OnlineStore.Tests.DesignPatterns.Behavioral
         }
 
         [Fact]
-        public void ProductExportVisitor_ShouldExportVehicleProductCorrectly()
+        public void ProductExportVisitor_ShouldExportFootwearProductCorrectly()
         {
             // Arrange
-            var product = new VehicleProduct("Model S", 80000, "Tesla", "Long Range", 2023, "Electric") { Stock = 2 };
+            var product = new FootwearProduct("Model S", 80000, "Tesla", "Long Range", 2023, "Electric") { Stock = 2 };
             var visitor = new ProductExportVisitor();
 
             // Act

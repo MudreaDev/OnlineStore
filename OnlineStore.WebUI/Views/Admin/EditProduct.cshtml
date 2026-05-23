@@ -89,19 +89,22 @@
 
     .inventory-images {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 1.25rem;
         margin-bottom: 2rem;
     }
 
     .asset-item {
         position: relative;
-        aspect-ratio: 1;
         border-radius: 16px;
         overflow: hidden;
         border: 1px solid var(--border-subtle);
         transition: var(--transition-smooth);
         box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+        height: 200px;
+        background: #fff;
     }
 
     .asset-item img {
@@ -247,13 +250,25 @@
         background: var(--border-bold);
     }
 </style>
-
 <div class="admin-form-container fade-in">
+    <div style="margin-bottom: 1.5rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+        <a href="@Url.Action("Index")" style="color: inherit; text-decoration: none; font-weight: 700; transition: color 0.2s;" onmouseover="this.style.color='var(--accent-primary)'" onmouseout="this.style.color='inherit'">Dashboard</a> 
+        <span style="opacity: 0.5; margin: 0 0.4rem;">/</span> 
+        <a href="@Url.Action("Products")" style="color: inherit; text-decoration: none; font-weight: 700; transition: color 0.2s;" onmouseover="this.style.color='var(--accent-primary)'" onmouseout="this.style.color='inherit'">Stoc Produse</a> 
+        <span style="opacity: 0.5; margin: 0 0.4rem;">/</span> 
+        <span style="color: var(--accent-primary); font-weight: 800;">Editare Produs</span>
+    </div>
     <div class="form-header">
+        <a asp-action="Products" class="btn-sync-action" title="Înapoi la Stoc Produse" style="background: var(--bg-base); border: 1px solid var(--border-subtle); color: var(--text-main); font-size: 0.75rem; font-weight: 700; height: 38px; width: auto; padding: 0 1rem; border-radius: 10px; display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0; margin-bottom: 1.5rem; text-decoration: none; box-shadow: none; transition: var(--transition-smooth);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--text-main)">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Stoc Produse
+        </a>
         <h1 class="form-title">Refine Item</h1>
         <p class="form-subtitle">Modify the collection details and manage visual representations.</p>
     </div>
-
     <div class="form-card">
         <form asp-action="EditProduct" method="post" enctype="multipart/form-data" id="editForm">
             <input type="hidden" name="id" value="@Model.Id" />
@@ -287,11 +302,21 @@
                 </div>
             </div>
 
-            @if (Model is ElectronicProduct electronic)
+            @if (Model is FootwearProduct footwear)
             {
                 <div class="field-group">
-                    <label for="WarrantyMonths" class="field-label">Warranty Extension (Months)</label>
-                    <input type="number" name="WarrantyMonths" id="WarrantyMonths" value="@electronic.WarrantyMonths" class="premium-input" />
+                    <label for="AvailableSizes" class="field-label">Available Sizes (Comma separated)</label>
+                    <input type="text" name="availableSizes" id="AvailableSizes" value="@footwear.AvailableSizes" class="premium-input" />
+                    <div class="palette-helper">
+                        <button type="button" class="btn-add-variant" onclick="addSize('39')">+ 39</button>
+                        <button type="button" class="btn-add-variant" onclick="addSize('40')">+ 40</button>
+                        <button type="button" class="btn-add-variant" onclick="addSize('41')">+ 41</button>
+                        <button type="button" class="btn-add-variant" onclick="addSize('42')">+ 42</button>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label for="Material" class="field-label">Material Composition</label>
+                    <input type="text" name="Material" id="Material" value="@footwear.Material" class="premium-input" />
                 </div>
             }
             else if (Model is ClothingProduct clothing)
@@ -312,21 +337,17 @@
                     <input type="text" name="Material" id="Material" value="@clothing.Material" class="premium-input" />
                 </div>
             }
-            else if (Model is VehicleProduct vehicle)
+            else if (Model is AccessoryProduct accessory)
             {
                 <div class="field-grid">
                     <div class="field-group">
-                        <label for="Make" class="field-label">Maker / Brand</label>
-                        <input type="text" name="Make" id="Make" value="@vehicle.Make" class="premium-input" />
+                        <label for="Brand" class="field-label">Brand</label>
+                        <input type="text" name="brand" id="Brand" value="@accessory.Brand" class="premium-input" />
                     </div>
                     <div class="field-group">
-                        <label for="Model" class="field-label">Specific Model</label>
-                        <input type="text" name="Model" id="Model" value="@vehicle.Model" class="premium-input" />
+                        <label for="Material" class="field-label">Material</label>
+                        <input type="text" name="Material" id="Material" value="@accessory.Material" class="premium-input" />
                     </div>
-                </div>
-                <div class="field-group">
-                    <label for="Year" class="field-label">Release Year</label>
-                    <input type="number" name="Year" id="Year" value="@vehicle.Year" class="premium-input" />
                 </div>
             }
 
@@ -340,15 +361,44 @@
                     <div class="inventory-images">
                         @foreach (var img in Model.Images.OrderBy(i => i.DisplayOrder))
                         {
-                            <div class="asset-item @(img.IsMain ? "is-master" : "")" id="asset-@img.PublicId.Replace("/", "-").Replace(".", "-")" onclick="setExistingMaster('@img.PublicId', this)">
-                                <img src="@img.ImageUrl" alt="Product Insight">
-                                <span class="badge-master">Master</span>
-                                <div class="asset-overlay">
-                                    <button type="button" class="btn-asset-remove" onclick="event.stopPropagation(); stageDeletion('@img.PublicId')">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                            <polyline points="3 6 5 6 21 6"></polyline>
-                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7"></path>
-                                        </svg>
+                            var safeId = img.PublicId.Replace("/", "-").Replace(".", "-");
+                            <div class="asset-item @(img.IsMain ? "is-master" : "")" id="asset-@safeId" onclick="setExistingMaster('@img.PublicId', this)">
+                                <!-- Image view -->
+                                <div style="flex: 1; position: relative; overflow: hidden; height: 140px;">
+                                    <img src="@img.ImageUrl" alt="Product Insight" id="img-@safeId" style="width:100%; height:100%; object-fit:cover; display:block;">
+                                    <span class="badge-master">Master</span>
+                                    <div class="asset-overlay">
+                                        <button type="button" class="btn-asset-remove" onclick="event.stopPropagation(); stageDeletion('@img.PublicId')">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                                <polyline points="3 6 5 6 21 6"></polyline>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <!-- Color Associate Control bar -->
+                                <div class="color-associate-bar" style="height: 48px; border-top: 1px solid var(--border-subtle); background: var(--bg-base); display: flex; align-items: center; justify-content: space-between; padding: 0 0.5rem;" onclick="event.stopPropagation();">
+                                    <input type="hidden" name="imagePublicIds" value="@img.PublicId" />
+                                    <input type="hidden" name="imageColors" value="@img.AssociatedColor" id="color-val-@safeId" />
+                                    
+                                    <!-- Swatch input color picker -->
+                                    <input type="color" id="picker-@safeId" 
+                                           value="@(string.IsNullOrEmpty(img.AssociatedColor) ? "#FFFFFF" : img.AssociatedColor)" 
+                                           style="width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--border-bold); cursor: pointer; padding: 0; background: transparent; overflow: hidden;"
+                                           onchange="updateColorValue('@safeId', this.value)" />
+                                           
+                                    <!-- Pipette button -->
+                                    <button type="button" class="btn-pipette" title="Alege de pe imagine (Pipetă)"
+                                            onclick="activateImagePipette('img-@safeId', '@safeId')"
+                                            style="background: transparent; border: none; cursor: pointer; color: var(--midnight); display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 6px; transition: var(--transition-smooth);">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                                    </button>
+
+                                    <!-- Auto detect button -->
+                                    <button type="button" class="btn-autodetect" title="Detectează automat culoarea (Zonă Centrală)"
+                                            onclick="detectImageColor('img-@safeId', '@safeId')"
+                                            style="background: transparent; border: none; cursor: pointer; color: var(--accent-primary); display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 6px; transition: var(--transition-smooth);">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
                                     </button>
                                 </div>
                             </div>
@@ -433,6 +483,8 @@
         updateSupplementPreview();
     }
 
+    let newImageColorsList = []; // Global list of colors for new uploads
+
     function updateSupplementPreview() {
         const grid = document.getElementById('supplementPreview');
         grid.innerHTML = '';
@@ -441,28 +493,72 @@
         selectedFiles.forEach(f => dt.items.add(f));
         document.getElementById('newImagesInp').files = dt.files;
 
+        // Asigurăm sincronizarea dimensiunii array-ului de culori
+        while (newImageColorsList.length < selectedFiles.length) {
+            newImageColorsList.push(null);
+        }
+        while (newImageColorsList.length > selectedFiles.length) {
+            newImageColorsList.pop();
+        }
+
         selectedFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const item = document.createElement('div');
                 item.className = `asset-item ${newMasterIndex === index ? 'is-master' : ''}`;
                 item.style.borderColor = 'var(--accent-primary)';
+                
+                const colorVal = newImageColorsList[index] || '#FFFFFF';
+                const safeImgId = 'new-img-' + index;
+                
                 item.innerHTML = `
-                    <img src="${e.target.result}" onclick="setNewMaster(${index})">
-                    <span class="badge-master">Master</span>
-                    <div class="asset-overlay">
-                        <button type="button" class="btn-asset-remove" onclick="event.stopPropagation(); removeNewImage(${index})">✕</button>
+                    <div style="flex: 1; position: relative; overflow: hidden; height: 140px;" onclick="setNewMaster(${index})">
+                        <img src="${e.target.result}" id="${safeImgId}" style="width:100%; height:100%; object-fit:cover; display:block;">
+                        <span class="badge-master">Master</span>
+                        <div class="asset-overlay">
+                            <button type="button" class="btn-asset-remove" onclick="event.stopPropagation(); removeNewImage(${index})">✕</button>
+                        </div>
+                    </div>
+                    <div class="color-associate-bar" style="height: 48px; border-top: 1px solid var(--border-subtle); background: var(--bg-base); display: flex; align-items: center; justify-content: space-between; padding: 0 0.5rem;" onclick="event.stopPropagation();">
+                        <input type="color" class="color-picker-input" 
+                               value="${colorVal}" 
+                               style="width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--border-bold); cursor: pointer; padding: 0; background: transparent; overflow: hidden;"
+                               onchange="updateColorValue(this.parentElement, this.value, ${index})" />
+                        
+                        <input type="hidden" class="color-hidden-val" value="${colorVal}" />
+                        
+                        <button type="button" title="Alege de pe imagine (Pipetă)"
+                                onclick="activateImagePipette('${safeImgId}', this.parentElement, ${index})"
+                                style="background: transparent; border: none; cursor: pointer; color: var(--midnight); display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 6px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                        </button>
+                        
+                        <button type="button" title="Detectează automat culoarea (Zonă Centrală)"
+                                onclick="detectImageColor('${safeImgId}', this.parentElement, ${index})"
+                                style="background: transparent; border: none; cursor: pointer; color: var(--accent-primary); display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 6px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
                     </div>
                 `;
                 grid.appendChild(item);
+                
+                // Rulăm automat detecția culorii din zona centrală
+                const img = item.querySelector('img');
+                img.onload = () => {
+                    if (!newImageColorsList[index]) {
+                        detectImageColor(safeImgId, img.parentElement.nextElementSibling, index);
+                    }
+                };
             }
             reader.readAsDataURL(file);
         });
         document.getElementById('mainNewImageIndex').value = newMasterIndex !== null ? newMasterIndex : '';
+        syncNewImageColorsInputs();
     }
 
     function removeNewImage(index) {
         selectedFiles.splice(index, 1);
+        newImageColorsList.splice(index, 1);
         if (newMasterIndex === index) newMasterIndex = null;
         else if (newMasterIndex > index) newMasterIndex--;
         updateSupplementPreview();
@@ -473,5 +569,165 @@
         document.getElementById('mainImagePublicId').value = '';
         document.querySelectorAll('.asset-item').forEach(i => i.classList.remove('is-master'));
         updateSupplementPreview();
+    }
+
+    // ── Color Capture & Extraction Utilities ──
+    function updateColorValue(inputIdOrElement, hex, isNewImageIndex) {
+        let picker, hiddenVal;
+        if (typeof inputIdOrElement === 'string') {
+            picker = document.getElementById('picker-' + inputIdOrElement);
+            hiddenVal = document.getElementById('color-val-' + inputIdOrElement);
+        } else {
+            picker = inputIdOrElement.querySelector('.color-picker-input');
+            hiddenVal = inputIdOrElement.querySelector('.color-hidden-val');
+        }
+        
+        if (picker) picker.value = hex;
+        if (hiddenVal) hiddenVal.value = hex;
+        
+        if (isNewImageIndex !== undefined && isNewImageIndex !== null) {
+            newImageColorsList[isNewImageIndex] = hex;
+            syncNewImageColorsInputs();
+        }
+        
+        syncProductColorsPalette();
+    }
+
+    function syncNewImageColorsInputs() {
+        let container = document.getElementById('newImageColorsInputs');
+        if (!container) {
+            const form = document.getElementById('editForm') || document.querySelector('form');
+            container = document.createElement('div');
+            container.id = 'newImageColorsInputs';
+            form.appendChild(container);
+        }
+        container.innerHTML = '';
+        newImageColorsList.forEach(c => {
+            const hid = document.createElement('input');
+            hid.type = 'hidden'; hid.name = 'newImageColors'; hid.value = c || '#FFFFFF';
+            container.appendChild(hid);
+        });
+    }
+
+    function syncProductColorsPalette() {
+        const colors = new Set();
+        document.querySelectorAll('input[name="imageColors"]').forEach(inp => {
+            if (inp.value && inp.value !== '#FFFFFF') colors.add(inp.value.toUpperCase());
+        });
+        newImageColorsList.forEach(c => {
+            if (c && c !== '#FFFFFF') colors.add(c.toUpperCase());
+        });
+        
+        const mainInput = document.getElementById('AvailableColors');
+        if (mainInput && colors.size > 0) {
+            const currentColors = mainInput.value.split(',').map(c => c.trim().toUpperCase()).filter(c => c);
+            colors.forEach(c => {
+                if (!currentColors.includes(c)) currentColors.push(c);
+            });
+            mainInput.value = currentColors.join(', ');
+        }
+    }
+
+    function activateImagePipette(imgId, inputIdOrElement, isNewImageIndex) {
+        const img = document.getElementById(imgId);
+        if (!img) return;
+        
+        if (window.EyeDropper) {
+            const dropper = new window.EyeDropper();
+            dropper.open().then(result => {
+                updateColorValue(inputIdOrElement, result.sRGBHex, isNewImageIndex);
+            }).catch(e => {});
+            return;
+        }
+        
+        img.style.cursor = 'crosshair';
+        img.style.outline = '3px solid var(--accent-primary)';
+        
+        if (window.showToast) window.showToast('Pipetă activă. Dă click pe poză pentru a selecta culoarea!', 'info');
+        
+        const clickHandler = function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            
+            const rect = img.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * img.naturalWidth;
+            const y = ((e.clientY - rect.top) / rect.height) * img.naturalHeight;
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = 1; canvas.height = 1;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, x, y, 1, 1, 0, 0, 1, 1);
+            const pixel = ctx.getImageData(0, 0, 1, 1).data;
+            const hex = rgbToHex(pixel[0], pixel[1], pixel[2]);
+            
+            updateColorValue(inputIdOrElement, hex, isNewImageIndex);
+            
+            img.style.cursor = '';
+            img.style.outline = '';
+            img.removeEventListener('click', clickHandler);
+            if (window.showToast) window.showToast('Culoare salvată!', 'success');
+        };
+        img.addEventListener('click', clickHandler);
+    }
+
+    function detectImageColor(imgId, inputIdOrElement, isNewImageIndex) {
+        const img = document.getElementById(imgId);
+        if (!img) return;
+        
+        if (!img.complete || img.naturalWidth === 0) {
+            img.onload = () => detectImageColor(imgId, inputIdOrElement, isNewImageIndex);
+            return;
+        }
+        
+        const canvas = document.createElement('canvas');
+        const targetSize = 60;
+        canvas.width = targetSize;
+        canvas.height = targetSize;
+        const ctx = canvas.getContext('2d');
+        
+        // Decupam doar 40% din mijlocul pozei
+        const cropWidth = img.naturalWidth * 0.4;
+        const cropHeight = img.naturalHeight * 0.4;
+        const startX = (img.naturalWidth - cropWidth) / 2;
+        const startY = (img.naturalHeight - cropHeight) / 2;
+        
+        ctx.drawImage(img, startX, startY, cropWidth, cropHeight, 0, 0, targetSize, targetSize);
+        
+        const imgData = ctx.getImageData(0, 0, targetSize, targetSize).data;
+        const colorCounts = {};
+        let maxCount = 0;
+        let dominantColor = '#FFFFFF';
+        
+        for (let i = 0; i < imgData.length; i += 4) {
+            const r = imgData[i]; const g = imgData[i+1]; const b = imgData[i+2]; const a = imgData[i+3];
+            // Ignoram culorile prea transparente, prea albe sau prea negre
+            if (a < 50 || (r > 240 && g > 240 && b > 240) || (r < 25 && g < 25 && b < 25)) continue;
+            
+            // Ignoram culorile de piele (foarte aproximativ: rosu > verde > albastru)
+            const isSkin = (r > 180 && g > 130 && b < 140 && r > g && g > b);
+            if (isSkin) continue;
+            
+            const qR = Math.round(r / 24) * 24;
+            const qG = Math.round(g / 24) * 24;
+            const qB = Math.round(b / 24) * 24;
+            
+            const hex = rgbToHex(qR, qG, qB);
+            colorCounts[hex] = (colorCounts[hex] || 0) + 1;
+            
+            if (colorCounts[hex] > maxCount) {
+                maxCount = colorCounts[hex];
+                dominantColor = hex;
+            }
+        }
+        
+        // Daca am exclus absolut totul si nu avem culoare, punem o valoare default
+        if (maxCount === 0) dominantColor = '#CCCCCC';
+        
+        updateColorValue(inputIdOrElement, dominantColor, isNewImageIndex);
+        if (window.showToast) window.showToast('Culoare centrală extrasă!', 'success');
+    }
+
+    function rgbToHex(r, g, b) {
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
     }
 </script>

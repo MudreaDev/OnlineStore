@@ -9,16 +9,16 @@ namespace OnlineStore.Tests
     public class FactoryMethodTests
     {
         [Fact]
-        public void ElectronicFactory_CreatesElectronicProduct()
+        public void ElectronicFactory_CreatesAccessoryProduct()
         {
             // Arrange
-            ProductFactory factory = new ElectronicProductFactory();
+            ProductFactory factory = new AccessoryProductFactory();
 
             // Act
             Product product = factory.CreateProduct("Laptop", 1487m);
 
             // Assert
-            Assert.IsType<ElectronicProduct>(product);
+            Assert.IsType<AccessoryProduct>(product);
             Assert.Equal("Laptop", product.Name);
             Assert.Equal(1487m, product.Price);
         }
@@ -42,7 +42,7 @@ namespace OnlineStore.Tests
         public void DifferentFactories_CreateDifferentProducts()
         {
             // Arrange
-            ProductFactory electronicFactory = new ElectronicProductFactory();
+            ProductFactory electronicFactory = new AccessoryProductFactory();
             ProductFactory clothingFactory = new ClothingProductFactory();
 
             // Act
@@ -50,7 +50,7 @@ namespace OnlineStore.Tests
             Product clothing = clothingFactory.CreateProduct("Shirt", 36m);
 
             // Assert
-            Assert.IsType<ElectronicProduct>(electronic);
+            Assert.IsType<AccessoryProduct>(electronic);
             Assert.IsType<ClothingProduct>(clothing);
         }
     }

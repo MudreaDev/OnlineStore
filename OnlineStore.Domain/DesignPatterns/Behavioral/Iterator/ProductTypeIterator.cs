@@ -64,7 +64,7 @@ namespace OnlineStore.Domain.DesignPatterns.Behavioral.Iterator
             var categoryName = product.SubCategory?.Category?.Name ?? "";
             var subCategoryName = product.SubCategory?.Name ?? "";
             
-            // Handle plural/singular mismatches (e.g. "Vehicles" matches "VehicleProduct")
+            // Handle plural/singular mismatches (e.g. "Accessories" matches "AccessoryProduct")
             var normalizedFilter = _typeFilter.TrimEnd('s');
             
             return typeName.Contains(normalizedFilter, StringComparison.OrdinalIgnoreCase)

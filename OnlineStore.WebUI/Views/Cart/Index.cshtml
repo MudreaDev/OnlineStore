@@ -161,7 +161,7 @@
         backdrop-filter: blur(20px);
         border: 1px solid var(--border-subtle);
         border-radius: 28px;
-        padding: 2.25rem;
+        padding: 1.25rem;
         position: sticky;
         top: 120px;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.02);
@@ -422,9 +422,9 @@
                                         var itemKey = $"{product.Id}_{item.Size}_{item.Color}".Replace("-", "").Replace(" ", "");
                                     }
                                     <div class="qty-wrap" id="item-row-@itemKey">
-                                        <button type="button" class="qty-btn" onclick="updateQty(-1, '@product.Id', '@item.Size', '@item.Color')" id="dec-@itemKey" @(item.Quantity <= 1 ? "disabled" : "")>−</button>
+                                        <button type="button" class="qty-btn" onclick="updateQty(-1, '@product.Id', '@item.Size', '@item.Color', @product.Stock)" id="dec-@itemKey" @(item.Quantity <= 1 ? "disabled" : "")>−</button>
                                         <span id="qty-@itemKey">@item.Quantity</span>
-                                        <button type="button" class="qty-btn" onclick="updateQty(1, '@product.Id', '@item.Size', '@item.Color')" id="inc-@itemKey" @(item.Quantity >= product.Stock ? "disabled" : "")>+</button>
+                                        <button type="button" class="qty-btn" onclick="updateQty(1, '@product.Id', '@item.Size', '@item.Color', @product.Stock)" id="inc-@itemKey" @(item.Quantity >= product.Stock ? "disabled" : "")>+</button>
                                     </div>
 
                                     <div class="item-price" id="total-@itemKey">@((product.Price * item.Quantity).ToString("C0"))</div>
@@ -584,13 +584,19 @@
 </div>
 
 <script>
-    async function updateQty(adjustment, productId, size, color) {
+    async function updateQty(adjustment, productId, size, color, stock) {
         const key = (productId + '_' + size + '_' + color).replace(/-/g, '').replace(/ /g, '');
         const qtySpan = document.getElementById('qty-' + key);
         const currentQty = parseInt(qtySpan.innerText);
         const newQty = currentQty + adjustment;
 
-        if (newQty < 1) return;
+        if (newQty < 1 || newQty > stock) return;
+
+        // Blochează butoanele pentru a preveni click-uri multiple rapide
+        const incBtn = document.getElementById('inc-' + key);
+        const decBtn = document.getElementById('dec-' + key);
+        if (incBtn) incBtn.disabled = true;
+        if (decBtn) decBtn.disabled = true;
 
         const formData = new FormData();
         formData.append('id', productId);
@@ -613,17 +619,22 @@
                 document.getElementById('overall-cart-total').innerText = result.cartTotalFormatted;
                 
                 // Update button states
-                document.getElementById('dec-' + key).disabled = (result.newQuantity <= 1);
-                document.getElementById('inc-' + key).disabled = result.stockLimitReached;
+                if (decBtn) decBtn.disabled = (result.newQuantity <= 1);
+                if (incBtn) incBtn.disabled = result.stockLimitReached;
                 
                 if (result.stockLimitReached && adjustment > 0) {
                      alert("Stoc maxim atins");
                 }
             } else {
                 alert(result.message || "Eroare la actualizarea cantității.");
+                // Re-enable in case of error
+                if (decBtn) decBtn.disabled = (currentQty <= 1);
+                if (incBtn) incBtn.disabled = (currentQty >= stock);
             }
         } catch (e) {
             console.error("Cart error:", e);
+            if (decBtn) decBtn.disabled = (currentQty <= 1);
+            if (incBtn) incBtn.disabled = (currentQty >= stock);
         }
     }
 

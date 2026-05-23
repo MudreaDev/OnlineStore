@@ -3,6 +3,12 @@
 
 @{
     ViewData["Title"] = "Catalog Produse (Composite Pattern)";
+    var catDisplayNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        { "Electronic", "Accesorii" },
+        { "Clothing", "Îmbrăcăminte" },
+        { "Vehicle", "Încălțăminte" }
+    };
 }
 
 <style>
@@ -86,7 +92,7 @@
         {
             <div class="category-card">
                 <h2 class="category-title">
-                    @subCategory.Name 
+                    @(catDisplayNames.TryGetValue(subCategory.Name, out var dispName) ? dispName : subCategory.Name) 
                     <span style="font-size: 0.9rem; color: var(--text-muted); float: right; font-weight: normal; background: var(--bg-base); padding: 0.25rem 0.75rem; border-radius: 20px;">
                         Valoare Categorie: <b>@subCategory.GetPrice().ToString("C2")</b>
                     </span>

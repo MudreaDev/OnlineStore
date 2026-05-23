@@ -23,7 +23,7 @@ namespace OnlineStore.Tests
             var user = new Customer("test", "test@test.com", "addr");
             userRepo.Add(user);
 
-            var factory = new ElectronicProductFactory();
+            var factory = new AccessoryProductFactory();
             var product = factory.CreateProduct("Laptop Test", 1000m);
             product.Stock = 10;
             productRepo.Add(product);

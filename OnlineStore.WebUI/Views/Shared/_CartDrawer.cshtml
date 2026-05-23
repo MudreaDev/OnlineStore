@@ -156,9 +156,9 @@
 
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
                         <div class="qty-wrap" id="item-row-@itemKey">
-                            <button type="button" class="qty-btn" onclick="updateQty(-1, '@product.Id', '@item.Size', '@item.Color')" id="dec-@itemKey" @(item.Quantity <= 1 ? "disabled" : "")>−</button>
+                            <button type="button" class="qty-btn" onclick="updateQty(-1, '@product.Id', '@item.Size', '@item.Color', @product.Stock)" id="dec-@itemKey" @(item.Quantity <= 1 ? "disabled" : "")>−</button>
                             <span id="qty-@itemKey">@item.Quantity</span>
-                            <button type="button" class="qty-btn" onclick="updateQty(1, '@product.Id', '@item.Size', '@item.Color')" id="inc-@itemKey" @(item.Quantity >= product.Stock ? "disabled" : "")>+</button>
+                            <button type="button" class="qty-btn" onclick="updateQty(1, '@product.Id', '@item.Size', '@item.Color', @product.Stock)" id="inc-@itemKey" @(item.Quantity >= product.Stock ? "disabled" : "")>+</button>
                         </div>
                         <div class="item-price" id="total-@itemKey">@CurrencyService.FormatPrice(product.Price * item.Quantity)</div>
                         

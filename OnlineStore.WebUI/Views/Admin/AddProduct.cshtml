@@ -107,17 +107,21 @@
 
     .preview-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-        gap: 0.75rem;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 1.25rem;
         margin-top: 1.5rem;
     }
 
     .thumb-box {
         position: relative;
-        aspect-ratio: 1;
-        border-radius: 8px;
+        border-radius: 12px;
         overflow: hidden;
         border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        height: 190px;
+        background: #fff;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
     }
 
     .thumb-box img {
@@ -143,12 +147,24 @@
         background: var(--accent-primary);
     }
 </style>
-
 <div class="admin-form-container">
-    <div class="form-header">
-        <h1 class="form-title">📦 Adăugare <span style="color: var(--accent-primary)">Produs Nou</span></h1>
+    <div style="margin-bottom: 1.5rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">
+        <a href="@Url.Action("Index")" style="color: inherit; text-decoration: none; font-weight: 700; transition: color 0.2s;" onmouseover="this.style.color='var(--accent-primary)'" onmouseout="this.style.color='inherit'">Dashboard</a> 
+        <span style="opacity: 0.5; margin: 0 0.4rem;">/</span> 
+        <a href="@Url.Action("Products")" style="color: inherit; text-decoration: none; font-weight: 700; transition: color 0.2s;" onmouseover="this.style.color='var(--accent-primary)'" onmouseout="this.style.color='inherit'">Stoc Produse</a> 
+        <span style="opacity: 0.5; margin: 0 0.4rem;">/</span> 
+        <span style="color: var(--accent-primary); font-weight: 800;">Adăugare Produs</span>
     </div>
-
+    <div class="form-header" style="display: flex; align-items: center; gap: 1rem;">
+        <a asp-action="Products" class="btn-submit" title="Înapoi la Stoc Produse" style="background: var(--border-subtle); border: 1px solid var(--border-bold); color: var(--text-main); font-size: 0.75rem; font-weight: 700; height: 38px; width: auto; padding: 0 1rem; border-radius: 10px; display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0; text-decoration: none; transition: var(--transition-smooth);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--text-main)">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Stoc Produse
+        </a>
+        <h1 class="form-title" style="margin: 0;">📦 Adăugare <span style="color: var(--accent-primary)">Produs Nou</span></h1>
+    </div>
     <div class="form-card">
         <form asp-action="AddProduct" method="post" enctype="multipart/form-data">
             <div class="form-grid">
@@ -160,9 +176,9 @@
                         <label class="field-label">Tip Produs</label>
                         <select name="Type" id="Type" class="premium-input" onchange="toggleFields()">
                             <option value="Dynamic">⚡ Categorie Dinamică (Taxonomie Personalizată)</option>
-                            <option value="Electronic">Electronic (Tradițional)</option>
-                            <option value="Clothing">Îmbrăcăminte (Tradițional)</option>
-                            <option value="Vehicle">Vehicul (Tradițional)</option>
+                            <option value="Footwear">Încălțăminte</option>
+                            <option value="Clothing">Îmbrăcăminte</option>
+                            <option value="Accessory">Accesorii</option>
                         </select>
                     </div>
 
@@ -184,7 +200,7 @@
 
                     <div class="field-group">
                         <label class="field-label">Paletă Culori (Coduri separate prin virgulă)</label>
-                        <input type="text" name="availableColors" class="premium-input" placeholder="#000, #fff, #ef4444" />
+                        <input type="text" name="availableColors" id="AvailableColors" class="premium-input" placeholder="#000, #fff, #ef4444" />
                     </div>
 
                     <!-- Dynamic Sections -->
@@ -211,11 +227,15 @@
                         <div id="dynamicInputsContainer" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;"></div>
                     </div>
 
-                    <div id="ElectronicFields" class="type-container" style="display:none;">
-                        <span class="form-section-title" style="color:var(--midnight)">Specificații Electronice</span>
-                         <div class="field-group">
-                            <label class="field-label">Garanție (Luni)</label>
-                            <input type="number" name="WarrantyMonths" class="premium-input" value="24" />
+                    <div id="FootwearFields" class="type-container" style="display:none;">
+                        <span class="form-section-title" style="color:var(--midnight)">Specificații Încălțăminte</span>
+                        <div class="field-group">
+                            <label class="field-label">Material</label>
+                            <input type="text" name="material" class="premium-input" placeholder="Piele, Plasă, etc." />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Mărimi Disponibile</label>
+                            <input type="text" name="availableSizes" class="premium-input" placeholder="39, 40, 41" />
                         </div>
                     </div>
 
@@ -231,12 +251,15 @@
                         </div>
                     </div>
 
-                    <div id="VehicleFields" class="type-container" style="display:none;">
-                        <span class="form-section-title" style="color:var(--midnight)">Specificații Vehicul</span>
-                        <div class="input-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-                            <input type="text" name="Make" class="premium-input" placeholder="Marcă" />
-                            <input type="text" name="Model" class="premium-input" placeholder="Model" />
-                            <input type="number" name="Year" class="premium-input" value="2024" style="grid-column: span 2" />
+                    <div id="AccessoryFields" class="type-container" style="display:none;">
+                        <span class="form-section-title" style="color:var(--midnight)">Specificații Accesorii</span>
+                        <div class="field-group">
+                            <label class="field-label">Brand</label>
+                            <input type="text" name="brand" class="premium-input" placeholder="ex: Rolex, Gucci" />
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Material</label>
+                            <input type="text" name="material" class="premium-input" placeholder="Aur, Piele, etc." />
                         </div>
                     </div>
                 </div>
@@ -270,7 +293,7 @@
 <script>
     function toggleFields() {
         const type = document.getElementById('Type').value;
-        const sections = ['DynamicFields', 'ElectronicFields', 'ClothingFields', 'VehicleFields'];
+        const sections = ['DynamicFields', 'FootwearFields', 'ClothingFields', 'AccessoryFields'];
         sections.forEach(s => {
             document.getElementById(s).style.display = s.startsWith(type) ? 'block' : 'none';
         });
@@ -300,6 +323,7 @@
 
     let selectedFiles = [];
     let masterIdx = 0;
+    let newImageColorsList = []; // Global list of colors for new uploads
 
     function handleFileSelect(input) {
         const files = Array.from(input.files);
@@ -316,27 +340,222 @@
         document.getElementById('imageInput').files = dt.files;
         document.getElementById('imageInput').name = "images";
 
+        // Asigurăm sincronizarea dimensiunii array-ului de culori
+        while (newImageColorsList.length < selectedFiles.length) {
+            newImageColorsList.push(null);
+        }
+        while (newImageColorsList.length > selectedFiles.length) {
+            newImageColorsList.pop();
+        }
+
         selectedFiles.forEach((file, idx) => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const box = document.createElement('div');
                 box.className = 'thumb-box';
                 if(idx === masterIdx) box.style.borderColor = 'var(--accent-primary)';
+                
+                const colorVal = newImageColorsList[idx] || '#FFFFFF';
+                const safeImgId = 'new-img-' + idx;
+                
                 box.innerHTML = `
-                    <img src="${e.target.result}" onclick="setMaster(${idx})" style="cursor:pointer">
-                    <div onclick="removeFile(${idx})" style="position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.5); color:#fff; width:16px; height:16px; font-size:10px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer">✕</div>
+                    <div style="flex: 1; position: relative; overflow: hidden; height: 140px;" onclick="setMaster(${idx})">
+                        <img src="${e.target.result}" id="${safeImgId}" style="width:100%; height:100%; object-fit:cover; display:block; cursor:pointer">
+                        <div onclick="event.stopPropagation(); removeFile(${idx})" style="position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.6); color:#fff; width:20px; height:20px; font-size:10px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; z-index:10;">✕</div>
+                    </div>
+                    <div class="color-associate-bar" style="height: 48px; border-top: 1px solid var(--border-subtle); background: var(--bg-base); display: flex; align-items: center; justify-content: space-between; padding: 0 0.5rem;" onclick="event.stopPropagation();">
+                        <input type="color" class="color-picker-input" 
+                               value="${colorVal}" 
+                               style="width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--border-bold); cursor: pointer; padding: 0; background: transparent; overflow: hidden;"
+                               onchange="updateColorValue(this.parentElement, this.value, ${idx})" />
+                        
+                        <input type="hidden" class="color-hidden-val" value="${colorVal}" />
+                        
+                        <button type="button" title="Alege de pe imagine (Pipetă)"
+                                onclick="activateImagePipette('${safeImgId}', this.parentElement, ${idx})"
+                                style="background: transparent; border: none; cursor: pointer; color: var(--midnight); display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 6px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                        </button>
+                        
+                        <button type="button" title="Detectează automat culoarea (Zonă Centrală)"
+                                onclick="detectImageColor('${safeImgId}', this.parentElement, ${idx})"
+                                style="background: transparent; border: none; cursor: pointer; color: var(--accent-primary); display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 6px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
                 `;
                 container.appendChild(box);
+                
+                // Rulăm automat detecția culorii din zona centrală după încărcare
+                const img = box.querySelector('img');
+                img.onload = () => {
+                    if (!newImageColorsList[idx]) {
+                        detectImageColor(safeImgId, img.parentElement.nextElementSibling, idx);
+                    }
+                };
             };
             reader.readAsDataURL(file);
         });
         document.getElementById('mainImageIndex').value = masterIdx;
+        syncNewImageColorsInputs();
     }
 
     function removeFile(idx) {
         selectedFiles.splice(idx, 1);
+        newImageColorsList.splice(idx, 1);
         if(masterIdx >= selectedFiles.length) masterIdx = 0;
         updatePreview();
+    }
+
+    // ── Color Capture & Extraction Utilities ──
+    function updateColorValue(inputIdOrElement, hex, isNewImageIndex) {
+        let picker = inputIdOrElement.querySelector('.color-picker-input');
+        let hiddenVal = inputIdOrElement.querySelector('.color-hidden-val');
+        
+        if (picker) picker.value = hex;
+        if (hiddenVal) hiddenVal.value = hex;
+        
+        if (isNewImageIndex !== undefined && isNewImageIndex !== null) {
+            newImageColorsList[isNewImageIndex] = hex;
+            syncNewImageColorsInputs();
+        }
+        
+        syncProductColorsPalette();
+    }
+
+    function syncNewImageColorsInputs() {
+        let container = document.getElementById('newImageColorsInputs');
+        if (!container) {
+            const form = document.querySelector('form');
+            container = document.createElement('div');
+            container.id = 'newImageColorsInputs';
+            form.appendChild(container);
+        }
+        container.innerHTML = '';
+        newImageColorsList.forEach(c => {
+            const hid = document.createElement('input');
+            hid.type = 'hidden'; hid.name = 'newImageColors'; hid.value = c || '#FFFFFF';
+            container.appendChild(hid);
+        });
+    }
+
+    function syncProductColorsPalette() {
+        const colors = new Set();
+        newImageColorsList.forEach(c => {
+            if (c && c !== '#FFFFFF') colors.add(c.toUpperCase());
+        });
+        
+        const mainInput = document.getElementById('AvailableColors');
+        if (mainInput && colors.size > 0) {
+            const currentColors = mainInput.value.split(',').map(c => c.trim().toUpperCase()).filter(c => c);
+            colors.forEach(c => {
+                if (!currentColors.includes(c)) currentColors.push(c);
+            });
+            mainInput.value = currentColors.join(', ');
+        }
+    }
+
+    function activateImagePipette(imgId, inputIdOrElement, isNewImageIndex) {
+        const img = document.getElementById(imgId);
+        if (!img) return;
+        
+        if (window.EyeDropper) {
+            const dropper = new window.EyeDropper();
+            dropper.open().then(result => {
+                updateColorValue(inputIdOrElement, result.sRGBHex, isNewImageIndex);
+            }).catch(e => {});
+            return;
+        }
+        
+        img.style.cursor = 'crosshair';
+        img.style.outline = '3px solid var(--accent-primary)';
+        
+        if (window.showToast) window.showToast('Pipetă activă. Dă click pe poză pentru a selecta culoarea!', 'info');
+        
+        const clickHandler = function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            
+            const rect = img.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * img.naturalWidth;
+            const y = ((e.clientY - rect.top) / rect.height) * img.naturalHeight;
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = 1; canvas.height = 1;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, x, y, 1, 1, 0, 0, 1, 1);
+            const pixel = ctx.getImageData(0, 0, 1, 1).data;
+            const hex = rgbToHex(pixel[0], pixel[1], pixel[2]);
+            
+            updateColorValue(inputIdOrElement, hex, isNewImageIndex);
+            
+            img.style.cursor = '';
+            img.style.outline = '';
+            img.removeEventListener('click', clickHandler);
+            if (window.showToast) window.showToast('Culoare salvată!', 'success');
+        };
+        img.addEventListener('click', clickHandler);
+    }
+
+    function detectImageColor(imgId, inputIdOrElement, isNewImageIndex) {
+        const img = document.getElementById(imgId);
+        if (!img) return;
+        
+        if (!img.complete || img.naturalWidth === 0) {
+            img.onload = () => detectImageColor(imgId, inputIdOrElement, isNewImageIndex);
+            return;
+        }
+        
+        const canvas = document.createElement('canvas');
+        const targetSize = 60;
+        canvas.width = targetSize;
+        canvas.height = targetSize;
+        const ctx = canvas.getContext('2d');
+        
+        // Decupam doar 40% din mijlocul pozei
+        const cropWidth = img.naturalWidth * 0.4;
+        const cropHeight = img.naturalHeight * 0.4;
+        const startX = (img.naturalWidth - cropWidth) / 2;
+        const startY = (img.naturalHeight - cropHeight) / 2;
+        
+        ctx.drawImage(img, startX, startY, cropWidth, cropHeight, 0, 0, targetSize, targetSize);
+        
+        const imgData = ctx.getImageData(0, 0, targetSize, targetSize).data;
+        const colorCounts = {};
+        let maxCount = 0;
+        let dominantColor = '#FFFFFF';
+        
+        for (let i = 0; i < imgData.length; i += 4) {
+            const r = imgData[i]; const g = imgData[i+1]; const b = imgData[i+2]; const a = imgData[i+3];
+            // Ignoram culorile prea transparente, prea albe sau prea negre
+            if (a < 50 || (r > 240 && g > 240 && b > 240) || (r < 25 && g < 25 && b < 25)) continue;
+            
+            // Ignoram culorile de piele (foarte aproximativ: rosu > verde > albastru)
+            const isSkin = (r > 180 && g > 130 && b < 140 && r > g && g > b);
+            if (isSkin) continue;
+            
+            const qR = Math.round(r / 24) * 24;
+            const qG = Math.round(g / 24) * 24;
+            const qB = Math.round(b / 24) * 24;
+            
+            const hex = rgbToHex(qR, qG, qB);
+            colorCounts[hex] = (colorCounts[hex] || 0) + 1;
+            
+            if (colorCounts[hex] > maxCount) {
+                maxCount = colorCounts[hex];
+                dominantColor = hex;
+            }
+        }
+        
+        // Daca am exclus absolut totul si nu avem culoare (ex. o poza doar cu un fundal alb pur), punem o valoare default
+        if (maxCount === 0) dominantColor = '#CCCCCC';
+        
+        updateColorValue(inputIdOrElement, dominantColor, isNewImageIndex);
+        if (window.showToast) window.showToast('Culoare centrală extrasă!', 'success');
+    }
+
+    function rgbToHex(r, g, b) {
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
     }
 
     function setMaster(idx) {
