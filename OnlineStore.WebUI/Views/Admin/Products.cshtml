@@ -394,8 +394,8 @@
         {
             <div style="text-align: center; padding: 6rem 2rem;">
                 <div style="font-size: 3rem; margin-bottom: 1.5rem; opacity: 0.3;">🗃️</div>
-                <h4 style="font-family: var(--font-display); color: var(--midnight);">No inventory items</h4>
-                <p style="color: var(--text-muted); font-size: 0.875rem;">Your digital warehouse is currently empty.</p>
+                <h4 style="font-family: var(--font-display); color: var(--midnight);">Nu există articole în stoc</h4>
+                <p style="color: var(--text-muted); font-size: 0.875rem;">Depozitul digital este momentan gol.</p>
             </div>
         }
         else
@@ -403,11 +403,11 @@
             <table class="inventory-table">
                 <thead>
                     <tr>
-                        <th>Product Details</th>
-                        <th>Type</th>
-                        <th>Price</th>
-                        <th>Shipment Stock</th>
-                        <th>Actions</th>
+                        <th>Detalii Produs</th>
+                        <th>Tip</th>
+                        <th>Preț</th>
+                        <th>Stoc Livrare</th>
+                        <th>Acțiuni</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -454,7 +454,7 @@
                                     style="color: @(product.Stock > 0 ? "var(--accent-primary)" : "#dc2626")">
                                     <div class="stock-dot"
                                         style="background: @(product.Stock > 0 ? "var(--accent-primary)" : "#dc2626")"></div>
-                                    @product.Stock units
+                                    @product.Stock unități
                                 </div>
                             </td>
                             <td>

@@ -157,6 +157,53 @@
         margin-bottom: 1.5rem;
         opacity: 0.3;
     }
+
+    /* Primary Bag Button Styling */
+    .btn-bag-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--midnight);
+        color: #fff;
+        font-family: var(--font-display);
+        font-weight: 700;
+        text-decoration: none;
+        border-radius: 12px;
+        transition: var(--transition-smooth);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn-bag-primary:hover {
+        background: var(--accent-primary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* --- Dark Theme Overrides --- */
+    .dark-theme .product-card {
+        background: var(--surface);
+        border-color: var(--border-subtle);
+    }
+
+    .dark-theme .empty-state {
+        background: var(--surface);
+        border-color: var(--border-subtle);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .dark-theme .btn-bag-primary {
+        background: var(--accent-primary);
+        color: #0b0f19;
+    }
+
+    .dark-theme .btn-bag-primary:hover {
+        background: #ffffff;
+        color: #0b0f19;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+    }
 </style>
 
 <div class="container fade-in" style="padding-top: 2rem;">
@@ -165,21 +212,21 @@
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
-        Back to collection
+        Înapoi la magazin
     </a>
 
     <header class="archive-header">
-        <h1 class="archive-title">Archive</h1>
-        <p class="archive-subtitle">Exclusive pieces that are currently unavailable. Sign up to be the first to know when they return to our collection.</p>
+        <h1 class="archive-title">Arhivă</h1>
+        <p class="archive-subtitle">Piese exclusiviste care nu sunt disponibile momentan. Înscrie-te pentru a fi notificat primul când revin în colecție.</p>
     </header>
 
     @if (!Model.Any())
     {
         <div class="empty-state">
             <div class="empty-icon">📂</div>
-            <h3 class="card-name">Collection is Complete</h3>
-            <p class="archive-subtitle">All our curated items are currently in stock and available for immediate shipping.</p>
-            <a asp-action="Index" class="btn-bag-primary" style="display: inline-flex; width: auto; margin-top: 2rem; padding: 1rem 2.5rem;">Explore Catalog</a>
+            <h3 class="card-name">Colecția este Completă</h3>
+            <p class="archive-subtitle">Toate articolele noastre curatoriate sunt în prezent în stoc și disponibile pentru livrare imediată.</p>
+            <a asp-action="Index" class="btn-bag-primary" style="display: inline-flex; width: auto; margin-top: 2rem; padding: 1rem 2.5rem;">Explorează Colecția</a>
         </div>
     }
     else
@@ -189,7 +236,7 @@
             {
                 var mainImage = product.Images.FirstOrDefault(i => i.IsMain) ?? product.Images.FirstOrDefault();
                 <div class="product-card">
-                    <span class="status-badge">Waitlist</span>
+                    <span class="status-badge">Listă așteptare</span>
                     
                     <a asp-action="Details" asp-route-id="@product.Id" style="text-decoration: none; color: inherit;">
                         <div class="card-img-wrapper">
@@ -208,7 +255,7 @@
                             <div class="card-price">@ApplicationConfigurationManager.Instance.CurrencySymbol@product.Price.ToString("N0")</div>
                             
                             <div class="card-footer">
-                                <span>Notify Me</span>
+                                <span>Anunță-mă</span>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
                                     <polyline points="12 5 19 12 12 19"></polyline>
