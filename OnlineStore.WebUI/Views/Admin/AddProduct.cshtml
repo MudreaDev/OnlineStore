@@ -1,4 +1,5 @@
 @using OnlineStore.Domain.Entities
+@using Microsoft.EntityFrameworkCore
 @inject OnlineStore.Application.Data.OnlineStoreDbContext _context
 @{
     ViewData["Title"] = "Add Item";
@@ -145,7 +146,7 @@
 
 <div class="admin-form-container">
     <div class="form-header">
-        <h1 class="form-title">📦 New Inventory <span style="color: var(--accent-primary)">Item</span></h1>
+        <h1 class="form-title">📦 Adăugare <span style="color: var(--accent-primary)">Produs Nou</span></h1>
     </div>
 
     <div class="form-card">
@@ -153,52 +154,57 @@
             <div class="form-grid">
                 <!-- Left Column: Core Info -->
                 <div>
-                    <span class="form-section-title">Core Identity</span>
+                    <span class="form-section-title">Informații De Bază</span>
                     
                     <div class="field-group">
-                        <label class="field-label">Engine Classification</label>
+                        <label class="field-label">Tip Produs</label>
                         <select name="Type" id="Type" class="premium-input" onchange="toggleFields()">
-                            <option value="Dynamic">⚡ Dynamic Taxonomy (Custom Categories)</option>
-                            <option value="Electronic">Electronic (Legacy)</option>
-                            <option value="Clothing">Clothing (Legacy)</option>
-                            <option value="Vehicle">Vehicle (Legacy)</option>
+                            <option value="Dynamic">⚡ Categorie Dinamică (Taxonomie Personalizată)</option>
+                            <option value="Electronic">Electronic (Tradițional)</option>
+                            <option value="Clothing">Îmbrăcăminte (Tradițional)</option>
+                            <option value="Vehicle">Vehicul (Tradițional)</option>
                         </select>
                     </div>
 
                     <div class="field-group">
-                        <label class="field-label">Product Name</label>
-                        <input type="text" name="Name" class="premium-input" placeholder="e.g. Minimalist Watch" required />
+                        <label class="field-label">Nume Produs</label>
+                        <input type="text" name="Name" class="premium-input" placeholder="ex: Ceas Minimalist" required />
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="field-group">
-                            <label class="field-label">Retail Price ($)</label>
+                            <label class="field-label">Preț Vânzare</label>
                             <input type="number" name="Price" step="0.01" class="premium-input" placeholder="0.00" required />
                         </div>
                         <div class="field-group">
-                            <label class="field-label">Opening Stock</label>
+                            <label class="field-label">Stoc Inițial</label>
                             <input type="number" name="stock" class="premium-input" value="10" required />
                         </div>
                     </div>
 
                     <div class="field-group">
-                        <label class="field-label">Color Palette (Comma CSV)</label>
+                        <label class="field-label">Paletă Culori (Coduri separate prin virgulă)</label>
                         <input type="text" name="availableColors" class="premium-input" placeholder="#000, #fff, #ef4444" />
                     </div>
 
                     <!-- Dynamic Sections -->
                     <div id="DynamicFields" class="type-container" style="border-top: 3px solid #0077cc;">
-                        <span class="form-section-title" style="color:#0077cc">Taxonomy Mapping</span>
+                        <span class="form-section-title" style="color:#0077cc">Mapare Categorie & Taxonomie</span>
                         <div class="field-group">
-                            <label class="field-label">Select Sub-Category</label>
+                            <label class="field-label">Selectează Subcategoria</label>
                             <select name="subcategoryId" id="subcategoryId" class="premium-input" onchange="renderDynamicForm()">
-                                <option value="">-- Choose Type --</option>
+                                <option value="">-- Alege Categoria --</option>
                                 @inject OnlineStore.Application.Data.OnlineStoreDbContext _db
                                 @{
-                                    var subs = _db.SubCategories.Select(s => new { s.Id, s.Name, s.ExpectedAttributes }).ToList();
+                                    var subs = _db.SubCategories
+                                        .Include(s => s.Category)
+                                        .Select(s => new { s.Id, s.Name, s.ExpectedAttributes, ParentName = s.Category.Name })
+                                        .ToList();
                                 }
                                 @foreach(var s in subs) {
-                                    <option value="@s.Id" data-attrs="@s.ExpectedAttributes">@s.Name</option>
+                                    <option value="@s.Id" data-attrs="@s.ExpectedAttributes">
+                                        @s.ParentName@(s.ParentName != s.Name ? $" - {s.Name}" : "")
+                                    </option>
                                 }
                             </select>
                         </div>
@@ -206,29 +212,29 @@
                     </div>
 
                     <div id="ElectronicFields" class="type-container" style="display:none;">
-                        <span class="form-section-title" style="color:var(--midnight)">Electronic Specs</span>
+                        <span class="form-section-title" style="color:var(--midnight)">Specificații Electronice</span>
                          <div class="field-group">
-                            <label class="field-label">Warranty (Months)</label>
+                            <label class="field-label">Garanție (Luni)</label>
                             <input type="number" name="WarrantyMonths" class="premium-input" value="24" />
                         </div>
                     </div>
 
                     <div id="ClothingFields" class="type-container" style="display:none;">
-                        <span class="form-section-title" style="color:var(--midnight)">Clothing Specs</span>
+                        <span class="form-section-title" style="color:var(--midnight)">Specificații Îmbrăcăminte</span>
                          <div class="field-group">
                             <label class="field-label">Material</label>
-                            <input type="text" name="material" class="premium-input" placeholder="Cotton, etc." />
+                            <input type="text" name="material" class="premium-input" placeholder="Bumbac, etc." />
                         </div>
                         <div class="field-group">
-                            <label class="field-label">Available Sizes</label>
+                            <label class="field-label">Mărimi Disponibile</label>
                             <input type="text" name="availableSizes" class="premium-input" placeholder="S, M, L" />
                         </div>
                     </div>
 
                     <div id="VehicleFields" class="type-container" style="display:none;">
-                        <span class="form-section-title" style="color:var(--midnight)">Vehicle Specs</span>
+                        <span class="form-section-title" style="color:var(--midnight)">Specificații Vehicul</span>
                         <div class="input-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
-                            <input type="text" name="Make" class="premium-input" placeholder="Make" />
+                            <input type="text" name="Make" class="premium-input" placeholder="Marcă" />
                             <input type="text" name="Model" class="premium-input" placeholder="Model" />
                             <input type="number" name="Year" class="premium-input" value="2024" style="grid-column: span 2" />
                         </div>
@@ -237,11 +243,11 @@
 
                 <!-- Right Column: Media -->
                 <div>
-                    <span class="form-section-title">Visual Assets & Media</span>
+                    <span class="form-section-title">Imagini și Galerie Foto</span>
                     <div class="upload-area" onclick="document.getElementById('imageInput').click()">
                         <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">☁</div>
-                        <p style="font-weight: 700; font-size: 0.85rem; margin: 0;">Upload Galleries</p>
-                        <p style="font-size: 0.7rem; color: var(--text-muted);">Max 5 files · Click to browse</p>
+                        <p style="font-weight: 700; font-size: 0.85rem; margin: 0;">Încarcă Imagini</p>
+                        <p style="font-size: 0.7rem; color: var(--text-muted);">Maxim 5 fișiere · Click pentru a selecta</p>
                     </div>
                     <input type="file" id="imageInput" multiple accept="image/*" style="display: none;" onchange="handleFileSelect(this)" />
                     <input type="hidden" name="mainImageIndex" id="mainImageIndex" value="0" />
@@ -250,11 +256,11 @@
 
                     <div style="margin-top: 2rem; padding: 1rem; background: #fdfdfd; border: 1px solid #f1f5f9; border-radius: 12px;">
                         <p style="font-size: 0.7rem; color: var(--text-muted); line-height: 1.4; margin: 0;">
-                            <strong>Pro Tip:</strong> Click on an uploaded image to set it as the <b>Primary Cover</b> for this item.
+                            <strong>Sfat util:</strong> Fă click pe o imagine încărcată pentru a o seta ca imagine principală (Copertă).
                         </p>
                     </div>
 
-                    <button type="submit" class="btn-submit">Register Item in Inventory</button>
+                    <button type="submit" class="btn-submit">Înregistrează Produsul în Inventar</button>
                 </div>
             </div>
         </form>

@@ -24,9 +24,8 @@
 
 <style>
     .details-page {
-        padding-top: 0;
-        padding-bottom: 2rem;
-        margin-top: -1.5rem;
+        padding-top: 0.25rem;
+        padding-bottom: 2.5rem;
     }
 
     .details-grid {
@@ -36,55 +35,107 @@
     }
 
     .gallery-stack {
-        width: 45%;
+        width: 40%;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 0.875rem;
         position: sticky;
-        top: 100px;
+        top: 90px;
     }
 
     .editorial-side {
         flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .product-header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .product-badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--accent-primary, #6366f1);
+        background: rgba(99, 102, 241, 0.07);
+        border: 1px solid rgba(99, 102, 241, 0.15);
+        border-radius: 99px;
+        padding: 0.25rem 0.75rem;
+    }
+
+    .product-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--midnight, #1a1a1a);
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        font-family: var(--font-display, 'Inter', sans-serif);
+        margin: 0;
+    }
+
+    .product-price {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--accent-primary, #6366f1);
+        letter-spacing: -0.01em;
     }
 
     .back-nav {
         display: inline-flex;
         align-items: center;
-        gap: 0.25rem;
+        gap: 0.5rem;
         font-size: 0.8125rem;
         font-weight: 700;
         color: var(--text-muted);
         text-decoration: none;
         transition: var(--transition-smooth);
-        margin-bottom: 0.5rem;
+        margin-bottom: 1.5rem;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.08em;
     }
 
     .back-nav:hover {
-        color: var(--accent-primary);
+        color: var(--midnight);
         transform: translateX(-5px);
     }
 
+    .back-nav svg {
+        transition: transform 0.3s ease;
+    }
+    
+    .back-nav:hover svg {
+        transform: translateX(-2px);
+    }
 
     .main-visual-container {
         position: relative;
         width: 100%;
-        aspect-ratio: 1/1;
+        aspect-ratio: 4/3;
         background: #fff;
         border: 1px solid var(--border-subtle);
         border-radius: 24px;
         overflow: hidden;
-        box-shadow: var(--shadow-lg);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
         cursor: zoom-in;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .main-visual-container:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 30px 60px rgba(45, 41, 38, 0.08);
     }
 
     .main-img-show {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: opacity 0.4s ease;
+        transition: opacity 0.3s ease;
     }
 
     .slider-nav {
@@ -92,38 +143,46 @@
         top: 50%;
         transform: translateY(-50%);
         background: rgba(255, 255, 255, 0.9);
-        border: none;
-        width: 40px;
-        height: 40px;
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-subtle);
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         z-index: 10;
-        box-shadow: var(--shadow-md);
-        transition: var(--transition-smooth);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         color: var(--midnight);
-        opacity: 0.2;
+        opacity: 0;
     }
 
-    .slider-nav:hover {
-        background: #fff;
-        color: var(--accent-primary);
-        transform: translateY(-50%) scale(1.1);
-        box-shadow: var(--shadow-lg);
+    .main-visual-container:hover .slider-nav {
         opacity: 1;
     }
 
-    .nav-prev { left: 0.75rem; }
-    .nav-next { right: 0.75rem; }
+    .slider-nav:hover {
+        background: var(--midnight);
+        color: #fff;
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 8px 24px rgba(45, 41, 38, 0.15);
+    }
+
+    .nav-prev { left: 1rem; }
+    .nav-next { right: 1rem; }
 
     .thumb-pills {
         display: flex;
-        gap: 0.75rem;
+        gap: 1rem;
         overflow-x: auto;
         padding: 0.25rem 0;
         scrollbar-width: none;
+    }
+
+    .thumb-pills::-webkit-scrollbar {
+        display: none;
     }
 
     .thumb-pill {
@@ -134,15 +193,15 @@
         border: 2px solid transparent;
         overflow: hidden;
         flex-shrink: 0;
-        transition: var(--transition-smooth);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         background: #fff;
-        box-shadow: var(--shadow-sm);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
     }
 
     .thumb-pill.active {
-        border-color: var(--accent-primary);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
+        border-color: var(--midnight);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 16px rgba(45, 41, 38, 0.1);
     }
 
     .thumb-pill img {
@@ -152,8 +211,8 @@
     }
 
     .variant-section {
-        margin-top: 0.7rem;
-        padding-top: 0.7rem;
+        margin-top: 0;
+        padding-top: 1rem;
         border-top: 1px solid var(--border-subtle);
     }
 
@@ -163,57 +222,78 @@
         text-transform: uppercase;
         letter-spacing: 0.12em;
         color: var(--midnight);
-        margin-bottom: 0.625rem;
+        margin-bottom: 1rem;
         display: block;
+        font-family: var(--font-display);
     }
 
     .color-grid {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .color-circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid var(--bg-base);
+        outline: 1px solid var(--border-subtle);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+    
+    .color-circle::after {
+        content: '';
+        position: absolute;
+        inset: -6px;
+        border: 1.5px solid transparent;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    .color-circle:hover {
+        transform: scale(1.1);
+        outline-color: var(--midnight);
+    }
+
+    .color-circle.active {
+        transform: scale(1.1);
+        outline-color: var(--midnight);
+    }
+
+    .color-circle.active::after {
+        border-color: var(--midnight);
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .size-grid {
         display: flex;
         gap: 0.75rem;
         flex-wrap: wrap;
     }
 
-    .color-circle {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        cursor: pointer;
-        border: 3px solid #fff;
-        box-shadow: 0 0 0 1px var(--border-bold);
-        transition: var(--transition-smooth);
-        position: relative;
-    }
-
-    .color-circle:hover {
-        transform: scale(1.15);
-        box-shadow: 0 0 0 1px var(--accent-primary);
-    }
-
-    .color-circle.active {
-        box-shadow: 0 0 0 2px var(--accent-primary);
-        transform: scale(1.2);
-    }
-
-    .size-grid {
-        display: flex;
-        gap: 0.6rem;
-        flex-wrap: wrap;
-    }
-
     .size-box {
-        min-width: 48px;
-        height: 44px;
+        padding: 0.625rem 1.25rem;
+        min-width: 56px;
+        height: auto;
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 1.5px solid var(--border-bold);
-        border-radius: 12px;
+        border: 1px solid var(--border-subtle);
+        border-radius: 30px;
         font-size: 0.8125rem;
         font-weight: 700;
         cursor: pointer;
-        transition: var(--transition-smooth);
-        background: #fff;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(5px);
         color: var(--midnight);
+        letter-spacing: 0.05em;
     }
 
     .size-box.active {
@@ -221,20 +301,21 @@
         color: #fff;
         border-color: var(--midnight);
         transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
+        box-shadow: 0 8px 20px rgba(45, 41, 38, 0.2);
     }
 
     .size-box:hover:not(.active) {
-        border-color: var(--accent-primary);
-        color: var(--accent-primary);
-        background: rgba(5, 150, 105, 0.03);
+        border-color: var(--midnight);
+        color: var(--midnight);
+        background: var(--bg-base);
+        transform: translateY(-1px);
     }
 
     .bag-action-bar {
-        margin-top: 1rem;
+        margin-top: 0.5rem;
         display: flex;
         flex-direction: column;
-        gap: 0.875rem;
+        gap: 0.75rem;
     }
 
     .btn-bag-primary {
@@ -242,8 +323,8 @@
         color: #fff;
         border: none;
         border-radius: 14px;
-        padding: 1.1rem;
-        font-size: 0.9375rem;
+        padding: 0.875rem;
+        font-size: 0.875rem;
         font-family: var(--font-display);
         font-weight: 800;
         cursor: pointer;
@@ -252,59 +333,76 @@
         align-items: center;
         justify-content: center;
         gap: 0.75rem;
-        box-shadow: var(--shadow-md);
+        box-shadow: 0 8px 20px rgba(45, 41, 38, 0.12);
         width: 100%;
         text-transform: uppercase;
-        letter-spacing: 0.02em;
+        letter-spacing: 0.05em;
     }
 
     .btn-bag-primary:hover {
-        background: #064e3b;
+        background: #000;
         transform: translateY(-3px);
-        box-shadow: 0 12px 28px rgba(5, 150, 105, 0.25);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
     }
 
     .notify-card {
-        background: #fff;
-        border: 1px solid var(--border-bold);
-        border-radius: 16px;
-        padding: 1.5rem;
-        box-shadow: var(--shadow-sm);
-        margin-top: 0.5rem;
+        background: rgba(239, 68, 68, 0.02);
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        border-radius: 20px;
+        padding: 1.75rem;
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.02);
+        margin-top: 1.5rem;
+        backdrop-filter: blur(5px);
     }
 
     .notify-badge {
         display: inline-block;
         background: #fef2f2;
         color: #dc2626;
-        padding: 0.2rem 0.625rem;
+        padding: 0.25rem 0.75rem;
         border-radius: 99px;
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         font-weight: 800;
         text-transform: uppercase;
+        margin-bottom: 0.75rem;
+        border: 1px solid rgba(239, 68, 68, 0.1);
+    }
+
+    .notify-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--midnight);
         margin-bottom: 0.5rem;
+        font-family: var(--font-display);
+    }
+
+    .notify-desc {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
     }
 
     .notify-input-group {
         display: flex;
-        background: var(--bg-base);
-        border: 1.5px solid var(--border-bold);
-        border-radius: 12px;
+        background: #fff;
+        border: 1px solid var(--border-subtle);
+        border-radius: 14px;
         overflow: hidden;
-        margin-top: 1rem;
         transition: var(--transition-smooth);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
 
     .notify-input-group:focus-within {
-        border-color: var(--accent-primary);
-        box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+        border-color: var(--midnight);
+        box-shadow: 0 0 0 4px rgba(45, 41, 38, 0.05);
     }
 
     .notify-input {
         flex: 1;
         background: transparent;
         border: none;
-        padding: 0.875rem 1.125rem;
+        padding: 1rem 1.25rem;
         font-size: 0.875rem;
         font-weight: 500;
         color: var(--text-main);
@@ -316,15 +414,91 @@
         background: var(--midnight);
         color: #fff;
         border: none;
-        padding: 0 1.25rem;
+        padding: 0 1.5rem;
         font-weight: 700;
         font-size: 0.8125rem;
         cursor: pointer;
         transition: var(--transition-smooth);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
 
     .btn-notify-submit:hover {
-        background: var(--accent-primary);
+        background: #000;
+    }
+
+    .logistics-card {
+        padding: 1.25rem 1.5rem;
+        background: rgba(45, 41, 38, 0.02);
+        border-radius: 18px;
+        border: 1px solid var(--border-subtle);
+        margin-top: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .logistics-card:hover {
+        background: rgba(45, 41, 38, 0.04);
+    }
+
+    .logistics-header {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .logistics-title {
+        font-weight: 700;
+        color: var(--midnight);
+        font-size: 0.875rem;
+        display: block;
+        margin-bottom: 0.25rem;
+        font-family: var(--font-display);
+    }
+
+    .logistics-desc {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+    }
+
+    .tech-specs-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 20px;
+        border: 1px solid var(--border-subtle);
+        overflow: hidden;
+        backdrop-filter: blur(5px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.01);
+    }
+
+    .tech-specs-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-subtle);
+        font-size: 0.875rem;
+        transition: background 0.2s ease;
+    }
+
+    .tech-specs-item:last-child {
+        border-bottom: none;
+    }
+
+    .tech-specs-item:hover {
+        background: rgba(255, 255, 255, 0.7);
+    }
+
+    .tech-key {
+        font-weight: 700;
+        color: var(--midnight);
+        font-family: var(--font-display);
+    }
+
+    .tech-val {
+        color: var(--text-muted);
+        font-weight: 500;
     }
 
     .zoom-modal {
@@ -348,7 +522,7 @@
     .zoom-content {
         max-width: 100%;
         max-height: 85vh;
-        border-radius: 20px;
+        border-radius: 24px;
         object-fit: contain;
         box-shadow: 0 50px 100px rgba(0,0,0,0.8);
     }
@@ -370,7 +544,7 @@
         justify-content: center;
     }
 
-    .zoom-nav:hover { background: var(--accent-primary); transform: translateY(-50%) scale(1.1); }
+    .zoom-nav:hover { background: var(--midnight); transform: translateY(-50%) scale(1.1); }
     .zoom-prev { left: -80px; }
     .zoom-next { right: -80px; }
 
@@ -396,10 +570,19 @@
         .zoom-next { right: 10px; }
     }
 
+    @@media (max-width: 1024px) {
+        .details-grid {
+            gap: 1.75rem;
+        }
+        .gallery-stack {
+            width: 42%;
+        }
+    }
+
     @@media (max-width: 768px) {
         .details-grid {
             flex-direction: column;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .gallery-stack {
@@ -419,95 +602,134 @@
 
     /* ── Bottom sections ── */
     .bottom-wrap {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-    align-items: start;
-    border-top: 1px solid var(--border-subtle);
-    padding-top: 1rem;      /* ← mai aproape de linie */
-    margin-top: 0.75rem;    /* ← linia mai aproape de produs */
-    padding-bottom: 4rem;
-}
-    .bottom-wrap > div > p.bottom-section-title {
-    margin-bottom: 1rem;
-    display: block;
-}
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        align-items: start;
+        border-top: 1px solid var(--border-subtle);
+        padding-top: 2rem;
+        margin-top: 2.5rem;
+        padding-bottom: 2.5rem;
+    }
 
     .bottom-section-title {
         font-family: var(--font-display);
-        font-size: 0.75rem;
+        font-size: 0.875rem;
         font-weight: 800;
         color: var(--midnight);
-        margin: 0;
+        margin-bottom: 1.5rem;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.12em;
     }
 
     .section-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
     }
 
-    /* Reviews compact */
+    /* Reviews premium */
     .rv-form-box {
-        background: var(--surface);
-        padding: 0.875rem 1rem;
-        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.4);
+        padding: 1.5rem;
+        border-radius: 20px;
         border: 1px solid var(--border-subtle);
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
     }
 
     .rv-select {
         width: 100%;
-        padding: 0.45rem 0.75rem;
-        border-radius: 8px;
-        border: 1.5px solid var(--border-bold);
-        font-size: 0.8rem;
-        margin-bottom: 0.5rem;
-        background: var(--bg-base);
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-subtle);
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+        background: rgba(255, 255, 255, 0.8);
         color: var(--midnight);
+        font-weight: 600;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .rv-select:focus {
+        border-color: var(--midnight);
+        background: #fff;
     }
 
     .rv-textarea {
         width: 100%;
-        min-height: 56px;
-        padding: 0.5rem 0.75rem;
-        border-radius: 8px;
-        border: 1.5px solid var(--border-bold);
-        font-size: 0.8rem;
-        background: var(--bg-base);
-        margin-bottom: 0.5rem;
+        min-height: 80px;
+        padding: 0.875rem 1rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-subtle);
+        font-size: 0.85rem;
+        background: rgba(255, 255, 255, 0.8);
+        margin-bottom: 0.75rem;
         outline: none;
         resize: vertical;
         font-family: inherit;
         color: var(--midnight);
+        transition: all 0.3s ease;
+    }
+
+    .rv-textarea:focus {
+        border-color: var(--midnight);
+        background: #fff;
     }
 
     .rv-submit {
         background: var(--midnight);
         color: #fff;
         border: none;
-        border-radius: 8px;
-        padding: 0.45rem 1rem;
-        font-size: 0.75rem;
+        border-radius: 12px;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.8125rem;
         font-weight: 700;
         cursor: pointer;
         transition: var(--transition-smooth);
         font-family: var(--font-display);
         text-transform: uppercase;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.05em;
     }
 
-    .rv-submit:hover { background: var(--accent-primary); }
+    .rv-submit:hover {
+        background: #000;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
 
     .rv-item {
         border-bottom: 1px solid var(--border-subtle);
-        padding: 0.6rem 0;
+        padding: 1.25rem 0.5rem;
+        transition: background 0.2s ease;
     }
 
-    .rv-item:last-child { border-bottom: none; }
+    .rv-item:last-child {
+        border-bottom: none;
+    }
+
+    .rv-item-name {
+        font-weight: 700;
+        font-size: 0.875rem;
+        color: var(--midnight);
+        font-family: var(--font-display);
+    }
+
+    .rv-item-stars {
+        color: #fbbf24;
+        font-size: 0.875rem;
+        letter-spacing: 2px;
+    }
+
+    .rv-item-text {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+        margin: 0.5rem 0 0 0;
+    }
 
     /* Recommendations carousel */
     .rec-carousel-wrap {
@@ -517,45 +739,70 @@
     .rec-carousel {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 0.5rem;
+        gap: 1rem;
     }
 
     .rec-card {
-        background: #fff;
-        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 20px;
         border: 1px solid var(--border-subtle);
-        padding: 0.4rem;
-        transition: var(--transition-smooth);
+        padding: 0.75rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         text-decoration: none;
         color: inherit;
         display: block;
+        backdrop-filter: blur(5px);
     }
 
     .rec-card:hover {
-        border-color: var(--accent-primary);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-sm);
+        border-color: var(--midnight);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+        background: #fff;
     }
 
     .rec-card img {
         width: 100%;
         aspect-ratio: 1;
         object-fit: cover;
-        border-radius: 7px;
-        margin-bottom: 0.3rem;
+        border-radius: 14px;
+        margin-bottom: 0.75rem;
+        transition: transform 0.5s ease;
+    }
+
+    .rec-card:hover img {
+        transform: scale(1.02);
+    }
+
+    .rec-card-title {
+        font-size: 0.8125rem;
+        font-weight: 700;
+        margin: 0.25rem 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--midnight);
+        font-family: var(--font-display);
+    }
+
+    .rec-card-price {
+        font-size: 0.8125rem;
+        color: var(--accent-primary);
+        font-weight: 800;
+        margin: 0;
     }
 
     .rec-arrow-row {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
+        gap: 0.5rem;
     }
 
     .rec-arrow {
-        width: 28px;
-        height: 28px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
-        border: 1.5px solid var(--border-bold);
+        border: 1px solid var(--border-subtle);
         background: #fff;
         color: var(--midnight);
         display: flex;
@@ -563,7 +810,7 @@
         justify-content: center;
         cursor: pointer;
         transition: var(--transition-smooth);
-        box-shadow: var(--shadow-sm);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
 
     .rec-arrow:hover {
@@ -581,14 +828,14 @@
 
     .rec-dots {
         display: flex;
-        gap: 0.35rem;
+        gap: 0.5rem;
         justify-content: center;
-        margin-top: 0.75rem;
+        margin-top: 1.5rem;
     }
 
     .rec-dot {
-        width: 6px;
-        height: 6px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
         background: var(--border-bold);
         transition: var(--transition-smooth);
@@ -597,8 +844,8 @@
 
     .rec-dot.active {
         background: var(--midnight);
-        width: 18px;
-        border-radius: 3px;
+        width: 24px;
+        border-radius: 4px;
     }
 </style>
 
@@ -608,7 +855,7 @@
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
-        Return to collection
+        Înapoi la colecție
     </a>
 
     <div class="details-grid">
@@ -648,39 +895,48 @@
         </div>
 
         <div class="editorial-side">
+            @{
+                var typeNameRo = typeName switch
+                {
+                    "Electronic" => "Electronice",
+                    "Clothing" => "Îmbrăcăminte",
+                    "Vehicle" => "Vehicul",
+                    _ => typeName
+                };
+            }
             <div class="product-header">
-                <span style="font-size: 0.65rem; font-weight: 800; text-transform: uppercase; color: var(--accent-primary); letter-spacing: 0.1em; display: block; margin-bottom: 0.375rem;">
-                    Handpicked @typeName Selection
+                <span class="product-badge">
+                    Selecție @(typeNameRo) Premium
                 </span>
-                <h1 style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; color: var(--midnight); line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 0.5rem;">
+                <h1 class="product-title">
                     @Model.Name
                 </h1>
 @inject OnlineStore.Application.Services.CurrencyService CurrencyService
-                <div style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; color: var(--midnight);">
+                <div class="product-price">
                     @CurrencyService.FormatPrice(Model.Price)
                 </div>
             </div>
 
-            <div style="margin-top: 0.6rem;">
-                <h3 style="font-size: 0.8125rem; font-weight: 800; text-transform: uppercase; color: var(--midnight); margin-bottom: 0.5rem;">The Concept</h3>
-                <p style="font-size: 0.875rem; color: var(--text-muted); line-height: 1.65; max-width: 520px;">
-                    Experience exceptional quality with our curated @Model.Name. Designed for those who value craftsmanship and timeless aesthetics.
+            <div style="margin-top: 0.25rem;">
+                <h3 style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--midnight); margin-bottom: 0.35rem; font-family: var(--font-display); letter-spacing: 0.05em;">Conceptul</h3>
+                <p style="font-size: 0.8125rem; color: var(--text-muted); line-height: 1.6; max-width: 480px;">
+                    Experimentează o calitate excepțională cu modelul nostru selectat @Model.Name. Creat special pentru cei care apreciază măiestria detaliilor și designul atemporal.
                     @if(Model is ElectronicProduct electro) {
-                        <span> Guaranteed performance with @electro.WarrantyMonths months warranty.</span>
+                        <span> Performanță garantată cu o garanție de @electro.WarrantyMonths luni.</span>
                     }
                 </p>
             </div>
 
             @if (Model is DynamicProduct dyn && dyn.CustomAttributes != null && dyn.CustomAttributes.Any())
             {
-                <div class="variant-section" style="padding-top: 1rem; margin-top: 1rem;">
-                    <span class="variant-label" style="color: var(--midnight);">Technical Overview</span>
-                    <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.8125rem; max-width: 400px;">
+                <div class="variant-section">
+                    <span class="variant-label">Prezentare Tehnică</span>
+                    <ul class="tech-specs-list">
                         @foreach(var attr in dyn.CustomAttributes)
                         {
-                            <li style="display: flex; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid var(--border-subtle);">
-                                <span style="font-weight: 800; color: var(--midnight);">@attr.Key</span>
-                                <span style="color: var(--text-muted);">@attr.Value</span>
+                            <li class="tech-specs-item">
+                                <span class="tech-key">@attr.Key</span>
+                                <span class="tech-val">@attr.Value</span>
                             </li>
                         }
                     </ul>
@@ -690,7 +946,7 @@
             @if (!string.IsNullOrEmpty(Model.AvailableColors))
             {
                 <div class="variant-section">
-                    <span class="variant-label">Select Color</span>
+                    <span class="variant-label">Selectează Culoarea</span>
                     <div class="color-grid">
                         @foreach (var color in Model.AvailableColors.Split(','))
                         {
@@ -704,7 +960,7 @@
             @if (clothingModel != null && !string.IsNullOrEmpty(clothingModel.AvailableSizes))
             {
                 <div class="variant-section">
-                    <span class="variant-label">Select Size</span>
+                    <span class="variant-label">Selectează Mărimea</span>
                     <div class="size-grid">
                         @foreach (var size in clothingModel.AvailableSizes.Split(','))
                         {
@@ -722,7 +978,7 @@
                         <input type="hidden" name="size" id="selectedSize">
                         <input type="hidden" name="color" id="selectedColor">
                         <button type="submit" class="btn-bag-primary">
-                            <span>Add to Shopping Bag</span>
+                            <span>Adaugă în Coș</span>
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                 <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path>
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -734,28 +990,28 @@
                 else
                 {
                     <div class="notify-card">
-                        <span class="notify-badge">Out of Stock</span>
-                        <h4 style="font-size: 1rem; font-weight: 800; color: var(--midnight); margin-bottom: 0.375rem;">Join the Waitlist</h4>
-                        <p style="font-size: 0.8125rem; color: var(--text-muted); line-height: 1.5;">We strictly curate our inventory. Provide your email to be notified the moment this item returns to our collection.</p>
+                        <span class="notify-badge">Stoc Epuizat</span>
+                        <h4 class="notify-title">Alătură-te listei de așteptare</h4>
+                        <p class="notify-desc">Stocul nostru este selectat cu atenție și în ediții limitate. Lasă-ne adresa de e-mail pentru a fi notificat în momentul în care acest produs revine în stoc.</p>
                         
                         <form asp-controller="Cart" asp-action="NotifyMe" method="post">
                             <input type="hidden" name="productId" value="@Model.Id">
                             <div class="notify-input-group">
-                                <input type="email" name="email" class="notify-input" placeholder="Enter your email address" required>
-                                <button type="submit" class="btn-notify-submit">Notify Me</button>
+                                <input type="email" name="email" class="notify-input" placeholder="Introdu adresa ta de e-mail" required>
+                                <button type="submit" class="btn-notify-submit">Notifică-mă</button>
                             </div>
                         </form>
                     </div>
                 }
 
-                <div style="padding: 0.5rem 1rem; background: rgba(5, 150, 105, 0.03); border-radius: 14px; border: 1px solid rgba(5, 150, 105, 0.1);">
-                    <div style="display: flex; gap: 0.875rem; align-items: flex-start;">
+                <div class="logistics-card">
+                    <div class="logistics-header">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="2.5" style="margin-top: 2px; flex-shrink: 0;">
                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle>
                         </svg>
                         <div>
-                            <span style="font-weight: 700; color: var(--midnight); font-size: 0.8125rem; display: block; margin-bottom: 0.2rem;">Complimentary Logistics</span>
-                            <span style="font-size: 0.75rem; color: var(--text-muted);">Free worldwide shipping on orders above @priceSymbol@ApplicationConfigurationManager.Instance.FreeShippingThreshold. Standard delivery: 3-5 business days.</span>
+                            <span class="logistics-title">Livrare și Retur Asigurate</span>
+                            <span class="logistics-desc">Transport gratuit în toată țara la comenzi de peste @priceSymbol@ApplicationConfigurationManager.Instance.FreeShippingThreshold. Livrare standard: 3-5 zile lucrătoare.</span>
                         </div>
                     </div>
                 </div>
@@ -770,20 +1026,20 @@
 
         <!-- ── Reviews ── -->
         <div>
-            <p class="bottom-section-title">Reviews</p>
+            <p class="bottom-section-title">Recenzii</p>
             
             <div class="rv-form-box">
                 <form asp-action="AddReview" method="post">
                     <input type="hidden" name="productId" value="@Model.Id" />
                     <select name="rating" class="rv-select">
-                        <option value="5">★★★★★ 5 Stars</option>
-                        <option value="4">★★★★ 4 Stars</option>
-                        <option value="3">★★★ 3 Stars</option>
-                        <option value="2">★★ 2 Stars</option>
-                        <option value="1">★ 1 Star</option>
+                        <option value="5">★★★★★ 5 Stele</option>
+                        <option value="4">★★★★ 4 Stele</option>
+                        <option value="3">★★★ 3 Stele</option>
+                        <option value="2">★★ 2 Stele</option>
+                        <option value="1">★ 1 Stea</option>
                     </select>
-                    <textarea name="content" required placeholder="Write a quick review..." class="rv-textarea"></textarea>
-                    <button type="submit" class="rv-submit">Post Review</button>
+                    <textarea name="content" required placeholder="Scrie o scurtă recenzie..." class="rv-textarea"></textarea>
+                    <button type="submit" class="rv-submit">Adăugă Recenzia</button>
                 </form>
             </div>
 
@@ -793,17 +1049,17 @@
                     foreach (var review in (IEnumerable<OnlineStore.Domain.Entities.ProductReview>)ViewBag.Reviews)
                     {
                         <div class="rv-item">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.15rem;">
-                                <span style="font-weight:700; font-size:0.8rem; color:var(--midnight);">@review.UserName</span>
-                                <span style="color:#fbbf24; font-size:0.7rem;">@string.Concat(Enumerable.Repeat("★", review.Rating))</span>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="rv-item-name">@review.UserName</span>
+                                <span class="rv-item-stars">@string.Concat(Enumerable.Repeat("★", review.Rating))</span>
                             </div>
-                            <p style="font-size:0.8rem; color:var(--text-muted); line-height:1.45; margin:0;">@review.Content</p>
+                            <p class="rv-item-text">@review.Content</p>
                         </div>
                     }
                 }
                 else
                 {
-                    <p style="color:var(--text-muted); font-size:0.8rem; font-style:italic;">No reviews yet. Be the first!</p>
+                    <p style="color:var(--text-muted); font-size:0.875rem; font-style:italic;">Nu există recenzii încă. Fii primul care își spune părerea!</p>
                 }
             </div>
         </div>
@@ -815,7 +1071,7 @@
                 var recs = ((IEnumerable<OnlineStore.Domain.Entities.Product>)ViewBag.Recommendations).ToList();
                 
                 <div class="section-header">
-                    <p class="bottom-section-title">More to Explore</p>
+                    <p class="bottom-section-title">Descoperă mai multe</p>
                     <div class="rec-arrow-row">
                         <button class="rec-arrow" id="recPrev" onclick="recMove(-1)">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -827,13 +1083,13 @@
                 </div>
 
                 <div class="rec-carousel-wrap">
-                    <div id="recCarousel" class="rec-carousel" style="max-width: 400px;">
+                    <div id="recCarousel" class="rec-carousel">
                         @foreach (var rec in recs)
                         {
-                            <a href="@Url.Action("Details", new { id = rec.Id })" class="rec-card" data-rec style="padding: 0.25rem;">
+                            <a href="@Url.Action("Details", new { id = rec.Id })" class="rec-card" data-rec>
                                 <img src="@(rec.Images?.FirstOrDefault(i => i.IsMain)?.ImageUrl ?? "/images/placeholder.jpg")" alt="@rec.Name">
-                                <p style="font-size:0.55rem; font-weight:700; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--midnight);">@rec.Name</p>
-                                <p style="font-size:0.55rem; color:var(--accent-primary); font-weight:800; margin:0.1rem 0 0;">@CurrencyService.FormatPrice(rec.Price)</p>
+                                <p class="rec-card-title">@rec.Name</p>
+                                <p class="rec-card-price">@CurrencyService.FormatPrice(rec.Price)</p>
                             </a>
                         }
                     </div>
@@ -843,8 +1099,8 @@
             }
             else
             {
-                <p class="bottom-section-title">More to Explore</p>
-                <p style="color:var(--text-muted); font-size:0.8rem; font-style:italic; margin-top: 1rem;">No recommendations available.</p>
+                <p class="bottom-section-title">Descoperă mai multe</p>
+                <p style="color:var(--text-muted); font-size:0.875rem; font-style:italic; margin-top: 1rem;">Nu există recomandări disponibile.</p>
             }
         </div>
 

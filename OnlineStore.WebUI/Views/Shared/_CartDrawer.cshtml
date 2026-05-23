@@ -117,8 +117,8 @@
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <path d="M16 10a4 4 0 0 1-8 0"></path>
             </svg>
-            <p>Your cart is empty.</p>
-            <button onclick="document.body.classList.remove('cart-open')" style="margin-top: 1rem; background: var(--midnight); color: #fff; padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer;">Continue Shopping</button>
+            <p>Coșul tău este gol.</p>
+            <button onclick="document.body.classList.remove('cart-open')" style="margin-top: 1rem; background: var(--midnight); color: #fff; padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer;">Continuă Cumpărăturile</button>
         </div>
     }
     else
@@ -149,8 +149,8 @@
                     @if(!string.IsNullOrEmpty(item.Size) || !string.IsNullOrEmpty(item.Color))
                     {
                         <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem; font-weight: 500;">
-                            @if(!string.IsNullOrEmpty(item.Size)) { <span>Size: @item.Size</span> }
-                            @if(!string.IsNullOrEmpty(item.Color)) { <span style="margin-left: 8px;">Color: @item.Color</span> }
+                            @if(!string.IsNullOrEmpty(item.Size)) { <span>Mărime: @item.Size</span> }
+                            @if(!string.IsNullOrEmpty(item.Color)) { <span style="margin-left: 8px;">Culoare: @item.Color</span> }
                         </div>
                     }
 
@@ -196,7 +196,7 @@
         }
 
         <a asp-controller="Cart" asp-action="Index" class="btn-checkout-link" style="display: block; width: 100%; background: var(--midnight); color: #fff; padding: 1rem; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; text-align: center; text-decoration: none;">
-            Mergi la Checkout
+            Finalizează Comanda
         </a>
     </div>
 }

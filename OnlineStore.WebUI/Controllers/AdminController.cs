@@ -255,6 +255,18 @@ namespace OnlineStore.WebUI.Controllers
 
                 _context.Categories.Add(category);
                 await _context.SaveChangesAsync();
+
+                // Imediat după ce se creează și se salvează cu succes noua entitate Category,
+                // creăm automat o subcategorie implicită asociată acesteia.
+                var sub = new SubCategory
+                {
+                    CategoryId = category.Id,
+                    Name = category.Name,
+                    ExpectedAttributes = ""
+                };
+                _context.SubCategories.Add(sub);
+                await _context.SaveChangesAsync();
+
                 TempData["Success"] = $"Categoria vizuală '{categoryName}' a fost creată!";
             }
             return RedirectToAction("Index");
@@ -271,7 +283,15 @@ namespace OnlineStore.WebUI.Controllers
             {
                 if (!string.IsNullOrEmpty(categoryName))
                 {
+                    var oldName = category.Name;
                     category.Name = categoryName;
+
+                    // Dacă există o subcategorie cu numele vechi al categoriei din această categorie, o redenumim
+                    var defaultSub = _context.SubCategories.FirstOrDefault(s => s.CategoryId == category.Id && s.Name == oldName);
+                    if (defaultSub != null)
+                    {
+                        defaultSub.Name = categoryName;
+                    }
                 }
 
                 if (categoryImage != null)

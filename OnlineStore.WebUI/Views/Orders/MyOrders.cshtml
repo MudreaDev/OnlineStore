@@ -1,14 +1,14 @@
 @model IEnumerable<OnlineStore.Domain.Entities.Order>
 
 @{
-    ViewData["Title"] = "My Orders";
+    ViewData["Title"] = "Comenzile Mele";
 }
 
 <style>
     .orders-page {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 4rem 2rem;
+        padding: 1rem 2rem 4rem;
     }
 
     .hero-section {
@@ -140,18 +140,18 @@
 
 <div class="orders-page">
     <div class="hero-section">
-        <h1 class="display-title">Order <span class="highlight">History</span></h1>
-        <p class="subtitle">Review your past purchases and track their status.</p>
+        <h1 class="display-title">Istoric <span class="highlight">Comenzi</span></h1>
+        <p class="subtitle">Verifică achizițiile anterioare și urmărește starea lor.</p>
     </div>
 
     @if (!Model.Any())
     {
         <div class="no-results mt-4">
             <div class="no-results-icon">📦</div>
-            <h3>No orders yet</h3>
-            <p>You haven't placed any orders. Start shopping today!</p>
+            <h3>Nicio comandă înregistrată</h3>
+            <p>Nu ai plasat nicio comandă încă. Începe cumpărăturile astăzi!</p>
             <a asp-controller="Home" asp-action="Index" class="btn-primary-auth mt-2"
-                style="display:inline-block; padding: 0.75rem 2rem;">Shop Now</a>
+                style="display:inline-block; padding: 0.75rem 2rem;">Cumpără Acum</a>
         </div>
     }
     else
@@ -160,34 +160,42 @@
             <table class="minimal-table">
                 <thead>
                     <tr>
-                        <th>Order ID</th>
-                        <th>Date</th>
+                        <th>ID Comandă</th>
+                        <th>Dată</th>
                         <th>Status</th>
                         <th>Total</th>
-                        <th>Actions</th>
+                        <th>Acțiuni</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var order in Model)
                     {
+                        var statusRo = order.Status.ToString() switch
+                        {
+                            "Pending" => "În așteptare",
+                            "Shipped" => "Expediată",
+                            "Delivered" => "Livrată",
+                            "Cancelled" => "Anulată",
+                            _ => order.Status.ToString()
+                        };
                         <tr>
                             <td class="order-id-cell">#@order.Id.ToString().Substring(0, 8)...</td>
                             <td>@order.OrderDate.ToString("MMM dd, yyyy HH:mm")</td>
                             <td>
                                 <span class="status-badge status-@order.Status.ToString().ToLower()">
-                                    @order.Status
+                                    @statusRo
                                 </span>
                             </td>
                             <td class="price-cell">@order.Total.ToString("C")</td>
                             <td>
-                                <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn-action-view">View Details</a>
+                                <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn-action-view">Vezi Detalii</a>
                                 <a asp-action="DownloadInvoice" asp-route-id="@order.Id" class="btn-action-view" style="background: var(--midnight); color: #fff;">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 4px; vertical-align: middle;">
                                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                         <polyline points="7 10 12 15 17 10"></polyline>
                                         <line x1="12" y1="15" x2="12" y2="3"></line>
                                     </svg>
-                                    Invoice
+                                    Factură
                                 </a>
                             </td>
                         </tr>

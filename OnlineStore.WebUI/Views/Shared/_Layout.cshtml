@@ -374,6 +374,26 @@
             gap: 1.75rem;
         }
 
+        .nav-links-desktop {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-main);
+            padding: 0.5rem;
+            transition: var(--transition-smooth);
+        }
+
+        .menu-toggle:hover {
+            color: var(--accent-primary);
+        }
+
         .nav-link {
             font-size: 0.8125rem;
             font-weight: 600;
@@ -495,7 +515,7 @@
             position: absolute;
             top: 100%;
             right: 0;
-            background: #fff;
+            background: var(--surface);
             border: 1px solid var(--border-bold);
             border-radius: 14px;
             box-shadow: var(--shadow-lg);
@@ -576,22 +596,33 @@
         }
 
         .toast {
-            background: var(--surface);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             border-left: 4px solid var(--accent-primary);
             padding: 1rem 1.5rem;
-            border-radius: 8px;
-            box-shadow: var(--shadow-lg);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
             display: flex;
             align-items: center;
             gap: 1rem;
-            min-width: 300px;
-            animation: slideInRight 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            transition: opacity 0.4s;
+            min-width: 320px;
+            animation: slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: opacity 0.4s, transform 0.4s;
+            color: var(--midnight);
         }
 
-        .toast-success { border-color: #10b981; }
-        .toast-error { border-color: #ef4444; }
-        .toast-info { border-color: #3b82f6; }
+        .dark-theme .toast {
+            background: rgba(20, 20, 20, 0.8);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+            color: #ffffff;
+        }
+
+        .toast-success { border-left-color: #10b981; }
+        .toast-error { border-left-color: #ef4444; }
+        .toast-info { border-left-color: #3b82f6; }
 
         @@keyframes slideInRight {
             from { transform: translateX(100%); opacity: 0; }
@@ -604,50 +635,13 @@
             min-height: 70vh;
         }
 
-        .site-footer {
-            padding: 5rem 0 3rem;
-            border-top: 1px solid var(--border-subtle);
-            background: #fff;
-        }
-
-        .footer-logo {
-            font-family: var(--font-elegant);
-            color: var(--midnight);
-            text-decoration: none;
-        }
-
-        .footer-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: var(--transition-smooth);
-        }
-
-        .footer-links a:hover {
-            color: var(--accent-primary);
-        }
-
-        .footer-links {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            padding: 0;
-        }
-
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 4rem;
-        }
-
         .drawer {
             position: fixed;
             top: 0;
             right: -300px;
             width: 280px;
             height: 100vh;
-            background: #fff;
+            background: var(--surface);
             z-index: 2000;
             padding: 2rem;
             transition: right 0.3s ease;
@@ -691,6 +685,17 @@
             }
         }
     </style>
+    <script>
+        // Prevent theme flash by reading local storage immediately
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark-theme');
+            } else {
+                document.documentElement.classList.remove('dark-theme');
+            }
+        })();
+    </script>
 </head>
 
 <body>
@@ -708,7 +713,7 @@
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                     <input type="text" name="searchQuery" id="navSearchInput"
-                        value="@Context.Request.Query["searchQuery"]" placeholder="Search our collection..."
+                        value="@Context.Request.Query["searchQuery"]" placeholder="Caută în colecție..."
                         class="nav-search-input" autocomplete="off" />
                 </div>
                 
@@ -724,7 +729,7 @@
                         <line x1="9" y1="8" x2="15" y2="8"></line>
                         <line x1="17" y1="16" x2="23" y2="16"></line>
                     </svg>
-                    Filters
+                    Filtre
                 </button>
 
                 @* Hidden fields for other filters to preserve state during search *@
@@ -738,79 +743,98 @@
                 @if (Context.Request.Query.ContainsKey("minYear")) { <input type="hidden" name="minYear" value="@Context.Request.Query["minYear"]" /> }
                 @if (Context.Request.Query.ContainsKey("maxYear")) { <input type="hidden" name="maxYear" value="@Context.Request.Query["maxYear"]" /> }
             </form>
-
-            <div class="nav-right">
-                <nav class="nav-links-desktop" style="display: flex; gap: 1.5rem; align-items: center;">
-                    <a class="nav-link" asp-controller="Home" asp-action="Index">Shop</a>
-                    <a class="nav-link" asp-controller="Home" asp-action="OutOfStock" style="color: #ef4444; font-weight: 800;">Archive</a>
-
-                    @{
-                        var session = Context.Session;
-                        var cart = session.Get<ShoppingCart>("Cart");
-                        var count = cart?.Items.Sum(i => i.Quantity) ?? 0;
-                        var username = session.GetString("Username");
-                        
-                        var wishlist = session.Get<List<Guid>>("Wishlist") ?? new List<Guid>();
-                        var wishCount = wishlist.Count;
-                    }
-                    <a class="wish-pill" asp-controller="Wishlist" asp-action="Index" style="margin-right: -0.5rem;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                        </svg>
-                        <span id="wishlist-badge" class="wish-badge" style="display: @(wishCount > 0 ? "flex" : "none")">@wishCount</span>
-                    </a>
-
-                    <a class="cart-pill" href="javascript:void(0)" onclick="openCart()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5">
-                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path>
-                            <line x1="3" y1="6" x2="21" y2="6"></line>
-                            <path d="M16 10a4 4 0 0 1-8 0"></path>
-                        </svg>
-                        <span>Cart @(count > 0 ? " • " + count : "")</span>
-                    </a>
-
-
-                    @if (!string.IsNullOrEmpty(username))
-                    {
-                        <div class="user-menu" style="position: relative;">
-                            <div class="user-trigger">
-                                @username.Substring(0, 1).ToUpper()
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="3">
-                                    <path d="M6 9l6 6 6-6"></path>
-                                </svg>
-                            </div>
-                            <div class="user-dropdown">
-                                <a class="dropdown-item" asp-controller="Profile" asp-action="Index">Profile</a>
-                                @{
-                                    var userIdStr = session.GetString("UserId");
-                                    if (!string.IsNullOrEmpty(userIdStr) && Guid.TryParse(userIdStr, out Guid userId))
-                                    {
-                                        var user = UserRepo.GetById(userId);
-                                        if (user is Admin)
-                                        {
-                                            <a class="dropdown-item" asp-controller="Admin" asp-action="Index">Dashboard</a>
-                                            <a class="dropdown-item" asp-controller="Home" asp-action="Catalog">Catalog Inventar</a>
-                                        }
-                                        else
-                                        {
-                                            <a class="dropdown-item" asp-controller="Orders" asp-action="MyOrders">Orders</a>
-                                        }
-                                    }
-                                }
-                                <a class="dropdown-item" style="color: #a4161a" asp-controller="Account"
-                                    asp-action="Logout">Sign Out</a>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <a class="cart-pill" asp-controller="Account" asp-action="Login" style="background: transparent; border: 1.5px solid var(--midnight); color: var(--midnight);">Sign In</a>
-                    }
+ 
+             <div class="nav-right">
+                 <nav class="nav-links-desktop">
+                     <a class="nav-link" asp-controller="Home" asp-action="Index">Magazin</a>
+                     <a class="nav-link" asp-controller="Home" asp-action="OutOfStock" style="color: #ef4444; font-weight: 800;">Arhivă</a>
+ 
+                     @{
+                         var session = Context.Session;
+                         var cart = session.Get<ShoppingCart>("Cart");
+                         var count = cart?.Items.Sum(i => i.Quantity) ?? 0;
+                         var username = session.GetString("Username");
+                         
+                         var wishlist = session.Get<List<Guid>>("Wishlist") ?? new List<Guid>();
+                         var wishCount = wishlist.Count;
+                     }
+                     <a class="wish-pill" asp-controller="Wishlist" asp-action="Index" style="margin-right: -0.5rem;">
+                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                         </svg>
+                         <span id="wishlist-badge" class="wish-badge" style="display: @(wishCount > 0 ? "flex" : "none")">@wishCount</span>
+                     </a>
+ 
+                     <button id="themeToggle" class="wish-pill" style="margin-right: -0.5rem;" aria-label="Toggle Theme">
+                         <!-- Sun Icon (visible in dark theme) -->
+                         <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display: none;">
+                             <circle cx="12" cy="12" r="5"></circle>
+                             <line x1="12" y1="1" x2="12" y2="3"></line>
+                             <line x1="12" y1="21" x2="12" y2="23"></line>
+                             <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                             <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                             <line x1="1" y1="12" x2="3" y2="12"></line>
+                             <line x1="21" y1="12" x2="23" y2="12"></line>
+                             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                         </svg>
+                         <!-- Moon Icon (visible in light theme) -->
+                         <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                         </svg>
+                     </button>
+ 
+                     <a class="cart-pill" href="javascript:void(0)" onclick="openCart()">
+                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2.5">
+                             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6z"></path>
+                             <line x1="3" y1="6" x2="21" y2="6"></line>
+                             <path d="M16 10a4 4 0 0 1-8 0"></path>
+                         </svg>
+                         <span>Coș @(count > 0 ? " • " + count : "")</span>
+                     </a>
+ 
+ 
+                     @if (!string.IsNullOrEmpty(username))
+                     {
+                         <div class="user-menu" style="position: relative;">
+                             <div class="user-trigger">
+                                 @username.Substring(0, 1).ToUpper()
+                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="3">
+                                     <path d="M6 9l6 6 6-6"></path>
+                                 </svg>
+                             </div>
+                             <div class="user-dropdown">
+                                 <a class="dropdown-item" asp-controller="Profile" asp-action="Index">Profil</a>
+                                 @{
+                                     var userIdStr = session.GetString("UserId");
+                                     if (!string.IsNullOrEmpty(userIdStr) && Guid.TryParse(userIdStr, out Guid userId))
+                                     {
+                                         var user = UserRepo.GetById(userId);
+                                         if (user is Admin)
+                                         {
+                                             <a class="dropdown-item" asp-controller="Admin" asp-action="Index">Dashboard</a>
+                                             <a class="dropdown-item" asp-controller="Home" asp-action="Catalog">Catalog Inventar</a>
+                                         }
+                                         else
+                                         {
+                                             <a class="dropdown-item" asp-controller="Orders" asp-action="MyOrders">Comenzi</a>
+                                         }
+                                     }
+                                 }
+                                 <a class="dropdown-item" style="color: #a4161a" asp-controller="Account"
+                                     asp-action="Logout">Deconectare</a>
+                             </div>
+                         </div>
+                     }
+                     else
+                     {
+                         <a class="cart-pill" asp-controller="Account" asp-action="Login" style="background: transparent; border: 1.5px solid var(--midnight); color: var(--midnight);">Autentificare</a>
+                     }
                 </nav>
 
-                <button class="menu-toggle" onclick="toggleMenu()" style="display: none;">
+                <button class="menu-toggle" onclick="toggleMenu()">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="3" y1="12" x2="21" y2="12"></line>
                         <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -836,19 +860,19 @@
             <form method="get" asp-controller="Home" asp-action="Index">
                 <input type="text" name="searchQuery"
                     style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-light);"
-                    placeholder="Search..." />
+                    placeholder="Caută..." />
             </form>
         </div>
         <nav class="drawer-links">
-            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="Index">Shop</a>
-            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="OutOfStock">Archive</a>
-            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Cart" asp-action="Index">Cart (@count)</a>
-            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Wishlist" asp-action="Index">Wishlist (@wishCount)</a>
+            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="Index">Magazin</a>
+            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="OutOfStock">Arhivă</a>
+            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Cart" asp-action="Index">Coș (@count)</a>
+            <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Wishlist" asp-action="Index">Favorite (@wishCount)</a>
             
             @if (!string.IsNullOrEmpty(username))
             {
                 <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1rem 0;" />
-                <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Profile" asp-action="Index">My Profile</a>
+                <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Profile" asp-action="Index">Profilul meu</a>
                 
                 var userIdStr = session.GetString("UserId");
                 if (!string.IsNullOrEmpty(userIdStr) && Guid.TryParse(userIdStr, out Guid userId))
@@ -857,19 +881,19 @@
                     if (user is Admin)
                     {
                         <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Admin" asp-action="Index">Dashboard</a>
-                        <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="Catalog">Catalog (Composite)</a>
+                        <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Home" asp-action="Catalog">Catalog (Compozit)</a>
                     }
                     else
                     {
-                        <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Orders" asp-action="MyOrders">My Orders</a>
+                        <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Orders" asp-action="MyOrders">Comenzile mele</a>
                     }
                 }
-                <a class="drawer-link" style="font-size: 1.125rem; color: #a4161a" asp-controller="Account" asp-action="Logout">Sign Out</a>
+                <a class="drawer-link" style="font-size: 1.125rem; color: #a4161a" asp-controller="Account" asp-action="Logout">Deconectare</a>
             }
             else
             {
-                <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Account" asp-action="Login">Sign In</a>
-                <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Account" asp-action="Register">Join Us</a>
+                <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Account" asp-action="Login">Autentificare</a>
+                <a class="drawer-link" style="font-size: 1.125rem;" asp-controller="Account" asp-action="Register">Înregistrare</a>
             }
         </nav>
     </div>
@@ -898,7 +922,7 @@
                     <a class="footer-logo" asp-controller="Home" asp-action="Index">
                         @ApplicationConfigurationManager.Instance.StoreName
                     </a>
-                    <p class="footer-tagline">Curating the finest essentials for your lifestyle. Excellence in every detail, delivered to your door.</p>
+                    <p class="footer-tagline">Curatoriat premium pentru stilul tău de viață. Excelență în fiecare detaliu, livrat direct la ușa ta.</p>
                     <div class="social-links">
                         <a href="#" class="social-icon" aria-label="Facebook">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
@@ -913,39 +937,39 @@
                 </div>
 
                 <div class="footer-nav-col">
-                    <h4 class="footer-heading">Shop</h4>
+                    <h4 class="footer-heading">Magazin</h4>
                     <ul class="footer-links-list">
-                        <li><a asp-controller="Home" asp-action="Index">New Arrivals</a></li>
-                        <li><a asp-controller="Home" asp-action="Index">Best Sellers</a></li>
-                        <li><a asp-controller="Home" asp-action="Catalog" style="color: var(--accent-primary); font-weight: 700;">Catalog (Composite Pattern)</a></li>
-                        <li><a asp-controller="Home" asp-action="Index">Gift Cards</a></li>
+                        <li><a asp-controller="Home" asp-action="Index">Noutăți</a></li>
+                        <li><a asp-controller="Home" asp-action="Index">Cele mai vândute</a></li>
+                        <li><a asp-controller="Home" asp-action="Catalog" style="color: var(--accent-primary); font-weight: 700;">Catalog (Compozit)</a></li>
+                        <li><a asp-controller="Home" asp-action="Index">Carduri Cadou</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-nav-col">
-                    <h4 class="footer-heading">Support</h4>
+                    <h4 class="footer-heading">Asistență</h4>
                     <ul class="footer-links-list">
-                        <li><a href="#">Contact Us</a></li>
-                        <li><a href="#">Shipping & Returns</a></li>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Track Order</a></li>
+                        <li><a href="#">Contactează-ne</a></li>
+                        <li><a href="#">Livrare și Retururi</a></li>
+                        <li><a href="#">Întrebări Frecvente</a></li>
+                        <li><a href="#">Urmărește Comanda</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-nav-col">
-                    <h4 class="footer-heading">Legal</h4>
+                    <h4 class="footer-heading">Informații Legale</h4>
                     <ul class="footer-links-list">
-                        <li><a asp-controller="Home" asp-action="Privacy">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Cookie Policy</a></li>
-                        <li><a href="#">Accessibility</a></li>
+                        <li><a asp-controller="Home" asp-action="Privacy">Politică de Confidențialitate</a></li>
+                        <li><a href="#">Termeni și Condiții</a></li>
+                        <li><a href="#">Politică de Cookie-uri</a></li>
+                        <li><a href="#">Accesibilitate</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="footer-bottom">
                 <div class="copyright">
-                    &copy; @DateTime.Now.Year @ApplicationConfigurationManager.Instance.StoreName. All rights reserved.
+                    &copy; @DateTime.Now.Year @ApplicationConfigurationManager.Instance.StoreName. Toate drepturile rezervate.
                 </div>
                 <div class="payment-methods">
                     <span class="payment-badge">Visa</span>
@@ -1138,7 +1162,7 @@
                     const result = await response.json();
                     if (result.success) {
                         const pillCountSpan = document.querySelector('.cart-pill span');
-                        if(pillCountSpan) pillCountSpan.innerHTML = 'Cart ' + (result.cartCount > 0 ? " • " + result.cartCount : "");
+                        if(pillCountSpan) pillCountSpan.innerHTML = 'Coș ' + (result.cartCount > 0 ? " • " + result.cartCount : "");
                         openCart();
                     } else {
                         alert(result.message || "Nu s-a putut adăuga.");
